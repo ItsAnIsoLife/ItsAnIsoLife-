@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ISOMORPHS</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#0d0b08; }
+    #root { min-height:100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <script type="text/babel">
+
+const { useState, useEffect, useCallback } = React;
+
+// ─── COMPLETE SPECIES & MORPH DATABASE ───────────────────────────────────────
+const RARITY = { C: "◆ Common", U: "◆◆ Uncommon", R: "◆◆◆ Rare", UR: "◆◆◆◆ Ultra Rare" };
+const RARITY_COLOR = { C: "#7A9B6A", U: "#4A7CA8", R: "#9B6A3A", UR: "#8A4A9B" };
+
+const SPECIES = [
+  {
+    id: "001", card: "#001", genus: "Armadillidium", species: "vulgare",
+    common: "Common Pill Bug", size: "14–18mm", origin: "Mediterranean Europe",
+    rarity: "C", care: { temp:"18–28°C", humidity:"60–75%", ventilation:"Moderate", substrate:"Loam/coco fibre mix", diet:"Leaf litter, vegetables, protein", calcium:"High" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal/crepuscular", breedingAge:"6 months", breedingRate:"Moderate–High", broodSize:"10–50 mancae", gestation:"4–6 weeks" },
+    notes: "Most forgiving beginner species. Conglobates (rolls) into perfect sphere. Worldwide distribution. 15 morphs make this the #1 collector species.",
+    morphs: [
+      { id:"001a", card:"#001a", name:"Wild Type", year:"Natural", hex:"#6B6B6B", rarity:"C", desc:"Classic slate grey. The default wild form worldwide.", genetics:"Wild type — no mutation", breeder:"Natural" },
+      { id:"001b", card:"#001b", name:"Magic Potion", year:"~2017", hex:"#7B5EA7", rarity:"R", desc:"Purple-blue iridescent morph from Japan. Most coveted vulgare morph globally.", genetics:"Recessive — requires Magic Potion × Magic Potion", breeder:"Japan origin" },
+      { id:"001c", card:"#001c", name:"Orange Vigor", year:"~2016", hex:"#D4703A", rarity:"U", desc:"Vivid orange; large body size. Isolated by Kyle at Roachcrossing USA.", genetics:"Recessive orange", breeder:"Kyle / Roachcrossing USA" },
+      { id:"001d", card:"#001d", name:"Tangerine", year:"~2018", hex:"#E8832A", rarity:"U", desc:"Born bright orange, deepens to burnt orange/red with age. Isolated from Punta Cana stock.", genetics:"Recessive orange variant", breeder:"US hobby" },
+      { id:"001e", card:"#001e", name:"Sunset", year:"~2018", hex:"#C85020", rarity:"U", desc:"Deeper red than Orange Vigor; yellow speckles stand out more prominently.", genetics:"Recessive", breeder:"US origin" },
+      { id:"001f", card:"#001f", name:"Gold (T+ Albino)", year:"~2018", hex:"#C9A227", rarity:"U", desc:"Golden-yellow with red eyes. T+ albino — tyrosinase-positive form. Darker gold with age.", genetics:"T+ albino — tyrosinase active, melanin reduced", breeder:"US hobby" },
+      { id:"001g", card:"#001g", name:"T- Albino", year:"~2019", hex:"#F5F0DC", rarity:"R", desc:"True albino; completely lacking dark pigment. Light-coloured eyes. Near-white.", genetics:"T- albino — tyrosinase inactive, full melanin absence", breeder:"US hobby" },
+      { id:"001h", card:"#001h", name:"High Yellow", year:"~2018", hex:"#D4B800", rarity:"U", desc:"Yellow base with darker segment striping.", genetics:"Recessive yellow", breeder:"US hobby" },
+      { id:"001i", card:"#001i", name:"Dalmatian", year:"~2019", hex:"#E8E0D0", rarity:"U", desc:"White/pale base with scattered black spots. Common in hobby.", genetics:"Recessive dalmatian patterning", breeder:"Hobby isolation" },
+      { id:"001j", card:"#001j", name:"Pied", year:"~2019", hex:"#D0C8B8", rarity:"U", desc:"Patchy white sections lacking pigment. Variable expression.", genetics:"Recessive piebald", breeder:"US hobby" },
+      { id:"001k", card:"#001k", name:"Assorted / Zebra", year:"~2018", hex:"#9A9A88", rarity:"U", desc:"Banded dark/light striping. Variable expression across individuals.", genetics:"Selective line", breeder:"US hobby" },
+      { id:"001l", card:"#001l", name:"Peach", year:"~2019", hex:"#E8B898", rarity:"U", desc:"Soft peach-pink colouration. Particularly striking in juveniles.", genetics:"Recessive peach expression", breeder:"US hobby" },
+      { id:"001m", card:"#001m", name:"Glacier", year:"~2019", hex:"#D8E8F0", rarity:"R", desc:"Pale icy blue-white. Rare and sought-after.", genetics:"Recessive hypopigmentation with blue tint", breeder:"US hobby" },
+      { id:"001n", card:"#001n", name:"Magic Potion Pied", year:"~2020", hex:"#9B7AC0", rarity:"UR", desc:"Magic Potion base with piebald white sections. Extremely rare combination.", genetics:"Homozygous recessive Magic Potion + Piebald — two recessive genes", breeder:"Japan/US breeding program" },
+      { id:"001o", card:"#001o", name:"Lemon Blue", year:"~2021", hex:"#A8B840", rarity:"R", desc:"Unusual lemon-yellow with subtle blue overtone. Very rare.", genetics:"Likely compound recessive", breeder:"European breeding" },
+      { id:"001p", card:"#001p", name:"Punta Cana", year:"~2019", hex:"#C89040", rarity:"U", desc:"Locality morph from Punta Cana, Dominican Republic. Colourful array of patterns. Mid-size.", genetics:"Natural locality colouration — Punta Cana, Dominican Republic", breeder:"Caribbean locality ~2019" },
+      { id:"001q", card:"#001q", name:"Japanese Magic Potion", year:"~2017", hex:"#6A50A0", rarity:"R", desc:"The original Japanese line of Magic Potion. Coastline Pets confirms this is a separate line from US Magic Potion — smaller with slower reproduction.", genetics:"Recessive — Japanese line, different to US Magic Potion stock", breeder:"Japan origin — separate line" },
+    ]
+  },
+  {
+    id: "002", card: "#002", genus: "Armadillidium", species: "maculatum",
+    common: "Zebra Isopod", size: "14–18mm", origin: "Southern France / Spain",
+    rarity: "U", care: { temp:"18–26°C", humidity:"60–75%", ventilation:"Moderate", substrate:"Loam/coco mix", diet:"Leaf litter, protein, vegetables", calcium:"High" },
+    biology: { lifespan:"3–4 years", activity:"Nocturnal", breedingAge:"8 months", breedingRate:"Slow–Moderate", broodSize:"10–25 mancae", gestation:"5–7 weeks" },
+    notes: "Striking cream/white base with bold black spots. Slow to breed but highly sought. Needs good calcium. Conglobates well.",
+    morphs: [
+      { id:"002a", card:"#002a", name:"Wild Type", year:"Natural", hex:"#D0C8A8", rarity:"U", desc:"Cream/white base with prominent black spots. Natural pattern.", genetics:"Wild type — natural patterning", breeder:"Natural" },
+      { id:"002b", card:"#002b", name:"White", year:"~2019", hex:"#F0EEE8", rarity:"R", desc:"Reduced spotting; near-white expression.", genetics:"Selective reduction of spot pigmentation", breeder:"European hobby" },
+      { id:"002c", card:"#002c", name:"Chocolate", year:"~2019", hex:"#4A3020", rarity:"U", desc:"Dark brown base with neat white segmental striping. Josh's Frogs confirmed morph.", genetics:"Recessive melanistic expression", breeder:"US hobby ~2019" },
+      { id:"002d", card:"#002d", name:"Champagne", year:"~2020", hex:"#E8D8A8", rarity:"R", desc:"Pale champagne-cream colouration with reduced dark spotting. Elegant and subtle.", genetics:"Selective hypopigmentation line", breeder:"European hobby ~2020" },
+      { id:"002e", card:"#002e", name:"Yellow", year:"~2020", hex:"#D4C040", rarity:"U", desc:"Yellow-toned base replacing typical cream. Brighter than standard wild type.", genetics:"Selective yellow line", breeder:"European hobby ~2020" },
+    ]
+  },
+  {
+    id: "003", card: "#003", genus: "Armadillidium", species: "klugii",
+    common: "Montenegro Isopod", size: "14–20mm", origin: "Montenegro / Balkans",
+    rarity: "U", care: { temp:"18–26°C", humidity:"55–70%", ventilation:"Moderate–Good", substrate:"Rocky/sandy substrate with leaf litter", diet:"Leaf litter, vegetables, protein", calcium:"High" },
+    biology: { lifespan:"3–4 years", activity:"Nocturnal", breedingAge:"8 months", breedingRate:"Slow", broodSize:"8–20 mancae", gestation:"6–8 weeks" },
+    notes: "Stunning orange and black banding. Slow breeder. Prefers drier end of humidity range with a wet corner. Worth the patience.",
+    morphs: [
+      { id:"003a", card:"#003a", name:"Split", year:"Natural", hex:"#C86820", rarity:"U", desc:"Classic orange and black half-split body. Iconic pattern.", genetics:"Natural pattern — not yet isolated as separate recessive genes", breeder:"Natural" },
+      { id:"003b", card:"#003b", name:"Blanc", year:"~2019", hex:"#D8D0C0", rarity:"R", desc:"White/cream form with minimal pattern. Rare line.", genetics:"Hypopigmentation — recessive", breeder:"European breeding" },
+      { id:"003c", card:"#003c", name:"Black", year:"~2020", hex:"#1A1A18", rarity:"R", desc:"Near-black expression — melanistic variant of klugii. Very striking against pale substrate.", genetics:"Recessive melanistic expression", breeder:"Exuvium Isopods ~2020" },
+      { id:"003d", card:"#003d", name:"Pudding", year:"~2020", hex:"#3A2A18", rarity:"U", desc:"Dark brown base with 3 rows of white and yellow spots. Confirmed by Josh's Frogs.", genetics:"Selective line — dark base with pale spotting pattern", breeder:"US hobby ~2020" },
+    ]
+  },
+  {
+    id: "004", card: "#004", genus: "Armadillidium", species: "nasatum",
+    common: "Nosy Isopod", size: "14–18mm", origin: "Western Europe",
+    rarity: "C", care: { temp:"18–26°C", humidity:"60–75%", ventilation:"Moderate", substrate:"Coco fibre/loam", diet:"Leaf litter, vegetables, protein", calcium:"Moderate–High" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate–High", broodSize:"10–40 mancae", gestation:"4–6 weeks" },
+    notes: "Named for the upturned rostrum. Variable colouration; very hardy. Multiple colour morphs available. Good beginner species alongside vulgare.",
+    morphs: [
+      { id:"004a", card:"#004a", name:"Wild Type", year:"Natural", hex:"#7A7068", rarity:"C", desc:"Grey-brown with variable patterning.", genetics:"Wild type", breeder:"Natural" },
+      { id:"004b", card:"#004b", name:"Peach", year:"~2017", hex:"#E8A880", rarity:"U", desc:"Soft peach-pink colouration with lighter undersides.", genetics:"Recessive peach expression", breeder:"US hobby" },
+      { id:"004c", card:"#004c", name:"Blueberry", year:"~2018", hex:"#606890", rarity:"R", desc:"Unusual blue-lavender colouration. Rare and highly sought.", genetics:"Recessive blue expression", breeder:"US hobby" },
+    ]
+  },
+  {
+    id: "005", card: "#005", genus: "Armadillidium", species: "peraccae",
+    common: "Iberian Pill Bug", size: "14–20mm", origin: "Iberian Peninsula",
+    rarity: "U", care: { temp:"18–28°C", humidity:"55–70%", ventilation:"Good", substrate:"Sandy/rocky substrate", diet:"Leaf litter, bark", calcium:"High" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"7 months", breedingRate:"Moderate", broodSize:"10–30 mancae", gestation:"5–7 weeks" },
+    notes: "Iberian endemic. Prefers drier conditions. Dramatic orange and grey contrast morphs available.",
+    morphs: [
+      { id:"005a", card:"#005a", name:"Wild Type", hex:"#6A6060", year:"Natural", rarity:"U", desc:"Dark grey-brown. Robust Iberian form.", genetics:"Wild type", breeder:"Natural" },
+      { id:"005b", card:"#005b", name:"Orange", year:"~2019", hex:"#D47830", rarity:"R", desc:"Vivid orange form from captive isolation.", genetics:"Recessive orange", breeder:"European hobby" },
+    ]
+  },
+  {
+    id: "006", card: "#006", genus: "Armadillidium", species: "depressum",
+    common: "Flatback Pill Bug", size: "10–14mm", origin: "Western Europe",
+    rarity: "C", care: { temp:"15–24°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Coco fibre/bark", diet:"Leaf litter, bark", calcium:"Moderate" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate", broodSize:"10–30 mancae", gestation:"4–5 weeks" },
+    notes: "Distinctly flattened profile. More tolerant of damp conditions than most Armadillidium. Dark coloration only.",
+    morphs: [
+      { id:"006a", card:"#006a", name:"Wild Type", year:"Natural", hex:"#4A4A42", rarity:"C", desc:"Near-black flatback form. Distinctive flattened silhouette.", genetics:"Wild type", breeder:"Natural" },
+    ]
+  },
+  {
+    id: "007", card: "#007", genus: "Armadillidium", species: "granulatum",
+    common: "Coastal Pill Bug", size: "10–14mm", origin: "Mediterranean coast",
+    rarity: "C", care: { temp:"18–26°C", humidity:"55–70%", ventilation:"Good", substrate:"Sandy/loam mix", diet:"Leaf litter, algae, dried seaweed", calcium:"High" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate", broodSize:"8–25 mancae", gestation:"4–6 weeks" },
+    notes: "Coastal Mediterranean species — tolerates slightly higher salinity substrates.",
+    morphs: [
+      { id:"007a", card:"#007a", name:"Wild Type", year:"Natural", hex:"#5A5050", rarity:"C", desc:"Dark grey with bumpy granulated texture. Distinctive feel in hand.", genetics:"Wild type", breeder:"Natural" },
+    ]
+  },
+  {
+    id: "008", card: "#008", genus: "Armadillidium", species: "scaberrimum",
+    common: "Sandstone Isopod", size: "12–16mm", origin: "Greece, Mediterranean",
+    rarity: "U", care: { temp:"20–28°C", humidity:"50–65%", ventilation:"Good", substrate:"Sandy/rocky substrate", diet:"Dried leaf litter, bark", calcium:"High" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Slow–Moderate", broodSize:"5–20 mancae", gestation:"5–7 weeks" },
+    notes: "Named for sandstone-like appearance and texture. Greek origin; prefers drier conditions than most Armadillidium. Keep moisture gradient with dryer areas dominant.",
+    morphs: [
+      { id:"008a", card:"#008a", name:"Sandstone", year:"Natural", hex:"#C4A870", rarity:"U", desc:"Sandy-beige to grey rough texture. Looks like a tiny rolling rock.", genetics:"Natural locality colouration", breeder:"Natural" },
+    ]
+  },
+  {
+    id: "009", card: "#009", genus: "Porcellio", species: "scaber",
+    common: "Rough Woodlouse", size: "12–18mm", origin: "Europe",
+    rarity: "C", care: { temp:"18–28°C", humidity:"50–70%", ventilation:"Good", substrate:"Coco fibre/bark mix", diet:"Leaf litter, vegetables, protein, algae", calcium:"Moderate" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"4 months", breedingRate:"High", broodSize:"15–60 mancae", gestation:"3–5 weeks" },
+    notes: "The foundational hobby species. First colour morph (Orange) isolated here by Orin McMongle. 15 morphs — most diverse in the hobby. Lava is the ONLY co-dominant gene in all isopods. Does NOT conglobate.",
+    morphs: [
+      { id:"009a", card:"#009a", name:"Wild Type", year:"Natural", hex:"#7A6850", rarity:"C", desc:"Classic rough grey-brown. Most common isopod worldwide.", genetics:"Wild type", breeder:"Natural" },
+      { id:"009b", card:"#009b", name:"Orange (Spanish Orange)", year:"~2010s", hex:"#D4703A", rarity:"C", desc:"THE first colour morph in the isopod hobby. Vivid orange; originally 'Giant Orange' from Spanish populations.", genetics:"Recessive orange — first morph isolated in the hobby", breeder:"Orin McMongle (Spanish Orange)" },
+      { id:"009c", card:"#009c", name:"Dalmatian", year:"~2014", hex:"#F0E8D8", rarity:"C", desc:"White base with dark irregular spots. Very popular.", genetics:"Recessive dalmatian patterning", breeder:"Hobby isolation ~2014" },
+      { id:"009d", card:"#009d", name:"Orange Dalmatian", year:"~2016", hex:"#E8A860", rarity:"U", desc:"Created by Ryan Orr: Orange × Dalmatian → F1 wild-type → F2 Orange Dalmatians. First documented F2 cross morph.", genetics:"Homozygous recessive Orange + Dalmatian — both recessive genes", breeder:"Ryan Orr ~2016" },
+      { id:"009e", card:"#009e", name:"Calico", year:"~2017", hex:"#C4956A", rarity:"C", desc:"Orange and white patches. Also wild-occurring in some populations.", genetics:"Calico patterning — incomplete dominance", breeder:"Hobby isolation" },
+      { id:"009f", card:"#009f", name:"Orin's Calico", year:"~2018", hex:"#C8A060", rarity:"U", desc:"Created by Orin McMongle. Light orange and yellow throughout; different from standard Calico.", genetics:"Selective Calico line by Orin McMongle", breeder:"Orin McMongle" },
+      { id:"009g", card:"#009g", name:"Lava", year:"~2018", hex:"#B83A10", rarity:"U", desc:"Deep orange-red on grey-black base. Variable per individual. THE ONLY co-dominant gene currently known in isopods.", genetics:"Co-dominant — heterozygous shows 'Lava', homozygous enhances expression. ONLY known co-dominant isopod gene.", breeder:"Hobby isolation" },
+      { id:"009h", card:"#009h", name:"Koi", year:"~2018", hex:"#D09060", rarity:"U", desc:"Neither pied nor dalmatian — watercolour-paint bleed appearance of white, grey and colour.", genetics:"Koi gene — unique blended colouration mechanism", breeder:"US hobby" },
+      { id:"009i", card:"#009i", name:"Orange Koi", year:"~2019", hex:"#E09048", rarity:"U", desc:"Koi gene combined with orange. More orange-dominant than standard Koi.", genetics:"Koi + orange recessive combination", breeder:"US hobby" },
+      { id:"009j", card:"#009j", name:"Piebald", year:"~2019", hex:"#C8A080", rarity:"U", desc:"Recessive gene causing lack of pigment in sections. Can be combined with colour morphs.", genetics:"Recessive piebald — unpigmented body sections", breeder:"US hobby" },
+      { id:"009k", card:"#009k", name:"Yellow Snow", year:"~2019", hex:"#E8E0A0", rarity:"R", desc:"Likely T+ albino expression; entire body yellow including eyes. Many have thick robust build.", genetics:"Likely T+ albino — tyrosinase positive with reduced melanin", breeder:"US hobby" },
+      { id:"009l", card:"#009l", name:"White-Out", year:"~2019", hex:"#F8F4EE", rarity:"U", desc:"Solid white expression. May yellow with age; reduce colour-enhancing foods.", genetics:"Recessive hypopigmentation", breeder:"US hobby" },
+      { id:"009m", card:"#009m", name:"Ghost", year:"~2019", hex:"#C8C0B0", rarity:"U", desc:"Pale lavender-grey; notably large physique in some lines.", genetics:"Recessive — reduced overall pigmentation", breeder:"US hobby" },
+      { id:"009n", card:"#009n", name:"Orange Ember", year:"~2020", hex:"#D06030", rarity:"R", desc:"White towards head deepening to rich orange at back — gradient colouration. Lineage of selective breeding.", genetics:"Selective gradient expression line", breeder:"US hobby" },
+      { id:"009o", card:"#009o", name:"Lava Dalmatian", year:"~2021", hex:"#C04020", rarity:"R", desc:"Lava co-dominant expression with dalmatian white spot overlay. Highly variable.", genetics:"Co-dominant Lava + recessive Dalmatian", breeder:"US hobby selective cross" },
+    ]
+  },
+  {
+    id: "010", card: "#010", genus: "Porcellio", species: "laevis",
+    common: "Smooth Isopod", size: "14–20mm", origin: "Worldwide (cosmopolitan)",
+    rarity: "C", care: { temp:"18–28°C", humidity:"60–80%", ventilation:"Moderate", substrate:"Coco fibre/loam", diet:"Leaf litter, vegetables, protein, decaying wood", calcium:"Moderate" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"4 months", breedingRate:"Very High", broodSize:"20–80 mancae", gestation:"3–4 weeks" },
+    notes: "Fastest breeding Porcellio. Excellent bioactive cleaner. Orange morph is striking and contrasts beautifully. Dairy Cow morph extremely popular in vivarium hobby.",
+    morphs: [
+      { id:"010a", card:"#010a", name:"Wild Type", year:"Natural", hex:"#6A6058", rarity:"C", desc:"Smooth shiny grey. Very common worldwide.", genetics:"Wild type", breeder:"Natural" },
+      { id:"010b", card:"#010b", name:"Orange", year:"~2014", hex:"#E07830", rarity:"C", desc:"Solid vivid orange. One of the most widely kept morphs.", genetics:"Recessive orange", breeder:"Hobby isolation" },
+      { id:"010c", card:"#010c", name:"Dairy Cow", year:"~2016", hex:"#F0E8E0", rarity:"C", desc:"White base with irregular black spots — literally looks like a dairy cow. Hugely popular.", genetics:"Recessive pied + dalmatian combination", breeder:"US hobby" },
+    ]
+  },
+  {
+    id: "011", card: "#011", genus: "Porcellio", species: "hoffmannseggi",
+    common: "Giant Spanish Isopod", size: "22–30mm", origin: "Spain / Portugal",
+    rarity: "R", care: { temp:"18–26°C", humidity:"55–70%", ventilation:"Good", substrate:"Coco/loam/bark mix", diet:"Leaf litter, vegetables, protein, bark", calcium:"Moderate" },
+    biology: { lifespan:"3–4 years", activity:"Nocturnal", breedingAge:"9 months", breedingRate:"Slow–Moderate", broodSize:"10–30 mancae", gestation:"6–8 weeks" },
+    notes: "One of the largest isopods kept in captivity. Impressive size; slow to breed. Does well in bioactive setups with lots of hiding spots. Humidity gradient important.",
+    morphs: [
+      { id:"011a", card:"#011a", name:"Wild Type", year:"Natural", hex:"#5A5040", rarity:"R", desc:"Dark grey-brown. Impressive size. Rough texture.", genetics:"Wild type", breeder:"Natural" },
+    ]
+  },
+  {
+    id: "012", card: "#012", genus: "Porcellio", species: "haasi",
+    common: "High Yellow / South Spain Isopod", size: "16–22mm", origin: "Southern Spain",
+    rarity: "U", care: { temp:"18–28°C", humidity:"55–70%", ventilation:"Good", substrate:"Coco/bark/loam mix", diet:"Leaf litter, bark, vegetables", calcium:"Moderate–High" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate", broodSize:"10–35 mancae", gestation:"4–6 weeks" },
+    notes: "Notable for the High Yellow locality — vivid yellow with grey. Two main localities traded: High Yellow (bright) and Sevilla.",
+    morphs: [
+      { id:"012a", card:"#012a", name:"High Yellow", year:"Locality", hex:"#D4C030", rarity:"U", desc:"Vivid yellow-and-grey banded pattern. Locality form from southern Spain.", genetics:"Natural locality colouration", breeder:"Southern Spain locality" },
+      { id:"012b", card:"#012b", name:"Sevilla", year:"Locality", hex:"#A09050", rarity:"U", desc:"Olive-yellow and grey. Sevilla locality form.", genetics:"Natural locality colouration", breeder:"Sevilla locality" },
+    ]
+  },
+  {
+    id: "013", card: "#013", genus: "Porcellio", species: "expansus",
+    common: "Large Spanish Porcellio", size: "20–28mm", origin: "Spain",
+    rarity: "R", care: { temp:"18–26°C", humidity:"55–70%", ventilation:"Good", substrate:"Coco/loam mix with bark", diet:"Leaf litter, bark, protein", calcium:"Moderate" },
+    biology: { lifespan:"3–4 years", activity:"Nocturnal", breedingAge:"8 months", breedingRate:"Moderate", broodSize:"10–30 mancae", gestation:"5–7 weeks" },
+    notes: "Large impressive Spanish species. Yellow Dot is the most common and accessible locality. Dark South is prolific for a large species.",
+    morphs: [
+      { id:"013a", card:"#013a", name:"Yellow Dot", year:"Natural/locality", hex:"#5A5A3A", rarity:"R", desc:"Dark grey with yellow terminal markings. Fastest breeding of large Spanish Porcellio.", genetics:"Natural locality form", breeder:"Spanish locality" },
+      { id:"013b", card:"#013b", name:"Dark South Locality", year:"Locality", hex:"#3A3A3A", rarity:"R", desc:"Nearly black from southern Spain. Prolific breeders.", genetics:"Melanistic locality form", breeder:"Southern Spain locality" },
+    ]
+  },
+  {
+    id: "014", card: "#014", genus: "Porcellio", species: "dilatatus",
+    common: "Giant Canyon Isopod", size: "18–20mm", origin: "Western Europe",
+    rarity: "C", care: { temp:"18–26°C", humidity:"60–75%", ventilation:"Moderate", substrate:"Coco fibre/loam mix", diet:"Leaf litter, vegetables, bark, protein", calcium:"Moderate" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"High", broodSize:"15–50 mancae", gestation:"4–5 weeks" },
+    notes: "Excellent prolific bioactive cleaner. Hardy and adaptable. Rust morph adds colour to a normally drab species. Good for vivarium maintenance.",
+    morphs: [
+      { id:"014a", card:"#014a", name:"Wild Type", year:"Natural", hex:"#7A6A50", rarity:"C", desc:"Muted brown-blue-grey. Hardy burrower.", genetics:"Wild type", breeder:"Natural" },
+      { id:"014b", card:"#014b", name:"Rust", year:"Selective", hex:"#A04820", rarity:"U", desc:"Rust-coloured variant of Giant Canyon. Same size and appetite with more flair.", genetics:"Selective line for rust/orange colouration", breeder:"Hobby selective breeding" },
+    ]
+  },
+  {
+    id: "015", card: "#015", genus: "Porcellio", species: "spinicornis",
+    common: "Brickwork Isopod", size: "12–16mm", origin: "Europe",
+    rarity: "C", care: { temp:"18–26°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Coco fibre/bark mix", diet:"Leaf litter, bark, algae", calcium:"Moderate" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"Moderate", broodSize:"10–30 mancae", gestation:"4–5 weeks" },
+    notes: "Named for habit of colonising walls and brickwork. Variable brown-orange with darker banding. White morph is an attractive captive isolation.",
+    morphs: [
+      { id:"015a", card:"#015a", name:"Wild Type", year:"Natural", hex:"#7A6048", rarity:"C", desc:"Brown-orange with darker banding. Variable across localities.", genetics:"Wild type", breeder:"Natural" },
+      { id:"015b", card:"#015b", name:"White", year:"~2018", hex:"#F0EBE0", rarity:"R", desc:"Pale white form from captive cultures.", genetics:"Recessive hypopigmentation", breeder:"Captive isolation ~2018" },
+    ]
+  },
+  {
+    id: "016", card: "#016", genus: "Porcellio", species: "sp. Sevilla",
+    common: "Sevilla Isopod", size: "16–22mm", origin: "Seville, Spain",
+    rarity: "U", care: { temp:"18–28°C", humidity:"55–70%", ventilation:"Good", substrate:"Coco/loam/bark mix", diet:"Leaf litter, bark", calcium:"Moderate" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate", broodSize:"10–30 mancae", gestation:"4–6 weeks" },
+    notes: "Undescribed Porcellio species from Seville. Olive and grey patterning. Popular in the advanced hobby.",
+    morphs: [
+      { id:"016a", card:"#016a", name:"Wild Type", year:"Natural", hex:"#7A8050", rarity:"U", desc:"Olive-grey with subtle patterning. Seville locality.", genetics:"Wild type", breeder:"Natural" },
+    ]
+  },
+  {
+    id: "017", card: "#017", genus: "Porcellio", species: "werneri",
+    common: "Werner's Isopod", size: "16–20mm", origin: "Greece / Turkey",
+    rarity: "R", care: { temp:"20–28°C", humidity:"50–65%", ventilation:"Good", substrate:"Sandy/rocky mix", diet:"Dried leaf litter, bark", calcium:"High" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"7 months", breedingRate:"Slow–Moderate", broodSize:"8–20 mancae", gestation:"5–7 weeks" },
+    notes: "Eastern Mediterranean species. Prefers drier conditions. Sandy-yellow and grey colouration. Sought by collectors.",
+    morphs: [
+      { id:"017a", card:"#017a", name:"Wild Type", year:"Natural", hex:"#B0A070", rarity:"R", desc:"Sandy yellow-grey. Variable locality colouration.", genetics:"Wild type", breeder:"Natural" },
+    ]
+  },
+  {
+    id: "018", card: "#018", genus: "Porcellionides", species: "pruinosus",
+    common: "Powder Blue / Powder Orange", size: "10–14mm", origin: "Cosmopolitan",
+    rarity: "C", care: { temp:"20–30°C", humidity:"60–80%", ventilation:"Moderate", substrate:"Coco fibre/loam", diet:"Leaf litter, vegetables, protein", calcium:"Moderate" },
+    biology: { lifespan:"1–2 years", activity:"Diurnal/Nocturnal", breedingAge:"3 months", breedingRate:"Very High", broodSize:"20–70 mancae", gestation:"3–4 weeks" },
+    notes: "Fastest breeding species in the hobby. 6 morphs. The Powder Blue and Powder Orange are flagship species for bioactive vivariums and as feeder isopods. Powder Blue has a white bloom like a plum.",
+    morphs: [
+      { id:"018a", card:"#018a", name:"Wild Type", year:"Natural", hex:"#6870A0", rarity:"C", desc:"Classic blue-grey with powdery bloom. One of the most widely kept species.", genetics:"Wild type", breeder:"Natural" },
+      { id:"018b", card:"#018b", name:"Powder Orange", year:"~2014", hex:"#E08030", rarity:"C", desc:"Vivid orange with powdery bloom. Hugely popular beginner species.", genetics:"Recessive orange", breeder:"US hobby" },
+      { id:"018c", card:"#018c", name:"Powder White", year:"~2016", hex:"#E8E0D0", rarity:"U", desc:"Pale creamy-white bloom. Clean and subtle.", genetics:"Recessive hypopigmentation", breeder:"US hobby" },
+      { id:"018d", card:"#018d", name:"Oreo Crumble", year:"~2018", hex:"#302820", rarity:"U", desc:"Very dark near-black with white flecks. Striking contrast.", genetics:"Melanistic with white spotting — compound recessive", breeder:"US hobby" },
+      { id:"018e", card:"#018e", name:"Lemon", year:"~2019", hex:"#D8D040", rarity:"R", desc:"Bright lemon yellow. Very eye-catching against typical vivarium substrates.", genetics:"Recessive yellow expression", breeder:"US hobby" },
+      { id:"018f", card:"#018f", name:"Pink", year:"~2020", hex:"#D880A0", rarity:"R", desc:"Soft pink colouration. Rare and much sought-after.", genetics:"Recessive pink expression", breeder:"European hobby" },
+    ]
+  },
+  {
+    id: "019", card: "#019", genus: "Oniscus", species: "asellus",
+    common: "Common Shiny Woodlouse", size: "12–18mm", origin: "Europe",
+    rarity: "C", care: { temp:"15–24°C", humidity:"70–85%", ventilation:"Low–Moderate", substrate:"Damp coco/loam/leaf litter mix", diet:"Leaf litter, decaying wood, vegetables", calcium:"Moderate" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"Moderate", broodSize:"15–50 mancae", gestation:"4–5 weeks" },
+    notes: "Most moisture-loving common species. Shiny smooth body unlike Porcellio scaber. Four documented morphs. Mardi Gras Dalmatian was the first ever O. asellus morph (Kyle/InvertDude, 2016).",
+    morphs: [
+      { id:"019a", card:"#019a", name:"Wild Type", year:"Natural", hex:"#687070", rarity:"C", desc:"Grey-brown with yellow lateral spots. Shiny smooth surface.", genetics:"Wild type", breeder:"Natural" },
+      { id:"019b", card:"#019b", name:"Mardi Gras Dalmatian", year:"2016", hex:"#C8A848", rarity:"R", desc:"First ever O. asellus morph. Yellow-orange with Dalmatian spotting. Kyle/InvertDude 2016.", genetics:"Recessive — first documented morph for this species", breeder:"Kyle / InvertDude 2016" },
+      { id:"019c", card:"#019c", name:"Lemon and Lime", year:"~2017", hex:"#C8D048", rarity:"R", desc:"Vivid yellow-green colouration. Neon in appearance.", genetics:"Recessive lemon-lime expression", breeder:"US hobby" },
+      { id:"019d", card:"#019d", name:"Dalmatian", year:"~2018", hex:"#D8D0B8", rarity:"U", desc:"Pale base with dark spotting. Similar mechanism to scaber Dalmatian.", genetics:"Recessive dalmatian patterning", breeder:"US hobby" },
+    ]
+  },
+  {
+    id: "020", card: "#020", genus: "Cubaris", species: "sp. Rubber Ducky",
+    common: "Rubber Ducky Isopod", size: "15–20mm", origin: "Thailand (limestone caves)",
+    rarity: "R", care: { temp:"22–28°C", humidity:"70–85%", ventilation:"Low", substrate:"Calcium-rich substrate, limestone pieces", diet:"Leaf litter, protein, calcium-rich foods", calcium:"Very High" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Very Slow", broodSize:"2–8 mancae", gestation:"8–12 weeks" },
+    notes: "Named for distinctive yellow 'duck face' head shape. Thai limestone cave origin. Slow breeders. Pak Chong is a SEPARATE SPECIES — see its own entry. Pink Rubber Ducky and Rubber Bee are true morphs of this species. DO NOT keep with acidic substrate.",
+    morphs: [
+      { id:"020a", card:"#020a", name:"Classic Yellow", year:"~2017–2019", hex:"#E8C040", rarity:"R", desc:"The original Rubber Ducky. Wild Thailand limestone cave; stabilised in captivity.", genetics:"Wild type captive stabilisation", breeder:"Thailand captive isolation ~2017–2019" },
+      { id:"020b", card:"#020b", name:"Pink Rubber Ducky", year:"~2021", hex:"#E8A0A0", rarity:"UR", desc:"Soft rosy-pink mutation. Very rare — one of the few pink Cubaris in the hobby.", genetics:"Recessive pink pigmentation mutation", breeder:"Captive isolation ~2021" },
+      { id:"020c", card:"#020c", name:"Rubber Bee", year:"~2022", hex:"#F0E850", rarity:"UR", desc:"Rubber Ducky variant with an additional white third segment. Distinct patterning from Classic Yellow.", genetics:"Patterning variant — white third segment expression", breeder:"Captive isolation ~2022" },
+    ]
+  },
+  {
+    id: "021", card: "#021", genus: "Cubaris", species: "sp. Panda King",
+    common: "Panda King Isopod", size: "10–18mm", origin: "Vietnam (limestone cave systems)",
+    rarity: "R", care: { temp:"22–28°C", humidity:"70–85%", ventilation:"Low", substrate:"Calcium-rich substrate, deep moist", diet:"Leaf litter, protein, algae", calcium:"Very High" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–10 mancae", gestation:"8–12 weeks" },
+    notes: "Bold black and white cave Cubaris from Vietnam. SEPARATE SPECIES from Rubber Ducky — Vietnamese not Thai origin. Highly sought collector species. Red Panda, Citrus, and Pink morphs are true captive isolations within this species.",
+    morphs: [
+      { id:"021a", card:"#021a", name:"Classic B&W", year:"~2019", hex:"#2A2A2A", rarity:"R", desc:"Bold black-and-white from Vietnamese caves. The original Panda King.", genetics:"Wild type captive stabilisation", breeder:"Vietnamese captive trade ~2019" },
+      { id:"021b", card:"#021b", name:"Red Panda King", year:"~2021", hex:"#A03020", rarity:"R", desc:"Red/orange replaces black banding. Highly sought captive morph.", genetics:"Recessive red pigmentation replacing black", breeder:"Captive isolation ~2021" },
+      { id:"021c", card:"#021c", name:"Citrus Panda King", year:"~2022", hex:"#E8B030", rarity:"UR", desc:"Bright yellow-orange banding with white. Very striking captive morph.", genetics:"Recessive yellow/citrus gene replacing black banding", breeder:"Captive isolation ~2022" },
+      { id:"021d", card:"#021d", name:"Pink Panda King", year:"~2023", hex:"#E8A0B0", rarity:"UR", desc:"Pink replacing the black banding. Extremely rare new morph.", genetics:"Recessive pink pigmentation — very new mutation ~2023", breeder:"Captive isolation ~2023" },
+    ]
+  },
+  {
+    id: "022", card: "#022", genus: "Cubaris", species: "murina",
+    common: "Little Sea Isopod", size: "8–14mm", origin: "Pantropical — Florida, Caribbean, Pacific",
+    rarity: "C", care: { temp:"22–28°C", humidity:"70–85%", ventilation:"Moderate", substrate:"Coco fibre/sand mix", diet:"Leaf litter, algae, protein", calcium:"Moderate–High" },
+    biology: { lifespan:"1–2 years", activity:"Nocturnal", breedingAge:"4 months", breedingRate:"Moderate–High", broodSize:"5–20 mancae", gestation:"4–6 weeks" },
+    notes: "Widely distributed pantropical Cubaris — a DESCRIBED species unlike most Cubaris sp. trade names. Papaya is one of the only true pink isopods widely available in the hobby. Faster breeding than most Cubaris. Anemone from Philippines is striking orange-red. Glacier is a white whiteout-gene morph.",
+    morphs: [
+      { id:"022a", card:"#022a", name:"Wild Type", year:"Natural", hex:"#9A8878", rarity:"C", desc:"Pale tan-grey. Most common form. Widespread pantropical distribution.", genetics:"Wild type", breeder:"Natural" },
+      { id:"022b", card:"#022b", name:"Papaya (Pink)", year:"~2020", hex:"#E88888", rarity:"R", desc:"True pink isopod. The only pink isopod widely available in the entire hobby.", genetics:"Recessive pink pigmentation — unique in hobby accessibility", breeder:"Captive isolation ~2020" },
+      { id:"022c", card:"#022c", name:"Anemone", year:"~2021", hex:"#C4786A", rarity:"R", desc:"Orange-red tones resembling sea anemone. Philippines locality origin.", genetics:"Philippines locality — orange-red expression", breeder:"Philippines locality ~2021" },
+      { id:"022d", card:"#022d", name:"Glacier", year:"~2022", hex:"#F0EEE8", rarity:"R", desc:"White whiteout-gene expression. Entirely lacks pigment — brilliant white. Confirmed by Josh's Frogs.", genetics:"Whiteout gene — complete absence of pigmentation", breeder:"US hobby ~2022" },
+      { id:"022e", card:"#022e", name:"Mandarin", year:"~2022", hex:"#E09048", rarity:"R", desc:"Vivid orange-mandarin colouration. Distinct from Papaya and Anemone.", genetics:"Recessive orange expression", breeder:"Captive isolation ~2022" },
+    ]
+  },
+  {
+    id: "023", card: "#023", genus: "Cubaris", species: "sp. Cappuccino",
+    common: "Cappuccino Isopod", size: "14–18mm", origin: "Thailand",
+    rarity: "R", care: { temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate, moist leaf litter", diet:"Leaf litter, protein, algae", calcium:"Very High" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–10 mancae", gestation:"7–10 weeks" },
+    notes: "Warm coffee-brown Thai Cubaris. SEPARATE SPECIES from Amber — different colouration and locality. Shy and reclusive; needs undisturbed deep substrate. Part of the 'coffee-themed' Thai Cubaris group.",
+    morphs: [
+      { id:"023a", card:"#023a", name:"Cappuccino", year:"~2020", hex:"#8B6030", rarity:"R", desc:"Warm coffee-brown body. Distinctively earthy tones. Coffee-themed Thai Cubaris.", genetics:"Natural locality colouration", breeder:"Thailand captive ~2020" },
+    ]
+  },
+  {
+    id: "024", card: "#024", genus: "Cubaris", species: "sp. Amber",
+    common: "Amber Isopod", size: "12–16mm", origin: "Thailand",
+    rarity: "R", care: { temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate, moist leaf litter", diet:"Leaf litter, protein, algae", calcium:"Very High" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–10 mancae", gestation:"7–10 weeks" },
+    notes: "Yellow-amber Thai Cubaris. More accessible than some premium Cubaris. SEPARATE SPECIES from Cappuccino — brighter amber-yellow colouration. One of the more prolific Thai Cubaris in captivity.",
+    morphs: [
+      { id:"024a", card:"#024a", name:"Amber", year:"~2020", hex:"#C8943A", rarity:"R", desc:"Rich amber-yellow colouration. More accessible premium Thai Cubaris.", genetics:"Natural locality colouration", breeder:"Thailand captive ~2020" },
+    ]
+  },
+  {
+    id: "N01", card: "#N01", genus: "Nesodillo", species: "arcangelii",
+    common: "Shiro Utsuri Isopod", size: "10–14mm", origin: "Canary Islands",
+    rarity: "R", care: { temp:"20–26°C", humidity:"65–80%", ventilation:"Moderate", substrate:"Coco/loam mix", diet:"Leaf litter, protein, algae", calcium:"Moderate" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate", broodSize:"10–25 mancae", gestation:"4–6 weeks" },
+    notes: "Named for resemblance to Shiro Utsuri koi fish patterning — black and white. Two morphs: standard and a high-white variant.",
+    morphs: [
+      { id:"N01a", card:"#N01a", name:"Shiro Utsuri", year:"~2018", hex:"#D0C8B8", rarity:"R", desc:"Black and white koi-like patterning. Named for koi variety resemblance.", genetics:"Natural form — black and white patterning", breeder:"Canary Islands" },
+      { id:"N01b", card:"#N01b", name:"High White", year:"~2020", hex:"#F0EEE8", rarity:"R", desc:"Higher proportion of white than standard Shiro Utsuri.", genetics:"Selective line for increased white expression", breeder:"Hobby selective breeding" },
+    ]
+  },
+  {
+    id: "025", card: "#025", genus: "Trichorhina", species: "tomentosa",
+    common: "Dwarf White Isopod", size: "3–5mm", origin: "Tropical Americas",
+    rarity: "C", care: { temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Rich moist coco/peat mix", diet:"Leaf litter, decaying material, protein", calcium:"Low" },
+    biology: { lifespan:"1–2 years", activity:"Nocturnal", breedingAge:"2 months", breedingRate:"Very High", broodSize:"5–20 mancae", gestation:"2–3 weeks" },
+    notes: "IMPORTANT: All-female parthenogenetic species — no males exist. Reproduces without fertilisation. Premier vivarium cleaner for egg chambers and sensitive species setups. Does not compete with reptile/amphibian food items.",
+    morphs: [
+      { id:"025a", card:"#025a", name:"Dwarf White", year:"Natural", hex:"#E8E4D8", rarity:"C", desc:"Tiny white crustacean. Ubiquitous vivarium cleaner. Parthenogenetic — all female.", genetics:"Parthenogenetic — all female, no males in species", breeder:"Natural" },
+    ]
+  },
+  {
+    id: "026", card: "#026", genus: "Nagurus", species: "cristatus",
+    common: "Dwarf Purple Isopod", size: "4–6mm", origin: "Indo-Pacific",
+    rarity: "U", care: { temp:"22–28°C", humidity:"70–80%", ventilation:"Low", substrate:"Moist coco/peat mix", diet:"Decaying organic matter, algae", calcium:"Low–Moderate" },
+    biology: { lifespan:"1–2 years", activity:"Nocturnal", breedingAge:"2 months", breedingRate:"High", broodSize:"8–20 mancae", gestation:"2–3 weeks" },
+    notes: "Small vivarium cleaner with distinctive purple-grey colouration. Less commonly kept than Dwarf White but useful alternative. Hardy and adaptable.",
+    morphs: [
+      { id:"026a", card:"#026a", name:"Dwarf Purple", year:"Natural", hex:"#706880", rarity:"U", desc:"Small purple-grey isopod. Good vivarium cleaner.", genetics:"Natural form", breeder:"Natural" },
+    ]
+  },
+  {
+    id: "027", card: "#027", genus: "Armadillo", species: "officinalis",
+    common: "Hissing Isopod", size: "18–25mm", origin: "Mediterranean",
+    rarity: "R", care: { temp:"20–28°C", humidity:"50–65%", ventilation:"Good", substrate:"Sandy/rocky substrate with bark", diet:"Leaf litter, bark, dried vegetation", calcium:"Very High" },
+    biology: { lifespan:"3–5 years", activity:"Nocturnal", breedingAge:"9 months", breedingRate:"Very Slow", broodSize:"5–15 mancae", gestation:"7–10 weeks" },
+    notes: "ONLY isopod known to produce a hissing sound when disturbed. Not Armadillidium — separate genus. Needs very dry conditions with minimal moisture. Extremely slow breeder. Very long-lived.",
+    morphs: [
+      { id:"027a", card:"#027a", name:"Wild Type", year:"Natural", hex:"#8A7858", rarity:"R", desc:"Brown-grey with lumpy texture. ONLY hissing isopod.", genetics:"Wild type", breeder:"Natural" },
+      { id:"027b", card:"#027b", name:"Marbled", year:"~2019", hex:"#A09070", rarity:"R", desc:"Marbled patterning across the back. Rarer locality form.", genetics:"Natural locality variation", breeder:"Mediterranean locality" },
+    ]
+  },
+  {
+    id: "028", card: "#028", genus: "Cylisticus", species: "convexus",
+    common: "Curly Woodlouse", size: "12–16mm", origin: "Europe / Worldwide",
+    rarity: "C", care: { temp:"15–24°C", humidity:"55–75%", ventilation:"Moderate", substrate:"Coco fibre/bark/loam", diet:"Leaf litter, bark, vegetables", calcium:"Moderate" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"Moderate–High", broodSize:"15–40 mancae", gestation:"4–5 weeks" },
+    notes: "Partially conglobates — curves into C-shape but not full sphere. Very widespread. Good bioactive species. Underrated in the hobby.",
+    morphs: [
+      { id:"028a", card:"#028a", name:"Wild Type", year:"Natural", hex:"#787060", rarity:"C", desc:"Grey-brown with variable lateral patterning. Partial roller.", genetics:"Wild type", breeder:"Natural" },
+    ]
+  },
+  {
+    id: "029", card: "#029", genus: "Venezillo", species: "parvus",
+    common: "Dwarf Zebra Isopod", size: "5–8mm", origin: "Canary Islands / Mediterranean",
+    rarity: "U", care: { temp:"20–26°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Sandy/rocky substrate", diet:"Leaf litter, dried vegetation", calcium:"High" },
+    biology: { lifespan:"1–2 years", activity:"Nocturnal", breedingAge:"4 months", breedingRate:"Moderate", broodSize:"5–15 mancae", gestation:"3–5 weeks" },
+    notes: "Small conglobating species with bold zebra striping. Conglobates into a perfect sphere despite small size. More delicate than Armadillidium.",
+    morphs: [
+      { id:"029a", card:"#029a", name:"Zebra", year:"Natural", hex:"#D0C8A0", rarity:"U", desc:"Bold light/dark striped pattern. Tiny conglobating species.", genetics:"Natural form", breeder:"Natural" },
+    ]
+  },
+  {
+    id: "030", card: "#030", genus: "Reductoniscus", species: "costulatus",
+    common: "Dwarf Zebra Isopod (Koi)", size: "4–6mm", origin: "SE Asia",
+    rarity: "U", care: { temp:"22–28°C", humidity:"75–85%", ventilation:"Low–Moderate", substrate:"Rich moist coco/leaf mix", diet:"Leaf litter, algae, protein", calcium:"Moderate" },
+    biology: { lifespan:"1–2 years", activity:"Nocturnal", breedingAge:"3 months", breedingRate:"High", broodSize:"10–25 mancae", gestation:"2–4 weeks" },
+    notes: "Small SE Asian species with striking zebra/koi-like patterning. Fast breeder. Good bioactive addition.",
+    morphs: [
+      { id:"030a", card:"#030a", name:"Koi", year:"Natural", hex:"#D0B880", rarity:"U", desc:"Orange and white koi-like patterning. Tiny vivid species.", genetics:"Natural form", breeder:"Natural" },
+    ]
+  },
+  {
+    id: "031", card: "#031", genus: "Trachelipus", species: "rathkii",
+    common: "Rathke's Woodlouse", size: "10–14mm", origin: "Central/Eastern Europe",
+    rarity: "C", care: { temp:"15–24°C", humidity:"60–75%", ventilation:"Moderate", substrate:"Coco/loam mix", diet:"Leaf litter, bark", calcium:"Moderate" },
+    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"Moderate", broodSize:"10–30 mancae", gestation:"4–5 weeks" },
+    notes: "Common European species with variable brownish patterning. Underrepresented in hobby compared to Porcellio and Armadillidium.",
+    morphs: [
+      { id:"031a", card:"#031a", name:"Wild Type", year:"Natural", hex:"#7A6A50", rarity:"C", desc:"Brown-grey with variable banding. Common field species.", genetics:"Wild type", breeder:"Natural" },
+    ]
+  },
+  {
+    id: "032", card: "#032", genus: "Atlantoscia", species: "floridana",
+    common: "Florida Mini Isopod", size: "5–8mm", origin: "Caribbean / SE USA",
+    rarity: "U", care: { temp:"20–28°C", humidity:"70–80%", ventilation:"Moderate", substrate:"Moist coco/loam mix", diet:"Decaying organic matter, leaf litter", calcium:"Low" },
+    biology: { lifespan:"1–2 years", activity:"Nocturnal", breedingAge:"3 months", breedingRate:"High", broodSize:"10–30 mancae", gestation:"2–3 weeks" },
+    notes: "Small Caribbean/Florida species. Good vivarium cleaner. Less commonly traded than Dwarf White but excellent performer.",
+    morphs: [
+      { id:"032a", card:"#032a", name:"Wild Type", year:"Natural", hex:"#887868", rarity:"U", desc:"Small brown-grey species. Good bioactive cleaner.", genetics:"Wild type", breeder:"Natural" },
+    ]
+  },
+  {
+    id: "033", card: "#033", genus: "Cristarmadillidium", species: "muricatum",
+    common: "Spiny Pill Bug", size: "10–14mm", origin: "Mediterranean",
+    rarity: "R", care: { temp:"20–26°C", humidity:"55–70%", ventilation:"Good", substrate:"Rocky/sandy substrate", diet:"Leaf litter, bark, dried vegetation", calcium:"High" },
+    biology: { lifespan:"3–4 years", activity:"Nocturnal", breedingAge:"8 months", breedingRate:"Slow", broodSize:"5–15 mancae", gestation:"6–8 weeks" },
+    notes: "Unique spiny-textured body. Rolls into ball like Armadillidium. Sandy-brown body with distinctive surface texture. Highly sought by collectors.",
+    morphs: [
+      { id:"033a", card:"#033a", name:"Wild Type", year:"Natural", hex:"#8A7848", rarity:"R", desc:"Sandy-brown with pineapple-like spiky texture. Unusual and highly sought collector species.", genetics:"Natural species colouration", breeder:"Natural" },
+    ]
+  },
+  // ── BUILD 1: CUBARIS sp. SPLITS ──────────────────────────────────────────
+  {
+    id:"034", card:"#034", genus:"Cubaris", species:"sp. Pak Chong",
+    common:"Pak Chong Isopod", size:"15–20mm", origin:"Pak Chong, Thailand",
+    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate, limestone pieces", diet:"Leaf litter, protein, calcium-rich foods", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"2–8 mancae", gestation:"8–12 weeks" },
+    notes:"Named for Pak Chong province, Thailand. Deep teal-green colouration — SEPARATE SPECIES from Rubber Ducky (Classic Yellow). Same limestone cave conditions required. Premium collector species.",
+    morphs:[
+      { id:"034a", card:"#034a", name:"Classic Pak Chong", year:"~2020", hex:"#4A7C6F", rarity:"UR", desc:"Deep teal-green from Pak Chong province. Entirely distinct from Rubber Ducky.", genetics:"Natural locality colouration — separate species", breeder:"Pak Chong, Thailand ~2020" },
+      { id:"034b", card:"#034b", name:"Red Pak Chong", year:"~2022", hex:"#8A2010", rarity:"UR", desc:"Isolated red variant from Pak Chong stock. Very rare captive isolation.", genetics:"Recessive red pigmentation — captive isolation", breeder:"Captive isolation ~2022" },
+    ]
+  },
+  {
+    id:"035", card:"#035", genus:"Cubaris", species:"sp. White Ducky",
+    common:"White Ducky Isopod", size:"15–20mm", origin:"Thailand",
+    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein, calcium-rich foods", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"2–6 mancae", gestation:"8–12 weeks" },
+    notes:"Black and white Cubaris — SEPARATE SPECIES from Classic Yellow Rubber Ducky. Increasingly rare in captive cultures. Striking panda-like colouration. Same cave habitat requirements.",
+    morphs:[
+      { id:"035a", card:"#035a", name:"White Ducky", year:"~2020", hex:"#E8E0D8", rarity:"UR", desc:"Black and white Cubaris with Rubber Ducky face shape. Separate species from Classic Yellow.", genetics:"Natural — separate species from Rubber Ducky", breeder:"Thailand captive" },
+    ]
+  },
+  {
+    id:"036", card:"#036", genus:"Cubaris", species:"sp. White Shark",
+    common:"White Shark Isopod", size:"8–12mm", origin:"Thailand",
+    rarity:"R", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–8 mancae", gestation:"7–10 weeks" },
+    notes:"Pale near-white dwarf Thai Cubaris. Display species rather than bioactive cleaner. Prized for clean white colouration. Handle minimally — sensitive to disturbance.",
+    morphs:[
+      { id:"036a", card:"#036a", name:"White Shark", year:"~2021", hex:"#E8E4D8", rarity:"R", desc:"Near-white body with pale segmentation. Display species — not a bioactive cleaner.", genetics:"Natural form — separate species", breeder:"Thailand captive ~2021" },
+    ]
+  },
+  {
+    id:"037", card:"#037", genus:"Cubaris", species:"sp. Thai Angel Blue",
+    common:"Thai Angel Blue Isopod", size:"10–14mm", origin:"Thailand",
+    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"2–6 mancae", gestation:"8–12 weeks" },
+    notes:"Blue-toned Thai Cubaris — SEPARATE SPECIES. Premium collector species; very rare in Western captivity. Stunning blue iridescence. Same cave conditions as other Thai Cubaris.",
+    morphs:[
+      { id:"037a", card:"#037a", name:"Thai Angel Blue", year:"~2022", hex:"#8090C0", rarity:"UR", desc:"Blue-toned Thai Cubaris with iridescent sheen. Among the rarest Thai Cubaris.", genetics:"Natural form — separate species", breeder:"Thailand captive ~2022" },
+    ]
+  },
+  {
+    id:"038", card:"#038", genus:"Cubaris", species:"sp. Black Evil",
+    common:"Black Evil Isopod", size:"15–20mm", origin:"Southeast Asia",
+    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate, moist leaf litter", diet:"Leaf litter, protein, algae", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"2–6 mancae", gestation:"8–12 weeks" },
+    notes:"Dark royal purple with gorgeous iridescent shine. One of the largest Cubaris sp. in the hobby. SE Asian origin. Named for intimidating dark colouration and impressive size.",
+    morphs:[
+      { id:"038a", card:"#038a", name:"Black Evil", year:"~2021", hex:"#2A1A3A", rarity:"UR", desc:"Dark royal purple with stunning iridescent shine. One of the largest and rarest Cubaris sp.", genetics:"Natural form — separate SE Asian species", breeder:"SE Asia captive" },
+    ]
+  },
+  {
+    id:"039", card:"#039", genus:"Cubaris", species:"sp. Tapir",
+    common:"Tapir Isopod", size:"12–16mm", origin:"Thailand",
+    rarity:"R", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–8 mancae", gestation:"7–10 weeks" },
+    notes:"Named for tapir-like dark body with pale banding. Thai Cubaris sp. — separate species. Moderately established in hobby. Same cave requirements as other Thai Cubaris.",
+    morphs:[
+      { id:"039a", card:"#039a", name:"Tapir", year:"~2021", hex:"#4A3828", rarity:"R", desc:"Dark brown body with cream/white banding resembling tapir markings.", genetics:"Natural locality colouration", breeder:"Thailand captive" },
+    ]
+  },
+  {
+    id:"040", card:"#040", genus:"Cubaris", species:"sp. Jupiter",
+    common:"Jupiter Isopod", size:"10–14mm", origin:"Thailand",
+    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"2–6 mancae", gestation:"8–12 weeks" },
+    notes:"Named for Jupiter-like banding. Also traded as 'Frosty Jupiter'. Separate Thai Cubaris species. Very rare in Western hobby. Premium display species.",
+    morphs:[
+      { id:"040a", card:"#040a", name:"Jupiter", year:"~2022", hex:"#C0A070", rarity:"UR", desc:"Banded colouration reminiscent of Jupiter's cloud bands. Also known as 'Frosty Jupiter'.", genetics:"Natural form — separate species", breeder:"Thailand captive" },
+    ]
+  },
+  {
+    id:"041", card:"#041", genus:"Cubaris", species:"sp. Cherry Blossom",
+    common:"Cherry Blossom Isopod", size:"10–14mm", origin:"Thailand",
+    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"2–6 mancae", gestation:"8–12 weeks" },
+    notes:"Named for delicate pink/cream colouration resembling cherry blossom. Thai Cubaris — separate species. Among the most sought-after premium Cubaris in the Western hobby.",
+    morphs:[
+      { id:"041a", card:"#041a", name:"Cherry Blossom", year:"~2022", hex:"#E8C0C0", rarity:"UR", desc:"Soft pink-cream colouration. One of the most delicate-looking Cubaris.", genetics:"Natural form — separate species", breeder:"Thailand captive" },
+    ]
+  },
+  {
+    id:"042", card:"#042", genus:"Cubaris", species:"sp. Caramel Cream",
+    common:"Caramel Cream Isopod", size:"12–16mm", origin:"Thailand",
+    rarity:"R", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–8 mancae", gestation:"7–10 weeks" },
+    notes:"Also traded as 'Cappu Cream'. Warm caramel-cream colouration — related to but lighter than Cappuccino. Separate Thai Cubaris species. PostPods UK confirms as distinct variety.",
+    morphs:[
+      { id:"042a", card:"#042a", name:"Caramel Cream", year:"~2022", hex:"#D4A870", rarity:"R", desc:"Warm caramel-cream colouration. Related to Cappuccino but lighter and distinct.", genetics:"Natural form — separate species", breeder:"Thailand captive" },
+    ]
+  },
+  {
+    id:"043", card:"#043", genus:"Cubaris", species:"sp. Citrus",
+    common:"Citrus Isopod", size:"10–14mm", origin:"Thailand",
+    rarity:"R", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–8 mancae", gestation:"7–10 weeks" },
+    notes:"Bright lemon-citrus yellow. SEPARATE SPECIES from Amber — more vivid lemon-yellow expression. Growing in popularity in Western hobby.",
+    morphs:[
+      { id:"043a", card:"#043a", name:"Citrus", year:"~2022", hex:"#D8D040", rarity:"R", desc:"Bright lemon-citrus yellow. Distinct from Amber — more vivid and cooler-toned.", genetics:"Natural form — separate species", breeder:"Thailand captive" },
+    ]
+  },
+  {
+    id:"044", card:"#044", genus:"Cubaris", species:"sp. Giant Nguyen",
+    common:"Giant Nguyen Isopod", size:"20–25mm", origin:"Vietnam",
+    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Deep calcium-rich substrate", diet:"Leaf litter, protein, algae", calcium:"Very High" },
+    biology:{ lifespan:"3–4 years", activity:"Nocturnal", breedingAge:"12–18 months", breedingRate:"Very Slow", broodSize:"2–6 mancae", gestation:"10–14 weeks" },
+    notes:"One of the largest Cubaris sp. in the hobby. Vietnamese origin. Named after original collector/importer. Impressive size for the genus. Patience essential — extremely slow breeder.",
+    morphs:[
+      { id:"044a", card:"#044a", name:"Giant Nguyen", year:"~2021", hex:"#6A5840", rarity:"UR", desc:"One of the biggest Cubaris in captivity. Impressively large Vietnamese species.", genetics:"Natural form — separate Vietnamese species", breeder:"Vietnamese captive" },
+    ]
+  },
+  {
+    id:"045", card:"#045", genus:"Cubaris", species:"iriomotensis",
+    common:"Miyako Isopod", size:"10–14mm", origin:"Ryukyu Islands, Japan",
+    rarity:"R", care:{ temp:"20–26°C", humidity:"70–80%", ventilation:"Moderate", substrate:"Moist forest substrate, leaf litter", diet:"Leaf litter, protein, algae", calcium:"Moderate–High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–10 months", breedingRate:"Slow–Moderate", broodSize:"5–12 mancae", gestation:"6–8 weeks" },
+    notes:"One of few Cubaris with a described scientific name. Purple-grey body with distinctive red-orange skirt edges. Japanese island endemic from the Ryukyu Islands. Rarer than most Thai Cubaris in the Western hobby.",
+    morphs:[
+      { id:"045a", card:"#045a", name:"Miyako", year:"~2020", hex:"#7868A0", rarity:"R", desc:"Purple-grey body with red-orange skirting edges. Japanese island endemic — a described species.", genetics:"Natural species colouration — Cubaris iriomotensis", breeder:"Japan captive ~2020" },
+    ]
+  },
+  {
+    id:"046", card:"#046", genus:"Cubaris", species:"sp. Salmon",
+    common:"Salmon Isopod (Martinique)", size:"10–14mm", origin:"Martinique, Caribbean",
+    rarity:"UR", care:{ temp:"22–26°C", humidity:"75–85%", ventilation:"Low–Moderate", substrate:"Moist coco/peat mix", diet:"Leaf litter, protein, algae", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–8 mancae", gestation:"6–9 weeks" },
+    notes:"Caribbean Cubaris from Martinique. Salmon-pink colouration. Rare in the hobby — one of few non-SE Asian Cubaris. Slightly more forgiving than Thai Cubaris due to different island origin.",
+    morphs:[
+      { id:"046a", card:"#046a", name:"Salmon", year:"~2021", hex:"#E09070", rarity:"UR", desc:"Warm salmon-pink. Caribbean origin — rare non-SE Asian Cubaris.", genetics:"Natural locality colouration", breeder:"Martinique, Caribbean ~2021" },
+    ]
+  },
+  // ── BUILD 1: ARDENTIELLA (formerly Merulanella) ─────────────────────────
+  {
+    id:"047", card:"#047", genus:"Ardentiella", species:"sp. Ember Bee",
+    common:"Ember Bee Isopod", size:"18–23mm", origin:"Vietnam",
+    rarity:"R", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark vertical for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"8–12 months", breedingRate:"Moderate (captive bred)", broodSize:"5–15 mancae", gestation:"6–10 weeks" },
+    notes:"FORMERLY Merulanella sp. — reclassified as Ardentiella. SEMI-ARBOREAL: climbs vertically on cork bark and branches. Enclosure MUST be escape-proof — even mancae climb smooth plastic. Active day and night. High ventilation is non-negotiable. One of the most visually stunning Vietnamese isopods.",
+    morphs:[
+      { id:"047a", card:"#047a", name:"Ember Bee", year:"~2018", hex:"#C85018", rarity:"R", desc:"Bold orange-red stripes on jet-black base — like glowing embers. The flagship Ardentiella species.", genetics:"Natural colouration — semi-arboreal Vietnamese species", breeder:"Vietnam captive ~2018" },
+    ]
+  },
+  {
+    id:"048", card:"#048", genus:"Ardentiella", species:"sp. Red Ember Bee",
+    common:"Red Ember Bee Isopod", size:"18–22mm", origin:"Vietnam",
+    rarity:"R", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"8–12 months", breedingRate:"Moderate (captive bred)", broodSize:"5–12 mancae", gestation:"6–10 weeks" },
+    notes:"Vivid all-red colouration on black base — LACKS the yellow pigmentation of standard Ember Bee. Medium-large species; the largest Ardentiella kept in US captivity. Same arboreal care. Stunning contrast.",
+    morphs:[
+      { id:"048a", card:"#048a", name:"Red Ember Bee", year:"~2020", hex:"#901810", rarity:"R", desc:"All-red on black base — lacks the yellow of standard Ember Bee. Vivid and striking.", genetics:"Natural colour variant — possibly separate species", breeder:"Vietnam captive ~2020" },
+    ]
+  },
+  {
+    id:"049", card:"#049", genus:"Ardentiella", species:"sp. Pastel",
+    common:"Pastel Isopod", size:"18–20mm", origin:"Vietnam",
+    rarity:"UR", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"10–14 months", breedingRate:"Slow–Moderate", broodSize:"4–10 mancae", gestation:"7–10 weeks" },
+    notes:"One of the most sought-after Ardentiella. Soft muted pastel tones vary between individuals and broods — each colony has an evolving visual character. Premium price. Same arboreal care as all Ardentiella. Previously also classified as 'Ember Bee Pastel'.",
+    morphs:[
+      { id:"049a", card:"#049a", name:"Pastel", year:"~2021", hex:"#D0B898", rarity:"UR", desc:"Soft muted pastel tones. Highly variable between individuals — evolving display colony.", genetics:"Natural colour variant — possible selective line", breeder:"Vietnam captive ~2021" },
+    ]
+  },
+  {
+    id:"050", card:"#050", genus:"Ardentiella", species:"sp. Lava",
+    common:"Lava Ardentiella", size:"22–28mm", origin:"Vietnam",
+    rarity:"UR", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"10–14 months", breedingRate:"Slow", broodSize:"4–10 mancae", gestation:"7–10 weeks" },
+    notes:"Deep reds, lava-oranges, warm yellows against dark undersides. Reportedly grows up to 1.5× larger than Ember Bee — one of the LARGEST Ardentiella. NOTE: NOT the same as P. scaber Lava — completely different genus. Premium specimen. Arboreal — escape-proof enclosure required.",
+    morphs:[
+      { id:"050a", card:"#050a", name:"Ardentiella Lava", year:"~2022", hex:"#B83808", rarity:"UR", desc:"Deep lava reds and oranges on dark base. Reportedly the largest Ardentiella — 1.5× Ember Bee size.", genetics:"Natural colour variant — possibly separate species", breeder:"Vietnam captive ~2022" },
+    ]
+  },
+  {
+    id:"051", card:"#051", genus:"Ardentiella", species:"sp. Batman",
+    common:"Batman Isopod", size:"16–20mm", origin:"Vietnam",
+    rarity:"R", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"8–12 months", breedingRate:"Moderate", broodSize:"5–12 mancae", gestation:"6–10 weeks" },
+    notes:"Named for dark cape-like patterning resembling Batman's silhouette. Established in the Ardentiella hobby alongside Ember Bee. Active and visible. Good for display setups.",
+    morphs:[
+      { id:"051a", card:"#051a", name:"Batman", year:"~2020", hex:"#1A1828", rarity:"R", desc:"Dark cape-like patterning on near-black base. Named for Batman silhouette.", genetics:"Natural colour variant", breeder:"Vietnam captive ~2020" },
+    ]
+  },
+  {
+    id:"052", card:"#052", genus:"Ardentiella", species:"sp. Golden Fire",
+    common:"Golden Fire Isopod", size:"16–20mm", origin:"Vietnam",
+    rarity:"UR", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"10–14 months", breedingRate:"Slow", broodSize:"4–8 mancae", gestation:"7–10 weeks" },
+    notes:"Golden-yellow bands on jet-black background — vivid and highly sought. Very rare in Western collections. Demands same arboreal setup as all Ardentiella.",
+    morphs:[
+      { id:"052a", card:"#052a", name:"Golden Fire", year:"~2022", hex:"#D4A010", rarity:"UR", desc:"Striking golden-yellow bands on jet-black background. One of the most vivid Ardentiella.", genetics:"Natural colour variant — separate species", breeder:"Vietnam captive ~2022" },
+    ]
+  },
+  {
+    id:"053", card:"#053", genus:"Ardentiella", species:"sp. Pink Lambo",
+    common:"Pink Lambo Isopod", size:"16–20mm", origin:"Vietnam",
+    rarity:"UR", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"3–8 mancae", gestation:"8–12 weeks" },
+    notes:"Pink-toned Ardentiella — among the rarest and most expensive in the genus. Named for premium status in the hobby. Very low availability in Western collections.",
+    morphs:[
+      { id:"053a", card:"#053a", name:"Pink Lambo", year:"~2023", hex:"#D090A0", rarity:"UR", desc:"Soft pink tones — among the rarest and most coveted Ardentiella variants.", genetics:"Natural colour variant — possible selective line", breeder:"Vietnam captive ~2023" },
+    ]
+  },
+  {
+    id:"054", card:"#054", genus:"Ardentiella", species:"sp. Red Diablo",
+    common:"Red Diablo Isopod", size:"12–16mm", origin:"Vietnam",
+    rarity:"R", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"8–12 months", breedingRate:"Moderate", broodSize:"5–12 mancae", gestation:"6–9 weeks" },
+    notes:"Smaller than Ember Bee with bold red and black colouration. Extremely active and fast-moving — even among Ardentiella. Expert level care recommended. Arboreal.",
+    morphs:[
+      { id:"054a", card:"#054a", name:"Red Diablo", year:"~2021", hex:"#780808", rarity:"R", desc:"Bold red and black. Smaller than Ember Bee. Extremely active and fast-moving.", genetics:"Natural colour variant — separate species", breeder:"Vietnam captive ~2021" },
+    ]
+  },
+  // ── BUILD 1: MISSING ARMADILLIDIUM SPECIES ────────────────────────────
+  {
+    id:"055", card:"#055", genus:"Armadillidium", species:"gestroi",
+    common:"Gestroi Isopod", size:"16–22mm", origin:"Southern France / Corsica",
+    rarity:"U", care:{ temp:"18–26°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Loam/coco mix with bark", diet:"Leaf litter, protein, vegetables", calcium:"High" },
+    biology:{ lifespan:"2–4 years", activity:"Nocturnal", breedingAge:"6–8 months", breedingRate:"Moderate", broodSize:"10–30 mancae", gestation:"5–7 weeks" },
+    notes:"Large impressive species with dark purple-grey body and bright yellow markings. French/Corsican origin. Conglobates well. Multiple captive morphs isolated. Milky Way morph produces beautiful galaxy-like spotting. Beginner-friendly for its size.",
+    morphs:[
+      { id:"055a", card:"#055a", name:"Wild Type", year:"Natural", hex:"#3A3848", rarity:"U", desc:"Dark purple-grey body with yellow lateral spots. Impressive large Armadillidium.", genetics:"Wild type", breeder:"Natural" },
+      { id:"055b", card:"#055b", name:"Giant", year:"~2020", hex:"#3A3848", rarity:"U", desc:"Larger-than-average isolated line. Same colouration but noticeably bigger specimens.", genetics:"Selective line for size", breeder:"Exuvium Isopods ~2020" },
+      { id:"055c", card:"#055c", name:"Milky Way", year:"~2021", hex:"#606878", rarity:"R", desc:"Increased white/pale spotting giving a galaxy-like appearance across the back.", genetics:"Selective isolation for increased pale spot expression", breeder:"European hobby ~2021" },
+      { id:"055d", card:"#055d", name:"Milky Way Yellow", year:"~2022", hex:"#7A7850", rarity:"R", desc:"Milky Way patterning with enhanced yellow tones. Yellow spots more numerous and vivid.", genetics:"Selective Milky Way line with enhanced yellow pigmentation", breeder:"European hobby ~2022" },
+      { id:"055e", card:"#055e", name:"White Spots", year:"~2022", hex:"#505868", rarity:"R", desc:"White spot variant isolated in US hobby. White replacing the typical yellow spots.", genetics:"Recessive white spot expression", breeder:"US hobby ~2022" },
+    ]
+  },
+  {
+    id:"056", card:"#056", genus:"Armadillidium", species:"badium",
+    common:"Bumblebee Isopod", size:"10–14mm", origin:"Casteldaccia, Sicily, Italy",
+    rarity:"C", care:{ temp:"18–26°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Loam/coco mix", diet:"Leaf litter, bark, vegetables", calcium:"Moderate–High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"High", broodSize:"15–40 mancae", gestation:"4–5 weeks" },
+    notes:"Named for vivid yellow and black banding from the Casteldaccia locality in Sicily. Hardy and prolific. Buttercup Pied morph developed by Exuvium Isopods — a deliberate captive isolation. The High Yellow form is particularly striking.",
+    morphs:[
+      { id:"056a", card:"#056a", name:"Wild Type / Yellow Calico", year:"Natural/Locality", hex:"#D4B020", rarity:"C", desc:"Vivid yellow and black banding from Casteldaccia, Sicily. The classic Bumblebee.", genetics:"Natural locality colouration", breeder:"Casteldaccia, Sicily" },
+      { id:"056b", card:"#056b", name:"High Yellow", year:"~2019", hex:"#E8C830", rarity:"U", desc:"Increased yellow expression — more yellow, less black. Bold vivid colouration.", genetics:"Selective line for increased yellow expression", breeder:"Hobby selective breeding ~2019" },
+      { id:"056c", card:"#056c", name:"Buttercup Pied", year:"~2021", hex:"#E8D070", rarity:"R", desc:"Pied gene in badium — white/pale unpigmented sections on yellow-banded base.", genetics:"Recessive piebald gene introduced to badium line", breeder:"Exuvium Isopods ~2021" },
+    ]
+  },
+  {
+    id:"057", card:"#057", genus:"Armadillidium", species:"flavoscutatum",
+    common:"Redhead Isopod", size:"10–14mm", origin:"Mediterranean (Albania, Corfu, Greece)",
+    rarity:"U", care:{ temp:"18–26°C", humidity:"55–70%", ventilation:"Moderate–Good", substrate:"Loam/coco mix", diet:"Leaf litter, bark, dried vegetation", calcium:"Moderate–High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5–6 months", breedingRate:"High", broodSize:"15–35 mancae", gestation:"4–6 weeks" },
+    notes:"Named for the distinctive reddish-orange head segment contrasting with darker body. Mediterranean species. Hardy and prolific. Exuvium Isopods currently developing Dalmatian and Ghost morphs. A Taiwan captive morph was also released in the US hobby.",
+    morphs:[
+      { id:"057a", card:"#057a", name:"Redhead", year:"Natural", hex:"#B04020", rarity:"U", desc:"Distinctive red-orange head segment against darker body. Vivid and unmistakeable.", genetics:"Natural locality colouration", breeder:"Albania / Corfu, Greece" },
+    ]
+  },
+  {
+    id:"058", card:"#058", genus:"Armadillidium", species:"germanicum",
+    common:"German Pill Bug", size:"8–12mm", origin:"Central Europe",
+    rarity:"C", care:{ temp:"15–24°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Loam/coco mix", diet:"Leaf litter, bark, algae", calcium:"Moderate" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"Moderate–High", broodSize:"10–30 mancae", gestation:"4–5 weeks" },
+    notes:"Small common European species. Variable brown-grey patterning. Hardy and adaptable. Less commonly kept than vulgare but useful bioactive species. Good for cooler setups.",
+    morphs:[
+      { id:"058a", card:"#058a", name:"Wild Type", year:"Natural", hex:"#707060", rarity:"C", desc:"Variable brown-grey patterning. Small hardy Central European species.", genetics:"Wild type", breeder:"Natural" },
+    ]
+  },
+  {
+    id:"059", card:"#059", genus:"Armadillidium", species:"espanyoli",
+    common:"Marbleized Isopod", size:"6–10mm", origin:"Spain",
+    rarity:"U", care:{ temp:"18–26°C", humidity:"65–75%", ventilation:"Moderate", substrate:"Rich moist loam/coco mix", diet:"Leaf litter, bark, algae", calcium:"Moderate" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"4–5 months", breedingRate:"Moderate", broodSize:"10–25 mancae", gestation:"4–5 weeks" },
+    notes:"One of the smallest Armadillidium in the hobby. Native to Spain; prefers higher humidity than most Armadillidium despite arid origins. Distinctive marbleized grey-white patterning. Interesting display species.",
+    morphs:[
+      { id:"059a", card:"#059a", name:"Marbleized", year:"Natural", hex:"#A0A098", rarity:"U", desc:"Small Spanish species with distinctive marbleized grey-white patterning. Unique in the genus.", genetics:"Natural colouration", breeder:"Spain locality" },
+    ]
+  },
+  // ── BUILD 1: MISSING PORCELLIO SPECIES ────────────────────────────────
+  {
+    id:"060", card:"#060", genus:"Porcellio", species:"magnificus",
+    common:"Magnificent Isopod", size:"25–35mm", origin:"Spain / North Africa",
+    rarity:"R", care:{ temp:"18–26°C", humidity:"50–65%", ventilation:"Good", substrate:"Sandy/rocky mix with bark", diet:"Leaf litter, bark, vegetables, protein", calcium:"Moderate" },
+    biology:{ lifespan:"3–5 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Slow–Moderate", broodSize:"8–20 mancae", gestation:"6–8 weeks" },
+    notes:"Among the largest terrestrial isopods in the hobby. Beautiful white skirting and white-tipped antennae. Males have long distinctive uropods. Long-lived. Worth the patience — a truly spectacular display animal.",
+    morphs:[
+      { id:"060a", card:"#060a", name:"Wild Type", year:"Natural", hex:"#6A6050", rarity:"R", desc:"Grey-brown with beautiful white skirting and white-tipped antennae. One of the largest isopods in hobby.", genetics:"Wild type", breeder:"Natural" },
+    ]
+  },
+  {
+    id:"061", card:"#061", genus:"Porcellio", species:"silvestrii",
+    common:"Silvestrii Isopod", size:"12–16mm", origin:"Spain",
+    rarity:"U", care:{ temp:"18–26°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Coco/bark mix", diet:"Leaf litter, bark, vegetables", calcium:"Moderate" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"Moderate", broodSize:"10–25 mancae", gestation:"4–5 weeks" },
+    notes:"Spanish Porcellio species with a striking Dalmatian morph developed in captivity. Hardy and adaptable. The Dalmatian morph is highly sought and visually stunning on the silvestrii body shape.",
+    morphs:[
+      { id:"061a", card:"#061a", name:"Wild Type", year:"Natural", hex:"#706858", rarity:"U", desc:"Brown-grey Spanish Porcellio. Standard body form.", genetics:"Wild type", breeder:"Natural" },
+      { id:"061b", card:"#061b", name:"Dalmatian", year:"~2020", hex:"#E8E0D0", rarity:"R", desc:"White base with dark spots — very popular captive morph on silvestrii body.", genetics:"Recessive dalmatian patterning — captive isolation", breeder:"European/US hobby ~2020" },
+    ]
+  },
+];
+
+// ─── UTILITY FUNCTIONS ───────────────────────────────────────────────────────
+const getRarityColor = (r) => RARITY_COLOR[r] || "#7A9B6A";
+const getRarityLabel = (r) => RARITY[r] || r;
+const GENERA = [...new Set(SPECIES.map(s => s.genus))];
+const ALL_MORPHS = SPECIES.flatMap(s => s.morphs.map(m => ({ ...m, species: s })));
+
+// ─── SVG ISOPOD ILLUSTRATION ─────────────────────────────────────────────────
+function IsopodSVG({ color = "#6B6B6B", size = 80, label = "" }) {
+  const c = color;
+  const dark = "#1a1a1a";
+  const light = color + "AA";
+  return (
+    <svg width={size} height={size * 0.7} viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id={`g${label}`} cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stopColor={light} />
+          <stop offset="100%" stopColor={c} />
+        </radialGradient>
+      </defs>
+      <ellipse cx="60" cy="42" rx="52" ry="22" fill={`url(#g${label})`} stroke={dark} strokeWidth="1.2"/>
+      {[15,25,35,45,55,65,75,85,95].map((x,i) => (
+        <ellipse key={i} cx={x} cy="42" rx="7" ry="21" fill="none" stroke={dark} strokeWidth="0.6" opacity="0.5"/>
+      ))}
+      <ellipse cx="10" cy="42" rx="12" ry="16" fill={c} stroke={dark} strokeWidth="1.2"/>
+      <circle cx="6" cy="36" r="2.5" fill={dark}/>
+      <circle cx="14" cy="36" r="2.5" fill={dark}/>
+      <circle cx="6.8" cy="35.2" r="0.8" fill="white" opacity="0.6"/>
+      <line x1="8" y1="28" x2="2" y2="18" stroke={dark} strokeWidth="1" strokeLinecap="round"/>
+      <line x1="12" y1="28" x2="18" y2="16" stroke={dark} strokeWidth="1" strokeLinecap="round"/>
+      {[20,30,40,50,60,70,80].map((x,i) => (
+        <g key={i}>
+          <line x1={x} y1="58" x2={x-4} y2="68" stroke={dark} strokeWidth="0.8"/>
+          <line x1={x+5} y1="58" x2={x+9} y2="68" stroke={dark} strokeWidth="0.8"/>
+        </g>
+      ))}
+      <ellipse cx="112" cy="42" rx="9" ry="8" fill={c} stroke={dark} strokeWidth="1"/>
+    </svg>
+  );
+}
+
+// ─── TRADING CARD COMPONENT ──────────────────────────────────────────────────
+function TradingCard({ item, isSpecies = false, flipped, onClick }) {
+  const rColor = getRarityColor(item.rarity);
+  const cardNum = item.card || item.id;
+  const name = isSpecies ? `${item.genus} ${item.species}` : item.name;
+  const subName = isSpecies ? item.common : (item.species ? `${item.species.genus} ${item.species.species}` : "");
+  const hex = isSpecies ? (item.morphs[0]?.hex || "#6B6B6B") : item.hex;
+
+  return (
+    <div onClick={onClick} style={{ width:160, minWidth:160, height:240, cursor:"pointer", perspective:800, flexShrink:0 }}>
+      <div style={{
+        width:"100%", height:"100%", position:"relative",
+        transformStyle:"preserve-3d",
+        transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
+        transition:"transform 0.5s cubic-bezier(0.4,0,0.2,1)"
+      }}>
+        <div style={{
+          position:"absolute", inset:0, backfaceVisibility:"hidden",
+          borderRadius:12, overflow:"hidden",
+          background:`linear-gradient(160deg, ${rColor}22, #1a160e)`,
+          border:`2px solid ${rColor}66`,
+          boxShadow:`0 4px 24px ${rColor}44, inset 0 1px 0 ${rColor}44`
+        }}>
+          <div style={{ background:rColor, padding:"3px 8px", textAlign:"center" }}>
+            <span style={{ color:"#fff", fontSize:9, fontFamily:"serif", letterSpacing:1 }}>{getRarityLabel(item.rarity)}</span>
+          </div>
+          <div style={{ padding:"4px 8px 0", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+            <span style={{ color:rColor, fontSize:9, fontFamily:"monospace" }}>{cardNum}</span>
+            <span style={{ color:"#7A6A58", fontSize:8 }}>{isSpecies ? "SPECIES" : "MORPH"}</span>
+          </div>
+          <div style={{
+            margin:"6px 10px", height:90, borderRadius:8, overflow:"hidden",
+            background:`radial-gradient(ellipse at center, ${hex}33 0%, #0d0b08 70%)`,
+            display:"flex", alignItems:"center", justifyContent:"center",
+            border:`1px solid ${rColor}33`
+          }}>
+            <IsopodSVG color={hex} size={90} label={item.id} />
+          </div>
+          <div style={{ padding:"4px 8px" }}>
+            <div style={{ color:"#F0E8D0", fontSize:11, fontFamily:"Georgia, serif", fontWeight:"bold", lineHeight:1.2 }}>{name}</div>
+            <div style={{ color:"#9A8878", fontSize:9, marginTop:2 }}>{subName}</div>
+          </div>
+          {!isSpecies && (
+            <div style={{ padding:"0 8px", display:"flex", alignItems:"center", gap:6 }}>
+              <div style={{ width:16, height:16, borderRadius:3, background:hex, border:"1px solid #ffffff33" }}/>
+              <span style={{ color:"#7A6A58", fontSize:8, fontFamily:"monospace" }}>{hex}</span>
+            </div>
+          )}
+          <div style={{ padding:"2px 8px" }}>
+            <span style={{ color:"#6A5848", fontSize:8 }}>{isSpecies ? item.origin : item.year}</span>
+          </div>
+          <div style={{ textAlign:"center", padding:"4px 0 2px", color:"#5A4A38", fontSize:7 }}>tap to flip</div>
+        </div>
+        <div style={{
+          position:"absolute", inset:0, backfaceVisibility:"hidden",
+          transform:"rotateY(180deg)", borderRadius:12, overflow:"hidden",
+          background:"#0d0b08", border:`2px solid ${rColor}66`, padding:10, boxSizing:"border-box"
+        }}>
+          <div style={{ color:rColor, fontSize:10, fontFamily:"serif", letterSpacing:1, marginBottom:4 }}>DATA SHEET</div>
+          <div style={{ color:"#F0E8D0", fontSize:10, fontWeight:"bold", fontFamily:"Georgia,serif" }}>{name}</div>
+          <div style={{ color:"#9A8878", fontSize:8, marginBottom:6 }}>{subName}</div>
+          {isSpecies ? (
+            <div style={{ fontSize:8, lineHeight:1.8, color:"#C8B8A0" }}>
+              <div>📏 {item.size}</div>
+              <div>🌍 {item.origin}</div>
+              <div>🌡️ {item.care.temp}</div>
+              <div>💧 {item.care.humidity}</div>
+              <div>🥗 {item.care.diet}</div>
+              <div style={{ marginTop:4, color:"#9A8878", fontSize:7, lineHeight:1.5 }}>{item.notes?.substring(0,80)}…</div>
+            </div>
+          ) : (
+            <div style={{ fontSize:8, lineHeight:1.8, color:"#C8B8A0" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:4, marginBottom:4 }}>
+                <div style={{ width:14, height:14, borderRadius:3, background:item.hex, border:"1px solid #ffffff33", flexShrink:0 }}/>
+                <span style={{ fontFamily:"monospace", color:"#9A8878" }}>{item.hex}</span>
+              </div>
+              <div>📅 {item.year}</div>
+              <div style={{ marginTop:2, color:"#A09080", fontSize:7, lineHeight:1.5 }}>{item.desc?.substring(0,100)}</div>
+              {item.genetics && <div style={{ marginTop:4, color:"#7A9B6A", fontSize:7 }}>🧬 {item.genetics?.substring(0,60)}</div>}
+              {item.breeder && <div style={{ marginTop:2, color:"#7A8A9A", fontSize:7 }}>👤 {item.breeder}</div>}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── MAIN APP ────────────────────────────────────────────────────────────────
+function IsoMorphApp() {
+  const [section, setSection] = useState("home");
+  const [selectedSpecies, setSelectedSpecies] = useState(null);
+  const [selectedMorph, setSelectedMorph] = useState(null);
+  const [speciesTab, setSpeciesTab] = useState("morphs");
+  const [genusFilter, setGenusFilter] = useState("All");
+  const [search, setSearch] = useState("");
+  const [flippedCards, setFlippedCards] = useState({});
+  const [cardFilter, setCardFilter] = useState("All");
+  const [cardSearch, setCardSearch] = useState("");
+  const [projects, setProjects] = useState([]);
+  const [showAddProject, setShowAddProject] = useState(false);
+  const [newProject, setNewProject] = useState({ name:"", speciesId:"", morphId:"", notes:"" });
+  const [projectLogs, setProjectLogs] = useState({});
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [newLog, setNewLog] = useState({ type:"observation", note:"" });
+  const [idMode, setIdMode] = useState("describe");
+  const [idDescription, setIdDescription] = useState("");
+  const [idImage, setIdImage] = useState(null);
+  const [idImageB64, setIdImageB64] = useState(null);
+  const [idResults, setIdResults] = useState(null);
+  const [idLoading, setIdLoading] = useState(false);
+  const [idError, setIdError] = useState(null);
+  const [morphCheckResult, setMorphCheckResult] = useState(null);
+  const [morphCheckLoading, setMorphCheckLoading] = useState(false);
+  const [newMorphDesc, setNewMorphDesc] = useState("");
+  // Genetics Calculator state
+  const [calcSpeciesId, setCalcSpeciesId] = useState("");
+  const [calcParentA, setCalcParentA] = useState("");
+  const [calcParentB, setCalcParentB] = useState("");
+  const [calcResult, setCalcResult] = useState(null);
+  const [calcLoading, setCalcLoading] = useState(false);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try { const r = await window.storage.get("isomorph_projects"); if (r) setProjects(JSON.parse(r.value)); } catch {}
+      try { const r = await window.storage.get("isomorph_logs"); if (r) setProjectLogs(JSON.parse(r.value)); } catch {}
+    };
+    loadData();
+  }, []);
+
+  const saveProjects = async (p) => { setProjects(p); try { await window.storage.set("isomorph_projects", JSON.stringify(p)); } catch {} };
+  const saveLogs = async (l) => { setProjectLogs(l); try { await window.storage.set("isomorph_logs", JSON.stringify(l)); } catch {} };
+  const toggleCard = (id) => setFlippedCards(f => ({ ...f, [id]: !f[id] }));
+
+  const filteredSpecies = SPECIES.filter(s => {
+    if (genusFilter !== "All" && s.genus !== genusFilter) return false;
+    if (search && !`${s.genus} ${s.species} ${s.common}`.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
+
+  const filteredCards = (() => {
+    let cards = [];
+    if (cardFilter === "All" || cardFilter === "Species") SPECIES.forEach(s => cards.push({ key:`sp_${s.id}`, item:s, isSpecies:true }));
+    if (cardFilter === "All" || cardFilter === "Morphs") ALL_MORPHS.forEach(m => cards.push({ key:`mo_${m.id}`, item:m, isSpecies:false }));
+    if (cardSearch) {
+      const q = cardSearch.toLowerCase();
+      cards = cards.filter(c => {
+        const t = c.isSpecies ? `${c.item.genus} ${c.item.species} ${c.item.common}` : `${c.item.name}`;
+        return t.toLowerCase().includes(q);
+      });
+    }
+    return cards;
+  })();
+
+  // ── STYLES ──────────────────────────────────────────────────────────────────
+  const S = {
+    app: { fontFamily:"Georgia, 'Times New Roman', serif", background:"#0d0b08", color:"#C8B8A0", minHeight:"100vh", maxWidth:900, margin:"0 auto", paddingBottom:80 },
+    nav: { position:"fixed", bottom:0, left:"50%", transform:"translateX(-50%)", width:"100%", maxWidth:900, background:"#13100c", borderTop:"1px solid #2A231A", display:"flex", justifyContent:"space-around", padding:"8px 0", zIndex:100, boxSizing:"border-box" },
+    navBtn: (active) => ({ background:"none", border:"none", cursor:"pointer", color: active ? "#C8943A" : "#5A4A38", display:"flex", flexDirection:"column", alignItems:"center", gap:2, fontSize:10, padding:"4px 8px", fontFamily:"Georgia,serif" }),
+    section: { padding:"16px 12px 8px" },
+    card: { background:"#13100c", border:"1px solid #2A231A", borderRadius:10, padding:12, marginBottom:10 },
+    h1: { color:"#C8943A", fontFamily:"Georgia, serif", fontSize:22, margin:"0 0 12px", letterSpacing:1 },
+    h3: { color:"#C8943A", fontSize:13, marginBottom:8, fontFamily:"Georgia,serif" },
+    btn: (bg="#C8943A") => ({ background:bg, color:"#1a160e", border:"none", borderRadius:6, padding:"8px 16px", cursor:"pointer", fontSize:12, fontFamily:"Georgia,serif", fontWeight:"bold" }),
+    input: { background:"#0d0b08", border:"1px solid #2A231A", borderRadius:6, padding:"8px 10px", color:"#C8B8A0", fontSize:12, width:"100%", boxSizing:"border-box", fontFamily:"Georgia,serif" },
+    pill: (c) => ({ background:c+"22", color:c, border:`1px solid ${c}44`, borderRadius:10, padding:"2px 7px", fontSize:9, display:"inline-block" }),
+    tab: (active) => ({ background: active ? "#C8943A22" : "none", border: active ? "1px solid #C8943A66" : "1px solid transparent", color: active ? "#C8943A" : "#6A5A48", padding:"6px 14px", borderRadius:6, cursor:"pointer", fontSize:11, fontFamily:"Georgia, serif" }),
+    grid: { display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(140px,1fr))", gap:12 },
+    speciesCard: (s) => ({ background:"#13100c", border:`1px solid ${getRarityColor(s.rarity)}44`, borderRadius:10, padding:12, cursor:"pointer", transition:"all 0.2s" }),
+  };
+
+  // ── HOME ────────────────────────────────────────────────────────────────────
+  const HomeSection = () => {
+    const totalMorphs = SPECIES.reduce((a,s) => a + s.morphs.length, 0);
+    const rarityCount = { C:0, U:0, R:0, UR:0 };
+    ALL_MORPHS.forEach(m => rarityCount[m.rarity]++);
+    SPECIES.forEach(s => rarityCount[s.rarity]++);
+    return (
+      <div style={S.section}>
+        <div style={{ textAlign:"center", padding:"20px 0 16px" }}>
+          <div style={{ color:"#C8943A", fontSize:11, letterSpacing:4, marginBottom:8 }}>FIELD GUIDE & REGISTRY</div>
+          <h1 style={{ ...S.h1, fontSize:32, letterSpacing:3, margin:"0 0 6px" }}>ISOMORPHS</h1>
+          <div style={{ color:"#7A6A58", fontSize:12 }}>The Isopod Species Database & Trading Card Series</div>
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:8, marginBottom:16 }}>
+          {[{ n:SPECIES.length, label:"Species" },{ n:totalMorphs, label:"Morphs" },{ n:SPECIES.length+totalMorphs, label:"Total Cards" },{ n:GENERA.length, label:"Genera" }].map(s => (
+            <div key={s.label} style={{ ...S.card, textAlign:"center", padding:"10px 4px" }}>
+              <div style={{ color:"#C8943A", fontSize:22, fontWeight:"bold" }}>{s.n}</div>
+              <div style={{ color:"#7A6A58", fontSize:10 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ ...S.card, marginBottom:16 }}>
+          <div style={S.h3}>Rarity Tiers</div>
+          <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
+            {Object.entries(RARITY).map(([k,v]) => (
+              <div key={k} style={{ display:"flex", alignItems:"center", gap:6 }}>
+                <span style={S.pill(RARITY_COLOR[k])}>{v}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{ ...S.card, marginBottom:16 }}>
+          <div style={S.h3}>⭐ Notable Firsts</div>
+          {[
+            { icon:"🔶", text:"P. scaber Orange — THE first colour morph in the isopod hobby (Orin McMongle)" },
+            { icon:"⚡", text:"P. scaber Lava — ONLY co-dominant gene currently known in isopods" },
+            { icon:"🔵", text:"O. asellus Mardi Gras Dalmatian — first ever O. asellus morph (Kyle/InvertDude, 2016)" },
+            { icon:"🟣", text:"A. vulgare Magic Potion — from Japan, most coveted vulgare morph globally" },
+            { icon:"🟠", text:"P. scaber Orange Dalmatian — first documented F2 cross morph (Ryan Orr)" },
+            { icon:"👁️", text:"T. tomentosa — all-female parthenogenetic species (no males needed)" },
+            { icon:"🔊", text:"A. officinalis — only isopod that produces a hissing sound" },
+          ].map((f,i) => (
+            <div key={i} style={{ display:"flex", gap:8, marginBottom:5, fontSize:11, lineHeight:1.4, color:"#B0A090" }}>
+              <span>{f.icon}</span><span>{f.text}</span>
+            </div>
+          ))}
+        </div>
+        <div style={S.h3}>Card Preview</div>
+        <div style={{ display:"flex", gap:12, overflowX:"auto", paddingBottom:12, scrollbarWidth:"thin" }}>
+          {[SPECIES[0].morphs[1], SPECIES[0].morphs[2], SPECIES[8].morphs[1], SPECIES[8].morphs[6], SPECIES[19].morphs[0], SPECIES[17].morphs[1]].map(m => (
+            <TradingCard key={m.id} item={m} isSpecies={false} flipped={flippedCards[m.id]} onClick={() => toggleCard(m.id)} />
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // ── DATABASE ────────────────────────────────────────────────────────────────
+  const DatabaseSection = () => {
+    if (selectedMorph) {
+      const s = selectedMorph.species || SPECIES.find(sp => sp.morphs.some(m => m.id === selectedMorph.id));
+      return (
+        <div style={S.section}>
+          <button onClick={() => setSelectedMorph(null)} style={{ ...S.btn(), marginBottom:12 }}>← Back</button>
+          <div style={{ ...S.card, borderColor: getRarityColor(selectedMorph.rarity)+"88" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:12 }}>
+              <IsopodSVG color={selectedMorph.hex} size={70} label={selectedMorph.id} />
+              <div>
+                <div style={{ color:"#7A6A58", fontSize:10 }}>{selectedMorph.card} • {s?.genus} {s?.species}</div>
+                <div style={{ color:"#F0E8D0", fontSize:18, fontWeight:"bold" }}>{selectedMorph.name}</div>
+                <span style={S.pill(getRarityColor(selectedMorph.rarity))}>{getRarityLabel(selectedMorph.rarity)}</span>
+              </div>
+            </div>
+            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
+              <div style={{ width:32, height:32, borderRadius:6, background:selectedMorph.hex, border:"1px solid #ffffff22" }}/>
+              <span style={{ color:"#7A6A58", fontFamily:"monospace", fontSize:13 }}>{selectedMorph.hex}</span>
+              <span style={{ color:"#9A8878", fontSize:11 }}>{selectedMorph.year}</span>
+            </div>
+            <div style={{ marginBottom:12, color:"#C8B8A0", fontSize:12, lineHeight:1.6 }}>{selectedMorph.desc}</div>
+            <div style={{ ...S.card, background:"#0d0b08", marginBottom:8 }}>
+              <div style={{ color:"#7A9B6A", fontSize:11, marginBottom:4 }}>🧬 Genetics</div>
+              <div style={{ color:"#A0B890", fontSize:12, lineHeight:1.5 }}>{selectedMorph.genetics}</div>
+            </div>
+            <div style={{ ...S.card, background:"#0d0b08" }}>
+              <div style={{ color:"#7A8A9A", fontSize:11, marginBottom:4 }}>👤 Breeder / Origin</div>
+              <div style={{ color:"#A0A8B0", fontSize:12 }}>{selectedMorph.breeder}</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    if (selectedSpecies) {
+      const s = selectedSpecies;
+      return (
+        <div style={S.section}>
+          <button onClick={() => setSelectedSpecies(null)} style={{ ...S.btn(), marginBottom:12 }}>← Database</button>
+          <div style={{ display:"flex", gap:12, alignItems:"flex-start", marginBottom:12, flexWrap:"wrap" }}>
+            <IsopodSVG color={s.morphs[0]?.hex || "#6B6B6B"} size={80} label={s.id} />
+            <div style={{ flex:1, minWidth:180 }}>
+              <div style={{ color:"#7A6A58", fontSize:10 }}>{s.card} • {s.genus}</div>
+              <div style={{ color:"#F0E8D0", fontSize:20, fontFamily:"Georgia,serif", fontStyle:"italic" }}>{s.genus} {s.species}</div>
+              <div style={{ color:"#C8943A", fontSize:13 }}>"{s.common}"</div>
+              <div style={{ display:"flex", gap:6, marginTop:6, flexWrap:"wrap" }}>
+                <span style={S.pill(getRarityColor(s.rarity))}>{getRarityLabel(s.rarity)}</span>
+                <span style={{ ...S.pill("#7A6A58"), background:"#2a231a" }}>📏 {s.size}</span>
+              </div>
+            </div>
+          </div>
+          <div style={{ display:"flex", gap:6, marginBottom:12 }}>
+            {["morphs","care","biology"].map(t => (
+              <button key={t} onClick={() => setSpeciesTab(t)} style={S.tab(speciesTab===t)}>
+                {t==="morphs" ? "🎨 Morphs" : t==="care" ? "🌿 Care" : "🔬 Biology"}
+              </button>
+            ))}
+          </div>
+          {speciesTab==="morphs" && (
+            <div>
+              <div style={{ color:"#7A6A58", fontSize:11, marginBottom:8 }}>{s.morphs.length} morphs documented</div>
+              {s.morphs.map(m => (
+                <div key={m.id} onClick={() => setSelectedMorph({ ...m, species:s })}
+                  style={{ ...S.card, display:"flex", gap:10, alignItems:"center", cursor:"pointer", borderColor:getRarityColor(m.rarity)+"44" }}>
+                  <div style={{ width:36, height:36, borderRadius:6, background:m.hex, border:"1px solid #ffffff22", flexShrink:0 }}/>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ color:"#F0E8D0", fontSize:13 }}>{m.name}</div>
+                    <div style={{ color:"#7A6A58", fontSize:10 }}>{m.card} • {m.year}</div>
+                    <div style={{ color:"#A09080", fontSize:10, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{m.desc}</div>
+                  </div>
+                  <span style={S.pill(getRarityColor(m.rarity))}>{m.rarity}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {speciesTab==="care" && (
+            <div style={S.card}>
+              <div style={S.h3}>🌿 Care Requirements</div>
+              <div style={{ color:"#C8B8A0", fontSize:12 }}>
+                <div style={{ marginBottom:4 }}>🌍 <strong>Origin:</strong> {s.origin}</div>
+                {Object.entries(s.care).map(([k,v]) => (
+                  <div key={k} style={{ marginBottom:4 }}><span style={{ color:"#9A8878", textTransform:"capitalize" }}>{k}: </span><span>{v}</span></div>
+                ))}
+                <div style={{ marginTop:10, padding:10, background:"#0d0b08", borderRadius:6, color:"#A09080", lineHeight:1.6 }}>💡 {s.notes}</div>
+              </div>
+            </div>
+          )}
+          {speciesTab==="biology" && (
+            <div style={S.card}>
+              <div style={S.h3}>🔬 Biology</div>
+              <div style={{ color:"#C8B8A0", fontSize:12 }}>
+                {Object.entries(s.biology).map(([k,v]) => (
+                  <div key={k} style={{ marginBottom:6, display:"flex", justifyContent:"space-between" }}>
+                    <span style={{ color:"#9A8878", textTransform:"capitalize" }}>{k.replace(/([A-Z])/g, ' $1')}</span>
+                    <span style={{ textAlign:"right" }}>{v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+    return (
+      <div style={S.section}>
+        <h1 style={S.h1}>📚 Database</h1>
+        <div style={{ marginBottom:12 }}>
+          <input placeholder="Search species..." value={search} onChange={e=>setSearch(e.target.value)} style={{ ...S.input, marginBottom:8 }} />
+          <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+            {["All",...GENERA].map(g => (
+              <button key={g} onClick={() => setGenusFilter(g)} style={S.tab(genusFilter===g)}>{g}</button>
+            ))}
+          </div>
+        </div>
+        <div style={{ color:"#7A6A58", fontSize:11, marginBottom:8 }}>{filteredSpecies.length} species</div>
+        <div style={S.grid}>
+          {filteredSpecies.map(s => (
+            <div key={s.id} onClick={() => { setSelectedSpecies(s); setSpeciesTab("morphs"); }} style={S.speciesCard(s)}>
+              <IsopodSVG color={s.morphs[0]?.hex || "#6B6B6B"} size={60} label={s.id} />
+              <div style={{ color:"#F0E8D0", fontSize:11, fontFamily:"Georgia,serif", fontStyle:"italic", marginTop:4 }}>{s.genus}</div>
+              <div style={{ color:"#9A8878", fontSize:10 }}>{s.species}</div>
+              <div style={{ color:"#C8943A", fontSize:10, marginTop:2 }}>"{s.common}"</div>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:6 }}>
+                <span style={S.pill(getRarityColor(s.rarity))}>{s.rarity}</span>
+                <span style={{ color:"#5A4A38", fontSize:9 }}>{s.morphs.length} morphs</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // ── GALLERY ─────────────────────────────────────────────────────────────────
+  const GallerySection = () => (
+    <div style={S.section}>
+      <h1 style={S.h1}>🎴 Card Gallery</h1>
+      <div style={{ ...S.card, background:"#1a1408", borderColor:"#C8943A44", marginBottom:16, textAlign:"center" }}>
+        <div style={{ color:"#C8943A", fontSize:13, marginBottom:4 }}>📦 Trading Card Series</div>
+        <div style={{ color:"#7A6A58", fontSize:11, marginBottom:8 }}>Physical illustrated cards — Kickstarter & Etsy</div>
+        <div style={{ display:"flex", gap:8, justifyContent:"center" }}>
+          <button style={{ ...S.btn(), fontSize:11 }}>🚀 Kickstarter</button>
+          <button style={{ ...S.btn("#7A9B6A"), fontSize:11 }}>🛒 Etsy Shop</button>
+        </div>
+      </div>
+      <div style={{ display:"flex", gap:6, marginBottom:12, flexWrap:"wrap" }}>
+        {["All","Species","Morphs"].map(f => (
+          <button key={f} onClick={() => setCardFilter(f)} style={S.tab(cardFilter===f)}>{f}</button>
+        ))}
+        <input placeholder="Search cards..." value={cardSearch} onChange={e=>setCardSearch(e.target.value)} style={{ ...S.input, flex:1, minWidth:120 }} />
+      </div>
+      <div style={{ color:"#7A6A58", fontSize:11, marginBottom:8 }}>{filteredCards.length} cards</div>
+      <div style={{ display:"flex", flexWrap:"wrap", gap:12 }}>
+        {filteredCards.map(({ key, item, isSpecies }) => (
+          <TradingCard key={key} item={item} isSpecies={isSpecies} flipped={flippedCards[key]} onClick={() => toggleCard(key)} />
+        ))}
+      </div>
+    </div>
+  );
+
+  // ── PROJECTS ─────────────────────────────────────────────────────────────────
+  const ProjectsSection = () => {
+    const LOG_TYPES = ["observation","birth","feeding","mating","moult","death","maintenance","transfer","note"];
+    const LOG_ICONS = { observation:"👁️", birth:"🐣", feeding:"🥗", mating:"💞", moult:"🔄", death:"💀", maintenance:"🔧", transfer:"📦", note:"📝" };
+
+    const runMorphCheck = async (spId, parentMorphId, description) => {
+      setMorphCheckLoading(true);
+      setMorphCheckResult(null);
+      const sp = SPECIES.find(s => s.id === spId);
+      if (!sp) { setMorphCheckLoading(false); return; }
+      const knownMorphs = sp.morphs.map(m => `${m.name} (${m.id}): ${m.genetics} — ${m.desc}`).join("\n");
+      const systemPrompt = `You are an expert isopod genetics analyst for the IsoMorphs registry. You help breeders determine whether offspring colouration represents a known morph, a variation of a known morph, or potentially a new undocumented morph.
+
+SPECIES: ${sp.genus} ${sp.species} (${sp.common})
+PARENT MORPH: ${sp.morphs.find(m=>m.id===parentMorphId)?.name || "Unknown/Wild type"}
+KNOWN MORPHS FOR THIS SPECIES:
+${knownMorphs}
+
+Respond ONLY with valid JSON (no markdown) with these fields:
+- verdict: "Known Morph" | "Variation of Known" | "Possible New Morph" | "Likely New Morph"
+- matchedMorphId: morph id if matched or null
+- matchedMorphName: name if matched or null
+- confidence: "High"|"Medium"|"Low"
+- explanation: 2-3 sentences
+- geneticsHypothesis: what genetic mechanism might explain this if new
+- recommendedNextSteps: practical advice
+- noveltyScore: 0-10`;
+      try {
+        const res = await fetch("https://api.anthropic.com/v1/messages", { method:"POST", headers:{ "Content-Type":"application/json" },
+          body:JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:800, system:systemPrompt, messages:[{ role:"user", content:`Offspring description: ${description}` }] }) });
+        const data = await res.json();
+        const text = data.content?.map(c=>c.text||"").join("").trim();
+        const clean = text.replace(/```json|```/g,"").trim();
+        setMorphCheckResult(JSON.parse(clean));
+      } catch(e) { setMorphCheckResult({ verdict:"Error", explanation:"Could not analyse. Please try again.", noveltyScore:0 }); }
+      setMorphCheckLoading(false);
+    };
+
+    if (selectedProject !== null) {
+      const p = projects[selectedProject];
+      const sp = SPECIES.find(s => s.id === p.speciesId);
+      const m = sp?.morphs.find(m => m.id === p.morphId);
+      const logs = projectLogs[selectedProject] || [];
+      const addLog = () => {
+        if (!newLog.note.trim()) return;
+        const updated = { ...projectLogs, [selectedProject]: [...logs, { ...newLog, date:new Date().toLocaleDateString() }] };
+        saveLogs(updated);
+        setNewLog({ type:"observation", note:"" });
+      };
+      const novelty = morphCheckResult?.noveltyScore || 0;
+      const vc = novelty >= 7 ? "#C84A4A" : novelty >= 4 ? "#C8943A" : "#7A9B6A";
+      return (
+        <div style={S.section}>
+          <button onClick={() => { setSelectedProject(null); setMorphCheckResult(null); setNewMorphDesc(""); }} style={{ ...S.btn(), marginBottom:12 }}>← Projects</button>
+          <div style={S.card}>
+            <div style={{ display:"flex", gap:10, alignItems:"center" }}>
+              {sp && <IsopodSVG color={m?.hex || sp.morphs[0]?.hex || "#6B6B6B"} size={50} label={`proj_${selectedProject}`} />}
+              <div>
+                <div style={{ color:"#F0E8D0", fontSize:16 }}>{p.name}</div>
+                <div style={{ color:"#9A8878", fontSize:11 }}>{sp ? `${sp.genus} ${sp.species}` : "No species linked"}{m ? ` — ${m.name}` : ""}</div>
+              </div>
+            </div>
+            {p.notes && <div style={{ marginTop:8, color:"#A09080", fontSize:11, lineHeight:1.5 }}>{p.notes}</div>}
+          </div>
+          {sp && (
+            <div style={{ ...S.card, background:"#0d0b08", marginBottom:12 }}>
+              <div style={{ color:"#7A9B6A", fontSize:11, marginBottom:4 }}>Care Reference</div>
+              <div style={{ display:"flex", flexWrap:"wrap", gap:8, fontSize:10, color:"#9A8878" }}>
+                <span>🌡️ {sp.care.temp}</span><span>💧 {sp.care.humidity}</span><span>🌬️ {sp.care.ventilation}</span>
+              </div>
+            </div>
+          )}
+          <div style={S.card}>
+            <div style={S.h3}>Add Entry</div>
+            <div style={{ display:"flex", gap:6, marginBottom:8, flexWrap:"wrap" }}>
+              {LOG_TYPES.map(t => (
+                <button key={t} onClick={() => setNewLog(l => ({ ...l, type:t }))} style={{ ...S.tab(newLog.type===t), fontSize:10, padding:"4px 8px" }}>
+                  {LOG_ICONS[t]} {t}
+                </button>
+              ))}
+            </div>
+            <textarea value={newLog.note} onChange={e => setNewLog(l => ({ ...l, note:e.target.value }))} placeholder="Entry notes..." rows={3} style={{ ...S.input, resize:"vertical", marginBottom:8 }} />
+            <button onClick={addLog} style={S.btn()}>Add Entry</button>
+          </div>
+          {sp && (
+            <div style={{ ...S.card, borderColor:"#C8943A44" }}>
+              <div style={{ display:"flex", gap:6, alignItems:"center", marginBottom:6 }}>
+                <span style={{ fontSize:16 }}>✨</span>
+                <div style={S.h3}>New Morph Checker</div>
+              </div>
+              <div style={{ color:"#7A6A58", fontSize:10, marginBottom:10, lineHeight:1.5 }}>
+                Have offspring that look different? Describe the colouration and we'll check it against all known morphs for this species.
+              </div>
+              <textarea value={newMorphDesc} onChange={e => setNewMorphDesc(e.target.value)} placeholder="Describe offspring colouration…" rows={4} style={{ ...S.input, resize:"vertical", marginBottom:10 }} />
+              <button onClick={() => runMorphCheck(sp.id, p.morphId, newMorphDesc)} disabled={morphCheckLoading || !newMorphDesc.trim()} style={{ ...S.btn("#7A9B6A"), opacity:newMorphDesc.trim() ? 1 : 0.5 }}>
+                {morphCheckLoading ? "Analysing…" : "✨ Check Morph"}
+              </button>
+              {morphCheckResult && (
+                <div style={{ marginTop:12 }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+                    <span style={{ color: morphCheckResult.verdict==="Known Morph" ? "#7A9B6A" : morphCheckResult.verdict==="Variation of Known" ? "#4A7CA8" : morphCheckResult.verdict==="Possible New Morph" ? "#C8943A" : "#C84A4A", fontSize:13, fontWeight:"bold" }}>{morphCheckResult.verdict}</span>
+                    <div style={{ display:"flex", gap:3 }}>
+                      {[...Array(10)].map((_,i) => (
+                        <div key={i} style={{ width:8, height:8, borderRadius:2, background: i < novelty ? vc : "#2A231A" }}/>
+                      ))}
+                      <span style={{ color:vc, fontSize:11, fontWeight:"bold", marginLeft:4 }}>{novelty}/10</span>
+                    </div>
+                  </div>
+                  {morphCheckResult.matchedMorphName && (
+                    <div style={{ marginBottom:8, padding:8, background:"#13100c", borderRadius:6 }}>
+                      <span style={{ color:"#7A9B6A", fontSize:10 }}>Matched to: </span>
+                      <span style={{ color:"#F0E8D0", fontSize:12 }}>{morphCheckResult.matchedMorphName}</span>
+                    </div>
+                  )}
+                  <div style={{ color:"#C8B8A0", fontSize:11, lineHeight:1.6, marginBottom:8 }}>{morphCheckResult.explanation}</div>
+                  {morphCheckResult.geneticsHypothesis && (
+                    <div style={{ marginBottom:8 }}>
+                      <div style={{ color:"#7A9B6A", fontSize:10, marginBottom:2 }}>🧬 Genetics hypothesis</div>
+                      <div style={{ color:"#9A9080", fontSize:11, lineHeight:1.5 }}>{morphCheckResult.geneticsHypothesis}</div>
+                    </div>
+                  )}
+                  {morphCheckResult.recommendedNextSteps && (
+                    <div style={{ padding:8, background:"#13100c", borderRadius:6 }}>
+                      <div style={{ color:"#C8943A", fontSize:10, marginBottom:2 }}>📋 Next steps</div>
+                      <div style={{ color:"#A09080", fontSize:11, lineHeight:1.5 }}>{morphCheckResult.recommendedNextSteps}</div>
+                    </div>
+                  )}
+                  {(morphCheckResult.verdict === "Possible New Morph" || morphCheckResult.verdict === "Likely New Morph") && (
+                    <div style={{ marginTop:10, padding:8, background:"#C8943A11", borderRadius:6, border:"1px solid #C8943A44" }}>
+                      <div style={{ color:"#C8943A", fontSize:11, fontWeight:"bold", marginBottom:4 }}>⭐ Potential discovery!</div>
+                      <div style={{ color:"#A09080", fontSize:10, lineHeight:1.5 }}>Document everything carefully — photos at each instar, parent crosses, and isolation progress.</div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+          {logs.length > 0 && (
+            <div style={S.card}>
+              <div style={S.h3}>Log History</div>
+              {[...logs].reverse().map((l,i) => (
+                <div key={i} style={{ marginBottom:8, paddingBottom:8, borderBottom:"1px solid #2A231A" }}>
+                  <div style={{ display:"flex", justifyContent:"space-between" }}>
+                    <span style={{ color:"#C8943A", fontSize:11 }}>{LOG_ICONS[l.type]} {l.type}</span>
+                    <span style={{ color:"#5A4A38", fontSize:10 }}>{l.date}</span>
+                  </div>
+                  <div style={{ color:"#C8B8A0", fontSize:11, marginTop:2, lineHeight:1.4 }}>{l.note}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div style={S.section}>
+        <h1 style={S.h1}>🧬 My Projects</h1>
+        <button onClick={() => setShowAddProject(true)} style={{ ...S.btn(), marginBottom:12 }}>+ New Project</button>
+        {showAddProject && (
+          <div style={{ ...S.card, borderColor:"#C8943A44", marginBottom:12 }}>
+            <div style={S.h3}>New Project</div>
+            <input placeholder="Project name" value={newProject.name} onChange={e=>setNewProject(p=>({...p,name:e.target.value}))} style={{ ...S.input, marginBottom:8 }} />
+            <select value={newProject.speciesId} onChange={e=>setNewProject(p=>({...p,speciesId:e.target.value,morphId:""}))} style={{ ...S.input, marginBottom:8 }}>
+              <option value="">Select species…</option>
+              {SPECIES.map(s => <option key={s.id} value={s.id}>{s.genus} {s.species} — {s.common}</option>)}
+            </select>
+            {newProject.speciesId && (
+              <select value={newProject.morphId} onChange={e=>setNewProject(p=>({...p,morphId:e.target.value}))} style={{ ...S.input, marginBottom:8 }}>
+                <option value="">Select morph (optional)…</option>
+                {SPECIES.find(s=>s.id===newProject.speciesId)?.morphs.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+              </select>
+            )}
+            <textarea placeholder="Notes…" value={newProject.notes} onChange={e=>setNewProject(p=>({...p,notes:e.target.value}))} rows={2} style={{ ...S.input, resize:"vertical", marginBottom:8 }} />
+            <div style={{ display:"flex", gap:8 }}>
+              <button onClick={() => { if (!newProject.name.trim()) return; saveProjects([...projects, newProject]); setNewProject({ name:"", speciesId:"", morphId:"", notes:"" }); setShowAddProject(false); }} style={S.btn()}>Create</button>
+              <button onClick={() => setShowAddProject(false)} style={{ ...S.btn("#4A3A2A") }}>Cancel</button>
+            </div>
+          </div>
+        )}
+        {projects.length === 0 && !showAddProject && (
+          <div style={{ ...S.card, background:"#0d0b08", textAlign:"center", padding:24 }}>
+            <div style={{ color:"#5A4A38", fontSize:13 }}>No projects yet</div>
+            <div style={{ color:"#3A2A1A", fontSize:11, marginTop:4 }}>Create a project to start tracking a colony or breeding programme</div>
+          </div>
+        )}
+        {projects.map((p,i) => {
+          const sp = SPECIES.find(s => s.id === p.speciesId);
+          const m = sp?.morphs.find(mo => mo.id === p.morphId);
+          return (
+            <div key={i} onClick={() => setSelectedProject(i)} style={{ ...S.card, cursor:"pointer", display:"flex", gap:10, alignItems:"center" }}>
+              {sp && <IsopodSVG color={m?.hex || sp.morphs[0]?.hex || "#6B6B6B"} size={40} label={`list_${i}`} />}
+              <div style={{ flex:1 }}>
+                <div style={{ color:"#F0E8D0", fontSize:13 }}>{p.name}</div>
+                <div style={{ color:"#7A6A58", fontSize:10 }}>{sp ? `${sp.genus} ${sp.species}` : "No species"}{m ? ` — ${m.name}` : ""}</div>
+                <div style={{ color:"#5A4A38", fontSize:10 }}>{(projectLogs[i]||[]).length} entries</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  // ── IDENTIFY ─────────────────────────────────────────────────────────────────
+  const IDSection = () => {
+    const VERDICT_COLOR = { "Known Morph":"#7A9B6A", "Variation of Known":"#4A7CA8", "Possible New Morph":"#C8943A", "Likely New Morph":"#C84A4A" };
+    const runIdentify = async () => {
+      setIdLoading(true); setIdResults(null); setIdError(null);
+      const allMorphData = SPECIES.map(s => `${s.genus} ${s.species} (${s.common}): ${s.morphs.map(m=>`${m.name}[${m.id}] — ${m.hex} — ${m.desc?.substring(0,60)}`).join("; ")}`).join("\n");
+      const systemPrompt = `You are an expert isopod identification assistant for the IsoMorphs registry. Given a description or image of an isopod, identify the most likely species and colour morph from the database.
+
+DATABASE:
+${allMorphData}
+
+Return ONLY valid JSON (no markdown): { "matches": [ { "speciesId": "001", "morphId": "001b", "confidence": "High", "confidencePc": 87, "reasoning": "...", "distinguishingFeatures": "...", "alternativeNotes": "..." } ] }
+Return up to 5 matches, best first.`;
+      try {
+        const messages = idImageB64
+          ? [{ role:"user", content:[{ type:"image", source:{ type:"base64", media_type:"image/jpeg", data:idImageB64 } }, { type:"text", text: idDescription || "Identify this isopod" }] }]
+          : [{ role:"user", content: idDescription }];
+        const res = await fetch("https://api.anthropic.com/v1/messages", { method:"POST", headers:{ "Content-Type":"application/json" },
+          body:JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:1200, system:systemPrompt, messages }) });
+        const data = await res.json();
+        const text = data.content?.map(c=>c.text||"").join("").trim();
+        const clean = text.replace(/```json|```/g,"").trim();
+        const parsed = JSON.parse(clean);
+        setIdResults(parsed.matches || []);
+      } catch(e) { setIdError("Could not identify. Please try again with more detail."); }
+      setIdLoading(false);
+    };
+    return (
+      <div style={S.section}>
+        <h1 style={S.h1}>🔍 Identify</h1>
+        <div style={{ color:"#7A6A58", fontSize:12, marginBottom:16, lineHeight:1.5 }}>Describe your isopod or upload a photo and we'll match it against all 33 species and 109 morphs.</div>
+        <div style={{ display:"flex", gap:8, marginBottom:12 }}>
+          <button onClick={()=>setIdMode("describe")} style={S.tab(idMode==="describe")}>✏️ Describe</button>
+          <button onClick={()=>setIdMode("photo")} style={S.tab(idMode==="photo")}>📷 Photo</button>
+        </div>
+        {idMode==="describe" ? (
+          <div>
+            <textarea value={idDescription} onChange={e=>setIdDescription(e.target.value)} placeholder="Describe your isopod — colour, pattern, size, texture, behaviour, origin…" rows={5} style={{ ...S.input, resize:"vertical", marginBottom:10 }} />
+            <button onClick={runIdentify} disabled={idLoading || !idDescription.trim()} style={{ ...S.btn(), opacity:idDescription.trim() ? 1 : 0.5 }}>
+              {idLoading ? "Identifying…" : "🔍 Identify"}
+            </button>
+          </div>
+        ) : (
+          <div>
+            <input type="file" accept="image/*" onChange={e => {
+              const f = e.target.files[0]; if (!f) return;
+              setIdImage(URL.createObjectURL(f));
+              const reader = new FileReader();
+              reader.onload = ev => setIdImageB64(ev.target.result.split(",")[1]);
+              reader.readAsDataURL(f);
+            }} style={{ ...S.input, marginBottom:8 }} />
+            {idImage && <img src={idImage} alt="Upload" style={{ width:"100%", maxHeight:200, objectFit:"contain", borderRadius:8, marginBottom:8, border:"1px solid #2A231A" }} />}
+            <textarea value={idDescription} onChange={e=>setIdDescription(e.target.value)} placeholder="Optional: add description to help identification…" rows={2} style={{ ...S.input, resize:"vertical", marginBottom:10 }} />
+            <button onClick={runIdentify} disabled={idLoading || (!idDescription.trim() && !idImageB64)} style={{ ...S.btn(), opacity:(idDescription.trim() || idImageB64) ? 1 : 0.5 }}>
+              {idLoading ? "Identifying…" : "🔍 Identify"}
+            </button>
+          </div>
+        )}
+        {idLoading && (
+          <div style={{ ...S.card, textAlign:"center", padding:24, marginTop:12 }}>
+            <div style={{ color:"#C8943A", fontSize:14, marginBottom:8 }}>Searching database…</div>
+            <div style={{ color:"#5A4A38", fontSize:11 }}>Comparing against 33 species and 109 morphs</div>
+          </div>
+        )}
+        {idError && <div style={{ ...S.card, borderColor:"#C84A4A66", marginTop:12 }}><div style={{ color:"#C84A4A", fontSize:12 }}>{idError}</div></div>}
+        {idResults && idResults.length > 0 && (
+          <div style={{ marginTop:12 }}>
+            <div style={S.h3}>Results — {idResults.length} possible matches</div>
+            {idResults.map((r,i) => {
+              const sp = SPECIES.find(s => s.id === r.speciesId);
+              const m = sp?.morphs.find(mo => mo.id === r.morphId);
+              const confColor = r.confidence==="High" ? "#7A9B6A" : r.confidence==="Medium" ? "#C8943A" : "#9A6A4A";
+              return (
+                <div key={i} style={{ ...S.card, borderColor:confColor+"66", marginBottom:10 }}>
+                  <div style={{ display:"flex", gap:10, alignItems:"flex-start" }}>
+                    {sp && <IsopodSVG color={m?.hex || sp.morphs[0]?.hex || "#6B6B6B"} size={54} label={`id_${i}`} />}
+                    <div style={{ flex:1 }}>
+                      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:4 }}>
+                        <div>
+                          <span style={{ color:"#F0E8D0", fontSize:13, fontStyle:"italic" }}>{sp?.genus} {sp?.species}</span>
+                          {m && <span style={{ color:"#C8943A", fontSize:12 }}> — {m.name}</span>}
+                        </div>
+                        <div style={{ display:"flex", gap:6, alignItems:"center" }}>
+                          <span style={{ color:confColor, fontSize:11, fontWeight:"bold" }}>{r.confidencePc}%</span>
+                          <span style={S.pill(confColor)}>{r.confidence}</span>
+                        </div>
+                      </div>
+                      {m && (
+                        <div style={{ display:"flex", alignItems:"center", gap:6, margin:"4px 0" }}>
+                          <div style={{ width:14, height:14, borderRadius:3, background:m.hex, border:"1px solid #ffffff22" }}/>
+                          <span style={{ color:"#7A6A58", fontSize:9, fontFamily:"monospace" }}>{m.hex}</span>
+                          <span style={S.pill(getRarityColor(m.rarity))}>{getRarityLabel(m.rarity)}</span>
+                        </div>
+                      )}
+                      <div style={{ color:"#C8B8A0", fontSize:11, marginTop:4, lineHeight:1.5 }}>{r.reasoning}</div>
+                      {r.distinguishingFeatures && (
+                        <div style={{ marginTop:6, padding:6, background:"#0d0b08", borderRadius:6 }}>
+                          <span style={{ color:"#7A9B6A", fontSize:10 }}>Key features: </span>
+                          <span style={{ color:"#9A9080", fontSize:10 }}>{r.distinguishingFeatures}</span>
+                        </div>
+                      )}
+                      {r.alternativeNotes && <div style={{ marginTop:4, color:"#6A5A48", fontSize:10, fontStyle:"italic" }}>{r.alternativeNotes}</div>}
+                      <button onClick={() => { setSection("database"); setSelectedSpecies(sp); setSpeciesTab("morphs"); }} style={{ ...S.btn(), marginTop:8, fontSize:10, padding:"4px 10px" }}>View in Database →</button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        {idResults && idResults.length === 0 && (
+          <div style={{ ...S.card, background:"#0d0b08", marginTop:12 }}>
+            <div style={{ color:"#5A4A38", fontSize:10, lineHeight:1.5 }}>
+              💡 Not finding a match? If your isopod looks genuinely different from all known morphs, it could be a new undiscovered morph. Start a Project and use the New Morph Checker when logging offspring.
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // ── GENETICS CALCULATOR ──────────────────────────────────────────────────────
+  const CalcSection = () => {
+    const calcSpecies = SPECIES.find(s => s.id === calcSpeciesId);
+    const calcMorphs = calcSpecies?.morphs || [];
+
+    const runCalculator = async () => {
+      if (!calcSpeciesId || !calcParentA || !calcParentB) return;
+      setCalcLoading(true);
+      setCalcResult(null);
+
+      const sp = SPECIES.find(s => s.id === calcSpeciesId);
+      const mA = sp.morphs.find(m => m.id === calcParentA);
+      const mB = sp.morphs.find(m => m.id === calcParentB);
+
+      const allMorphsForSpecies = sp.morphs.map(m =>
+        `${m.name} (${m.id}): ${m.genetics}`
+      ).join("\n");
+
+      const systemPrompt = `You are an expert isopod genetics analyst for the IsoMorphs registry. Predict offspring outcomes when crossing two parent morphs.
+
+SPECIES: ${sp.genus} ${sp.species} (${sp.common})
+
+PARENT A: ${mA.name}
+Genetics: ${mA.genetics}
+Description: ${mA.desc}
+
+PARENT B: ${mB.name}
+Genetics: ${mB.genetics}
+Description: ${mB.desc}
+
+ALL KNOWN MORPHS FOR THIS SPECIES:
+${allMorphsForSpecies}
+
+KEY ISOPOD GENETICS FACTS:
+- Most morphs are recessive — need two copies to express
+- P. scaber Lava is the ONLY known co-dominant gene in all isopods
+- If both parents are the same recessive morph: 100% of offspring express that morph
+- If crossing two different recessive morphs: F1 offspring will appear wild-type but carry both genes; F2 offspring will include 25% double-recessive (expressing both traits combined)
+- Co-dominant (Lava): heterozygous shows intermediate Lava, homozygous shows enhanced Lava
+- Wild-type × recessive morph: all F1 appear wild-type (carriers); breed F1 × F1 for 25% morph expression
+- T+ albino reduces melanin but retains some pigment — interacts with colour morphs
+- Compound crosses (two recessive traits) require both to be homozygous to express
+
+Respond ONLY with valid JSON (no markdown) with this structure:
+{
+  "crossName": "short creative name for this cross",
+  "summary": "2 sentences explaining the genetics of this cross",
+  "f1": {
+    "description": "what F1 offspring will look like",
+    "outcomes": [
+      { "phenotype": "name", "percentage": 100, "hex": "#aabbcc", "notes": "explanation", "generation": "F1" }
+    ]
+  },
+  "f2": {
+    "description": "what F2 offspring will look like if F1 are interbred",
+    "outcomes": [
+      { "phenotype": "name", "percentage": 25, "hex": "#aabbcc", "notes": "explanation", "generation": "F2", "isNewMorph": false }
+    ]
+  },
+  "highlightOutcome": "the most exciting or valuable potential outcome",
+  "difficulty": "Easy|Moderate|Advanced|Expert",
+  "generationsNeeded": 1,
+  "breedingTips": "practical advice for this specific cross",
+  "novelPotential": true or false
+}`;
+
+      try {
+        const res = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "claude-sonnet-4-20250514",
+            max_tokens: 1200,
+            system: systemPrompt,
+            messages: [{ role: "user", content: `Predict offspring for ${mA.name} × ${mB.name} in ${sp.genus} ${sp.species}` }]
+          })
+        });
+        const data = await res.json();
+        const text = data.content?.map(c => c.text || "").join("").trim();
+        const clean = text.replace(/```json|```/g, "").trim();
+        setCalcResult(JSON.parse(clean));
+      } catch (e) {
+        setCalcResult({ crossName: "Error", summary: "Could not calculate. Please try again.", f1: { description: "", outcomes: [] }, f2: { description: "", outcomes: [] } });
+      }
+      setCalcLoading(false);
+    };
+
+    const diffColor = { Easy:"#7A9B6A", Moderate:"#C8943A", Advanced:"#9B6A3A", Expert:"#8A4A9B" };
+
+    return (
+      <div style={S.section}>
+        <h1 style={S.h1}>🔬 Genetics Calculator</h1>
+        <div style={{ color:"#7A6A58", fontSize:12, marginBottom:16, lineHeight:1.6 }}>
+          Select a species and two parent morphs to predict offspring probabilities across generations. Based on known isopod genetics — recessive, co-dominant, and compound crosses.
+        </div>
+
+        {/* Step 1: Species */}
+        <div style={{ ...S.card, borderColor: calcSpeciesId ? "#C8943A44" : "#2A231A" }}>
+          <div style={{ color:"#C8943A", fontSize:11, marginBottom:6 }}>① Select Species</div>
+          <select value={calcSpeciesId} onChange={e => { setCalcSpeciesId(e.target.value); setCalcParentA(""); setCalcParentB(""); setCalcResult(null); }} style={S.input}>
+            <option value="">Choose a species…</option>
+            {SPECIES.filter(s => s.morphs.length > 1).map(s => (
+              <option key={s.id} value={s.id}>{s.genus} {s.species} — {s.common} ({s.morphs.length} morphs)</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Step 2: Parents */}
+        {calcSpecies && (
+          <div style={{ ...S.card, borderColor:"#C8943A44" }}>
+            <div style={{ color:"#C8943A", fontSize:11, marginBottom:10 }}>② Select Parent Morphs</div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+              <div>
+                <div style={{ color:"#9A8878", fontSize:10, marginBottom:4 }}>Parent A ♀</div>
+                <select value={calcParentA} onChange={e => { setCalcParentA(e.target.value); setCalcResult(null); }} style={S.input}>
+                  <option value="">Select morph…</option>
+                  {calcMorphs.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                </select>
+                {calcParentA && (() => {
+                  const m = calcMorphs.find(m => m.id === calcParentA);
+                  return m ? (
+                    <div style={{ marginTop:6, display:"flex", alignItems:"center", gap:6 }}>
+                      <div style={{ width:20, height:20, borderRadius:4, background:m.hex, border:"1px solid #ffffff22" }}/>
+                      <div>
+                        <div style={{ color:"#F0E8D0", fontSize:10 }}>{m.name}</div>
+                        <div style={{ color:"#7A6A58", fontSize:9 }}>{m.genetics?.substring(0,45)}…</div>
+                      </div>
+                    </div>
+                  ) : null;
+                })()}
+              </div>
+              <div>
+                <div style={{ color:"#9A8878", fontSize:10, marginBottom:4 }}>Parent B ♂</div>
+                <select value={calcParentB} onChange={e => { setCalcParentB(e.target.value); setCalcResult(null); }} style={S.input}>
+                  <option value="">Select morph…</option>
+                  {calcMorphs.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                </select>
+                {calcParentB && (() => {
+                  const m = calcMorphs.find(m => m.id === calcParentB);
+                  return m ? (
+                    <div style={{ marginTop:6, display:"flex", alignItems:"center", gap:6 }}>
+                      <div style={{ width:20, height:20, borderRadius:4, background:m.hex, border:"1px solid #ffffff22" }}/>
+                      <div>
+                        <div style={{ color:"#F0E8D0", fontSize:10 }}>{m.name}</div>
+                        <div style={{ color:"#7A6A58", fontSize:9 }}>{m.genetics?.substring(0,45)}…</div>
+                      </div>
+                    </div>
+                  ) : null;
+                })()}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Cross preview */}
+        {calcParentA && calcParentB && (() => {
+          const mA = calcMorphs.find(m => m.id === calcParentA);
+          const mB = calcMorphs.find(m => m.id === calcParentB);
+          return (
+            <div style={{ ...S.card, background:"#0d0b08", display:"flex", alignItems:"center", gap:10, justifyContent:"center" }}>
+              <div style={{ textAlign:"center" }}>
+                <div style={{ width:32, height:32, borderRadius:6, background:mA.hex, border:"1px solid #ffffff22", margin:"0 auto 4px" }}/>
+                <div style={{ color:"#F0E8D0", fontSize:10 }}>{mA.name}</div>
+              </div>
+              <div style={{ color:"#C8943A", fontSize:20 }}>×</div>
+              <div style={{ textAlign:"center" }}>
+                <div style={{ width:32, height:32, borderRadius:6, background:mB.hex, border:"1px solid #ffffff22", margin:"0 auto 4px" }}/>
+                <div style={{ color:"#F0E8D0", fontSize:10 }}>{mB.name}</div>
+              </div>
+              <button onClick={runCalculator} disabled={calcLoading} style={{ ...S.btn(), marginLeft:12 }}>
+                {calcLoading ? "Calculating…" : "🧬 Calculate"}
+              </button>
+            </div>
+          );
+        })()}
+
+        {/* Loading */}
+        {calcLoading && (
+          <div style={{ ...S.card, textAlign:"center", padding:24 }}>
+            <div style={{ color:"#C8943A", fontSize:14, marginBottom:8 }}>Calculating genetics…</div>
+            <div style={{ color:"#5A4A38", fontSize:11 }}>Analysing Punnett squares and known morph genetics</div>
+          </div>
+        )}
+
+        {/* Results */}
+        {calcResult && !calcLoading && (
+          <div>
+            {/* Header */}
+            <div style={{ ...S.card, background:"#1a1408", borderColor:"#C8943A44" }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", flexWrap:"wrap", gap:8 }}>
+                <div>
+                  <div style={{ color:"#C8943A", fontSize:16, fontFamily:"Georgia,serif", marginBottom:4 }}>{calcResult.crossName}</div>
+                  <div style={{ color:"#C8B8A0", fontSize:11, lineHeight:1.6, maxWidth:480 }}>{calcResult.summary}</div>
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", gap:4, alignItems:"flex-end" }}>
+                  {calcResult.difficulty && (
+                    <span style={S.pill(diffColor[calcResult.difficulty] || "#C8943A")}>{calcResult.difficulty}</span>
+                  )}
+                  {calcResult.generationsNeeded && (
+                    <span style={{ color:"#7A6A58", fontSize:10 }}>~{calcResult.generationsNeeded} generation{calcResult.generationsNeeded > 1 ? "s" : ""} to target</span>
+                  )}
+                  {calcResult.novelPotential && (
+                    <span style={S.pill("#C84A4A")}>⭐ Novel potential</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* F1 Outcomes */}
+            {calcResult.f1?.outcomes?.length > 0 && (
+              <div style={S.card}>
+                <div style={S.h3}>F1 Offspring (First Generation)</div>
+                <div style={{ color:"#7A6A58", fontSize:11, marginBottom:10 }}>{calcResult.f1.description}</div>
+                {calcResult.f1.outcomes.map((o, i) => (
+                  <div key={i} style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8, padding:8, background:"#0d0b08", borderRadius:6 }}>
+                    <div style={{ width:28, height:28, borderRadius:5, background:o.hex || "#6B6B6B", border:"1px solid #ffffff22", flexShrink:0 }}/>
+                    <div style={{ flex:1 }}>
+                      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                        <span style={{ color:"#F0E8D0", fontSize:12 }}>{o.phenotype}</span>
+                        <span style={{ color:"#C8943A", fontSize:14, fontWeight:"bold" }}>{o.percentage}%</span>
+                      </div>
+                      <div style={{ color:"#7A6A58", fontSize:10, marginTop:2, lineHeight:1.4 }}>{o.notes}</div>
+                    </div>
+                    {/* Percentage bar */}
+                    <div style={{ width:60, height:6, background:"#2A231A", borderRadius:3, flexShrink:0 }}>
+                      <div style={{ width:`${o.percentage}%`, height:"100%", background:"#C8943A", borderRadius:3 }}/>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* F2 Outcomes */}
+            {calcResult.f2?.outcomes?.length > 0 && (
+              <div style={S.card}>
+                <div style={S.h3}>F2 Offspring (if F1 × F1)</div>
+                <div style={{ color:"#7A6A58", fontSize:11, marginBottom:10 }}>{calcResult.f2.description}</div>
+                {calcResult.f2.outcomes.map((o, i) => (
+                  <div key={i} style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8, padding:8, background:"#0d0b08", borderRadius:6, borderLeft: o.isNewMorph ? "3px solid #C84A4A" : "none" }}>
+                    <div style={{ width:28, height:28, borderRadius:5, background:o.hex || "#6B6B6B", border:"1px solid #ffffff22", flexShrink:0 }}/>
+                    <div style={{ flex:1 }}>
+                      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:4, flexWrap:"wrap" }}>
+                        <span style={{ color: o.isNewMorph ? "#C84A4A" : "#F0E8D0", fontSize:12 }}>
+                          {o.phenotype} {o.isNewMorph ? "⭐" : ""}
+                        </span>
+                        <span style={{ color:"#C8943A", fontSize:14, fontWeight:"bold" }}>{o.percentage}%</span>
+                      </div>
+                      <div style={{ color:"#7A6A58", fontSize:10, marginTop:2, lineHeight:1.4 }}>{o.notes}</div>
+                      {o.isNewMorph && <div style={{ color:"#C84A4A", fontSize:9, marginTop:2 }}>⭐ Potential new / undocumented morph</div>}
+                    </div>
+                    <div style={{ width:60, height:6, background:"#2A231A", borderRadius:3, flexShrink:0 }}>
+                      <div style={{ width:`${Math.min(o.percentage,100)}%`, height:"100%", background: o.isNewMorph ? "#C84A4A" : "#C8943A", borderRadius:3 }}/>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Highlight & Tips */}
+            {calcResult.highlightOutcome && (
+              <div style={{ ...S.card, background:"#1A1408", borderColor:"#C8943A44" }}>
+                <div style={{ color:"#C8943A", fontSize:11, marginBottom:4 }}>🏆 Most Exciting Outcome</div>
+                <div style={{ color:"#F0E8D0", fontSize:12, lineHeight:1.6 }}>{calcResult.highlightOutcome}</div>
+              </div>
+            )}
+            {calcResult.breedingTips && (
+              <div style={{ ...S.card, background:"#0d0b08" }}>
+                <div style={{ color:"#7A9B6A", fontSize:11, marginBottom:4 }}>🌿 Breeding Tips</div>
+                <div style={{ color:"#A09880", fontSize:11, lineHeight:1.6 }}>{calcResult.breedingTips}</div>
+              </div>
+            )}
+
+            {/* Start project button */}
+            <button onClick={() => setSection("projects")} style={{ ...S.btn("#7A9B6A"), width:"100%", marginTop:4 }}>
+              🧬 Start a Project for this Cross →
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // ── RENDER ──────────────────────────────────────────────────────────────────
+  return (
+    <div style={S.app}>
+      {section==="home" && <HomeSection />}
+      {section==="database" && <DatabaseSection />}
+      {section==="gallery" && <GallerySection />}
+      {section==="projects" && <ProjectsSection />}
+      {section==="identify" && <IDSection />}
+      {section==="calculator" && <CalcSection />}
+
+      <nav style={S.nav}>
+        {[
+          { id:"home", icon:"🏠", label:"Home" },
+          { id:"database", icon:"📚", label:"Database" },
+          { id:"identify", icon:"🔍", label:"Identify" },
+          { id:"calculator", icon:"🔬", label:"Calculator" },
+          { id:"gallery", icon:"🎴", label:"Gallery" },
+          { id:"projects", icon:"🧬", label:"Projects" },
+        ].map(n => (
+          <button key={n.id} onClick={() => { setSection(n.id); setSelectedSpecies(null); setSelectedMorph(null); setSelectedProject(null); }} style={S.navBtn(section===n.id)}>
+            <span style={{ fontSize:18 }}>{n.icon}</span>
+            <span>{n.label}</span>
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<IsoMorphApp />);
+  </script>
+</body>
+</html>
