@@ -12,13 +12,9 @@
 </head>
 <body>
   <div id="root"></div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
-  <script type="text/babel">
 
-const { useState, useEffect, useCallback } = React;
-
+  <!-- SPECIES DATABASE — plain JS, no Babel needed -->
+  <script>
 // ─── COMPLETE SPECIES & MORPH DATABASE ───────────────────────────────────────
 // Build 2 — Full audit applied. All species verified.
 // CALCULATOR RULE: Every separate species has its own entry.
@@ -1018,6 +1014,16 @@ const SPECIES = [
     ]
   },
 ];
+  </script>
+
+  <!-- REACT APP — requires Babel for JSX -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <script type="text/babel">
+
+const { useState, useEffect, useCallback } = React;
+
 // ─── UTILITY FUNCTIONS ───────────────────────────────────────────────────────
 const getRarityColor = (r) => RARITY_COLOR[r] || "#7A9B6A";
 const getRarityLabel = (r) => RARITY[r] || r;
