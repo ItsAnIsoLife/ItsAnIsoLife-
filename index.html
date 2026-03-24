@@ -20,709 +20,1004 @@
 const { useState, useEffect, useCallback } = React;
 
 // ─── COMPLETE SPECIES & MORPH DATABASE ───────────────────────────────────────
+// Build 2 — Full audit applied. All species verified.
+// CALCULATOR RULE: Every separate species has its own entry.
+// Morphs within the same species array are calculator-compatible.
+// Cross-species entries in the calculator are blocked by species selection.
 const RARITY = { C: "◆ Common", U: "◆◆ Uncommon", R: "◆◆◆ Rare", UR: "◆◆◆◆ Ultra Rare" };
 const RARITY_COLOR = { C: "#7A9B6A", U: "#4A7CA8", R: "#9B6A3A", UR: "#8A4A9B" };
 
 const SPECIES = [
+
+// ═══════════════════════════════════════════════════════════════════
+// ARMADILLIDIUM — pill bugs that conglobate into a perfect sphere
+// ═══════════════════════════════════════════════════════════════════
+
   {
-    id: "001", card: "#001", genus: "Armadillidium", species: "vulgare",
-    common: "Common Pill Bug", size: "14–18mm", origin: "Mediterranean Europe",
-    rarity: "C", care: { temp:"18–28°C", humidity:"60–75%", ventilation:"Moderate", substrate:"Loam/coco fibre mix", diet:"Leaf litter, vegetables, protein", calcium:"High" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal/crepuscular", breedingAge:"6 months", breedingRate:"Moderate–High", broodSize:"10–50 mancae", gestation:"4–6 weeks" },
-    notes: "Most forgiving beginner species. Conglobates (rolls) into perfect sphere. Worldwide distribution. 15 morphs make this the #1 collector species.",
-    morphs: [
-      { id:"001a", card:"#001a", name:"Wild Type", year:"Natural", hex:"#6B6B6B", rarity:"C", desc:"Classic slate grey. The default wild form worldwide.", genetics:"Wild type — no mutation", breeder:"Natural" },
-      { id:"001b", card:"#001b", name:"Magic Potion", year:"~2017", hex:"#7B5EA7", rarity:"R", desc:"Purple-blue iridescent morph from Japan. Most coveted vulgare morph globally.", genetics:"Recessive — requires Magic Potion × Magic Potion", breeder:"Japan origin" },
-      { id:"001c", card:"#001c", name:"Orange Vigor", year:"~2016", hex:"#D4703A", rarity:"U", desc:"Vivid orange; large body size. Isolated by Kyle at Roachcrossing USA.", genetics:"Recessive orange", breeder:"Kyle / Roachcrossing USA" },
-      { id:"001d", card:"#001d", name:"Tangerine", year:"~2018", hex:"#E8832A", rarity:"U", desc:"Born bright orange, deepens to burnt orange/red with age. Isolated from Punta Cana stock.", genetics:"Recessive orange variant", breeder:"US hobby" },
-      { id:"001e", card:"#001e", name:"Sunset", year:"~2018", hex:"#C85020", rarity:"U", desc:"Deeper red than Orange Vigor; yellow speckles stand out more prominently.", genetics:"Recessive", breeder:"US origin" },
-      { id:"001f", card:"#001f", name:"Gold (T+ Albino)", year:"~2018", hex:"#C9A227", rarity:"U", desc:"Golden-yellow with red eyes. T+ albino — tyrosinase-positive form. Darker gold with age.", genetics:"T+ albino — tyrosinase active, melanin reduced", breeder:"US hobby" },
-      { id:"001g", card:"#001g", name:"T- Albino", year:"~2019", hex:"#F5F0DC", rarity:"R", desc:"True albino; completely lacking dark pigment. Light-coloured eyes. Near-white.", genetics:"T- albino — tyrosinase inactive, full melanin absence", breeder:"US hobby" },
-      { id:"001h", card:"#001h", name:"High Yellow", year:"~2018", hex:"#D4B800", rarity:"U", desc:"Yellow base with darker segment striping.", genetics:"Recessive yellow", breeder:"US hobby" },
-      { id:"001i", card:"#001i", name:"Dalmatian", year:"~2019", hex:"#E8E0D0", rarity:"U", desc:"White/pale base with scattered black spots. Common in hobby.", genetics:"Recessive dalmatian patterning", breeder:"Hobby isolation" },
-      { id:"001j", card:"#001j", name:"Pied", year:"~2019", hex:"#D0C8B8", rarity:"U", desc:"Patchy white sections lacking pigment. Variable expression.", genetics:"Recessive piebald", breeder:"US hobby" },
-      { id:"001k", card:"#001k", name:"Assorted / Zebra", year:"~2018", hex:"#9A9A88", rarity:"U", desc:"Banded dark/light striping. Variable expression across individuals.", genetics:"Selective line", breeder:"US hobby" },
+    id:"001", card:"#001", genus:"Armadillidium", species:"vulgare",
+    common:"Common Pill Bug", size:"14–18mm", origin:"Mediterranean Europe (cosmopolitan)",
+    rarity:"C", care:{ temp:"18–28°C", humidity:"60–75%", ventilation:"Moderate", substrate:"Loam/coco fibre mix", diet:"Leaf litter, vegetables, protein", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal/crepuscular", breedingAge:"6 months", breedingRate:"Moderate–High", broodSize:"10–50 mancae", gestation:"4–6 weeks" },
+    notes:"Most forgiving beginner species. Conglobates perfectly. Worldwide distribution. The #1 collector species with the most documented morphs of any isopod.",
+    morphs:[
+      { id:"001a", card:"#001a", name:"Wild Type", year:"Natural", hex:"#6B6B6B", rarity:"C", desc:"Classic slate grey. The global default wild form.", genetics:"Wild type — no mutation", breeder:"Natural" },
+      { id:"001b", card:"#001b", name:"Magic Potion (US line)", year:"~2017", hex:"#7B5EA7", rarity:"R", desc:"Purple-blue iridescent morph from Japan, stabilised in US. Larger and faster reproducing than Japanese line.", genetics:"Recessive — requires Magic Potion × Magic Potion", breeder:"US hobby — originally Japan" },
+      { id:"001c", card:"#001c", name:"Japanese Magic Potion", year:"~2017", hex:"#6A50A0", rarity:"R", desc:"Original Japanese line. Smaller than US line with slower reproduction. Confirmed separate line by Coastline Pets.", genetics:"Recessive — Japanese line, distinct from US Magic Potion stock", breeder:"Japan origin — separate line" },
+      { id:"001d", card:"#001d", name:"Orange Vigor", year:"~2016", hex:"#D4703A", rarity:"U", desc:"Vivid orange; large body size. Isolated by Kyle at Roachcrossing USA.", genetics:"Recessive orange", breeder:"Kyle / Roachcrossing USA" },
+      { id:"001e", card:"#001e", name:"Tangerine", year:"~2018", hex:"#E8832A", rarity:"U", desc:"Born bright orange, deepens to burnt orange/red with age. Isolated from Punta Cana stock.", genetics:"Recessive orange variant", breeder:"US hobby" },
+      { id:"001f", card:"#001f", name:"Sunset", year:"~2018", hex:"#C85020", rarity:"U", desc:"Deeper red than Orange Vigor; yellow speckles stand out more prominently.", genetics:"Recessive", breeder:"US origin" },
+      { id:"001g", card:"#001g", name:"Gold (T+ Albino)", year:"~2018", hex:"#C9A227", rarity:"U", desc:"Golden-yellow with red eyes. T+ albino — tyrosinase-positive form.", genetics:"T+ albino — tyrosinase active, melanin reduced", breeder:"US hobby" },
+      { id:"001h", card:"#001h", name:"T- Albino", year:"~2019", hex:"#F5F0DC", rarity:"R", desc:"True albino; completely lacking dark pigment. Near-white with light eyes.", genetics:"T- albino — tyrosinase inactive, full melanin absence", breeder:"US hobby" },
+      { id:"001i", card:"#001i", name:"High Yellow", year:"~2018", hex:"#D4B800", rarity:"U", desc:"Yellow base with darker segment striping.", genetics:"Recessive yellow", breeder:"US hobby" },
+      { id:"001j", card:"#001j", name:"Dalmatian", year:"~2019", hex:"#E8E0D0", rarity:"U", desc:"White/pale base with scattered black spots.", genetics:"Recessive dalmatian patterning", breeder:"Hobby isolation" },
+      { id:"001k", card:"#001k", name:"Pied", year:"~2019", hex:"#D0C8B8", rarity:"U", desc:"Patchy white sections lacking pigment. Variable expression.", genetics:"Recessive piebald", breeder:"US hobby" },
       { id:"001l", card:"#001l", name:"Peach", year:"~2019", hex:"#E8B898", rarity:"U", desc:"Soft peach-pink colouration. Particularly striking in juveniles.", genetics:"Recessive peach expression", breeder:"US hobby" },
       { id:"001m", card:"#001m", name:"Glacier", year:"~2019", hex:"#D8E8F0", rarity:"R", desc:"Pale icy blue-white. Rare and sought-after.", genetics:"Recessive hypopigmentation with blue tint", breeder:"US hobby" },
-      { id:"001n", card:"#001n", name:"Magic Potion Pied", year:"~2020", hex:"#9B7AC0", rarity:"UR", desc:"Magic Potion base with piebald white sections. Extremely rare combination.", genetics:"Homozygous recessive Magic Potion + Piebald — two recessive genes", breeder:"Japan/US breeding program" },
+      { id:"001n", card:"#001n", name:"Magic Potion Pied", year:"~2020", hex:"#9B7AC0", rarity:"UR", desc:"Magic Potion base with piebald white sections. Extremely rare compound morph.", genetics:"Homozygous recessive Magic Potion + Piebald — two recessive genes required", breeder:"Japan/US breeding program" },
       { id:"001o", card:"#001o", name:"Lemon Blue", year:"~2021", hex:"#A8B840", rarity:"R", desc:"Unusual lemon-yellow with subtle blue overtone. Very rare.", genetics:"Likely compound recessive", breeder:"European breeding" },
-      { id:"001p", card:"#001p", name:"Punta Cana", year:"~2019", hex:"#C89040", rarity:"U", desc:"Locality morph from Punta Cana, Dominican Republic. Colourful array of patterns. Mid-size.", genetics:"Natural locality colouration — Punta Cana, Dominican Republic", breeder:"Caribbean locality ~2019" },
-      { id:"001q", card:"#001q", name:"Japanese Magic Potion", year:"~2017", hex:"#6A50A0", rarity:"R", desc:"The original Japanese line of Magic Potion. Coastline Pets confirms this is a separate line from US Magic Potion — smaller with slower reproduction.", genetics:"Recessive — Japanese line, different to US Magic Potion stock", breeder:"Japan origin — separate line" },
+      { id:"001p", card:"#001p", name:"Punta Cana", year:"~2019", hex:"#C89040", rarity:"U", desc:"Locality morph from Punta Cana, Dominican Republic. Colourful variable patterning.", genetics:"Natural locality colouration — Punta Cana, Dominican Republic", breeder:"Caribbean locality ~2019" },
+      { id:"001q", card:"#001q", name:"Assorted / Zebra", year:"~2018", hex:"#9A9A88", rarity:"U", desc:"Banded dark/light striping. Variable expression across individuals.", genetics:"Selective line", breeder:"US hobby" },
+      { id:"001r", card:"#001r", name:"St. Lucia", year:"~2019", hex:"#B88040", rarity:"U", desc:"Locality morph from St. Lucia. Variable warm tones including oranges, yellows and browns.", genetics:"Natural locality colouration — St. Lucia, Caribbean", breeder:"Caribbean locality" },
+      { id:"001s", card:"#001s", name:"Basalt & Sunflower", year:"~2021", hex:"#E8C030", rarity:"R", desc:"Dark basalt-grey body with vivid yellow/sunflower spotting. Striking contrast. Confirmed by Invertebrate Dude.", genetics:"Selective line — dark base with bright yellow spots", breeder:"Invertebrate Dude ~2021" },
+      { id:"001t", card:"#001t", name:"Pisa", year:"~2022", hex:"#A09068", rarity:"U", desc:"Italian locality morph from Pisa region. Warm earthy tones.", genetics:"Natural locality colouration — Pisa, Italy", breeder:"Italian locality" },
     ]
   },
   {
-    id: "002", card: "#002", genus: "Armadillidium", species: "maculatum",
-    common: "Zebra Isopod", size: "14–18mm", origin: "Southern France / Spain",
-    rarity: "U", care: { temp:"18–26°C", humidity:"60–75%", ventilation:"Moderate", substrate:"Loam/coco mix", diet:"Leaf litter, protein, vegetables", calcium:"High" },
-    biology: { lifespan:"3–4 years", activity:"Nocturnal", breedingAge:"8 months", breedingRate:"Slow–Moderate", broodSize:"10–25 mancae", gestation:"5–7 weeks" },
-    notes: "Striking cream/white base with bold black spots. Slow to breed but highly sought. Needs good calcium. Conglobates well.",
-    morphs: [
+    id:"002", card:"#002", genus:"Armadillidium", species:"maculatum",
+    common:"Zebra Isopod", size:"14–18mm", origin:"Southern France / Spain",
+    rarity:"U", care:{ temp:"18–26°C", humidity:"60–75%", ventilation:"Moderate", substrate:"Loam/coco mix", diet:"Leaf litter, protein, vegetables", calcium:"High" },
+    biology:{ lifespan:"3–4 years", activity:"Nocturnal", breedingAge:"8 months", breedingRate:"Slow–Moderate", broodSize:"10–25 mancae", gestation:"5–7 weeks" },
+    notes:"Striking cream/white base with bold black spots. Slow to breed but highly sought. Needs good calcium.",
+    morphs:[
       { id:"002a", card:"#002a", name:"Wild Type", year:"Natural", hex:"#D0C8A8", rarity:"U", desc:"Cream/white base with prominent black spots. Natural pattern.", genetics:"Wild type — natural patterning", breeder:"Natural" },
       { id:"002b", card:"#002b", name:"White", year:"~2019", hex:"#F0EEE8", rarity:"R", desc:"Reduced spotting; near-white expression.", genetics:"Selective reduction of spot pigmentation", breeder:"European hobby" },
-      { id:"002c", card:"#002c", name:"Chocolate", year:"~2019", hex:"#4A3020", rarity:"U", desc:"Dark brown base with neat white segmental striping. Josh's Frogs confirmed morph.", genetics:"Recessive melanistic expression", breeder:"US hobby ~2019" },
-      { id:"002d", card:"#002d", name:"Champagne", year:"~2020", hex:"#E8D8A8", rarity:"R", desc:"Pale champagne-cream colouration with reduced dark spotting. Elegant and subtle.", genetics:"Selective hypopigmentation line", breeder:"European hobby ~2020" },
+      { id:"002c", card:"#002c", name:"Chocolate", year:"~2019", hex:"#4A3020", rarity:"U", desc:"Dark brown base with neat white segmental striping. Confirmed by Josh's Frogs.", genetics:"Recessive melanistic expression", breeder:"US hobby ~2019" },
+      { id:"002d", card:"#002d", name:"Champagne", year:"~2020", hex:"#E8D8A8", rarity:"R", desc:"Pale champagne-cream colouration with reduced dark spotting.", genetics:"Selective hypopigmentation line", breeder:"European hobby ~2020" },
       { id:"002e", card:"#002e", name:"Yellow", year:"~2020", hex:"#D4C040", rarity:"U", desc:"Yellow-toned base replacing typical cream. Brighter than standard wild type.", genetics:"Selective yellow line", breeder:"European hobby ~2020" },
+      { id:"002f", card:"#002f", name:"Chocolate Yellow", year:"~2022", hex:"#6A5030", rarity:"R", desc:"Chocolate body with yellow spotting. Combination of dark base and yellow expression. Confirmed by Exuvium.", genetics:"Compound selective line — chocolate base + yellow spots", breeder:"Exuvium Isopods ~2022" },
+      { id:"002g", card:"#002g", name:"Dalmatian / High White", year:"~2021", hex:"#E0E8D8", rarity:"R", desc:"Very high white expression with minimal spotting. Similar to White but with dalmatian mechanism.", genetics:"Recessive hypopigmentation — high white dalmatian expression", breeder:"European hobby" },
     ]
   },
   {
-    id: "003", card: "#003", genus: "Armadillidium", species: "klugii",
-    common: "Montenegro Isopod", size: "14–20mm", origin: "Montenegro / Balkans",
-    rarity: "U", care: { temp:"18–26°C", humidity:"55–70%", ventilation:"Moderate–Good", substrate:"Rocky/sandy substrate with leaf litter", diet:"Leaf litter, vegetables, protein", calcium:"High" },
-    biology: { lifespan:"3–4 years", activity:"Nocturnal", breedingAge:"8 months", breedingRate:"Slow", broodSize:"8–20 mancae", gestation:"6–8 weeks" },
-    notes: "Stunning orange and black banding. Slow breeder. Prefers drier end of humidity range with a wet corner. Worth the patience.",
-    morphs: [
-      { id:"003a", card:"#003a", name:"Split", year:"Natural", hex:"#C86820", rarity:"U", desc:"Classic orange and black half-split body. Iconic pattern.", genetics:"Natural pattern — not yet isolated as separate recessive genes", breeder:"Natural" },
-      { id:"003b", card:"#003b", name:"Blanc", year:"~2019", hex:"#D8D0C0", rarity:"R", desc:"White/cream form with minimal pattern. Rare line.", genetics:"Hypopigmentation — recessive", breeder:"European breeding" },
-      { id:"003c", card:"#003c", name:"Black", year:"~2020", hex:"#1A1A18", rarity:"R", desc:"Near-black expression — melanistic variant of klugii. Very striking against pale substrate.", genetics:"Recessive melanistic expression", breeder:"Exuvium Isopods ~2020" },
+    id:"003", card:"#003", genus:"Armadillidium", species:"klugii",
+    common:"Clown Isopod / Montenegro Isopod", size:"14–20mm", origin:"Montenegro / Balkans",
+    rarity:"U", care:{ temp:"18–26°C", humidity:"55–70%", ventilation:"Moderate–Good", substrate:"Rocky/sandy substrate with leaf litter", diet:"Leaf litter, vegetables, protein", calcium:"High" },
+    biology:{ lifespan:"3–4 years", activity:"Nocturnal", breedingAge:"8 months", breedingRate:"Slow", broodSize:"8–20 mancae", gestation:"6–8 weeks" },
+    notes:"Stunning orange and black banding. Multiple confirmed locality forms. Slow breeder. Prefers drier end of humidity range with a wet corner.",
+    morphs:[
+      { id:"003a", card:"#003a", name:"Split (Montenegro)", year:"Natural", hex:"#C86820", rarity:"U", desc:"Classic orange and black half-split body from Montenegro. Iconic pattern.", genetics:"Natural locality pattern", breeder:"Natural — Montenegro" },
+      { id:"003b", card:"#003b", name:"Blanc", year:"~2019", hex:"#D8D0C0", rarity:"R", desc:"White/cream form with minimal pattern.", genetics:"Hypopigmentation — recessive", breeder:"European breeding" },
+      { id:"003c", card:"#003c", name:"Black", year:"~2020", hex:"#1A1A18", rarity:"R", desc:"Near-black melanistic variant. Very striking against pale substrate.", genetics:"Recessive melanistic expression", breeder:"Exuvium Isopods ~2020" },
       { id:"003d", card:"#003d", name:"Pudding", year:"~2020", hex:"#3A2A18", rarity:"U", desc:"Dark brown base with 3 rows of white and yellow spots. Confirmed by Josh's Frogs.", genetics:"Selective line — dark base with pale spotting pattern", breeder:"US hobby ~2020" },
+      { id:"003e", card:"#003e", name:"Slano", year:"Locality", hex:"#D07030", rarity:"U", desc:"Slano locality form from Croatia. Deeper orange tones than standard Montenegro Split.", genetics:"Natural locality colouration — Slano, Croatia", breeder:"Slano, Croatia locality" },
+      { id:"003f", card:"#003f", name:"Dubrovnik", year:"Locality", hex:"#B86020", rarity:"U", desc:"Dubrovnik locality. Variable orange and black pattern.", genetics:"Natural locality colouration — Dubrovnik, Croatia", breeder:"Dubrovnik, Croatia locality" },
     ]
   },
   {
-    id: "004", card: "#004", genus: "Armadillidium", species: "nasatum",
-    common: "Nosy Isopod", size: "14–18mm", origin: "Western Europe",
-    rarity: "C", care: { temp:"18–26°C", humidity:"60–75%", ventilation:"Moderate", substrate:"Coco fibre/loam", diet:"Leaf litter, vegetables, protein", calcium:"Moderate–High" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate–High", broodSize:"10–40 mancae", gestation:"4–6 weeks" },
-    notes: "Named for the upturned rostrum. Variable colouration; very hardy. Multiple colour morphs available. Good beginner species alongside vulgare.",
-    morphs: [
+    id:"004", card:"#004", genus:"Armadillidium", species:"nasatum",
+    common:"Nosy Isopod", size:"14–18mm", origin:"Western Europe",
+    rarity:"C", care:{ temp:"18–26°C", humidity:"60–75%", ventilation:"Moderate", substrate:"Coco fibre/loam", diet:"Leaf litter, vegetables, protein", calcium:"Moderate–High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate–High", broodSize:"10–40 mancae", gestation:"4–6 weeks" },
+    notes:"Named for the upturned rostrum. Very hardy. Multiple morphs isolated. Good beginner species alongside vulgare.",
+    morphs:[
       { id:"004a", card:"#004a", name:"Wild Type", year:"Natural", hex:"#7A7068", rarity:"C", desc:"Grey-brown with variable patterning.", genetics:"Wild type", breeder:"Natural" },
       { id:"004b", card:"#004b", name:"Peach", year:"~2017", hex:"#E8A880", rarity:"U", desc:"Soft peach-pink colouration with lighter undersides.", genetics:"Recessive peach expression", breeder:"US hobby" },
       { id:"004c", card:"#004c", name:"Blueberry", year:"~2018", hex:"#606890", rarity:"R", desc:"Unusual blue-lavender colouration. Rare and highly sought.", genetics:"Recessive blue expression", breeder:"US hobby" },
+      { id:"004d", card:"#004d", name:"Pearl", year:"~2020", hex:"#E8E0D0", rarity:"U", desc:"Near-white pearl colouration. Clean and elegant.", genetics:"Recessive hypopigmentation", breeder:"US hobby" },
+      { id:"004e", card:"#004e", name:"White-Out", year:"~2021", hex:"#F0EEE8", rarity:"R", desc:"Full white-out expression. Confirmed by Invertebrate Dude.", genetics:"Recessive whiteout gene", breeder:"US hobby ~2021" },
     ]
   },
   {
-    id: "005", card: "#005", genus: "Armadillidium", species: "peraccae",
-    common: "Iberian Pill Bug", size: "14–20mm", origin: "Iberian Peninsula",
-    rarity: "U", care: { temp:"18–28°C", humidity:"55–70%", ventilation:"Good", substrate:"Sandy/rocky substrate", diet:"Leaf litter, bark", calcium:"High" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"7 months", breedingRate:"Moderate", broodSize:"10–30 mancae", gestation:"5–7 weeks" },
-    notes: "Iberian endemic. Prefers drier conditions. Dramatic orange and grey contrast morphs available.",
-    morphs: [
+    id:"005", card:"#005", genus:"Armadillidium", species:"peraccae",
+    common:"Iberian Pill Bug", size:"14–20mm", origin:"Iberian Peninsula",
+    rarity:"U", care:{ temp:"18–28°C", humidity:"55–70%", ventilation:"Good", substrate:"Sandy/rocky substrate", diet:"Leaf litter, bark", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"7 months", breedingRate:"Moderate", broodSize:"10–30 mancae", gestation:"5–7 weeks" },
+    notes:"Iberian endemic. Prefers drier conditions. Pied morph confirmed in MorphMarket master list.",
+    morphs:[
       { id:"005a", card:"#005a", name:"Wild Type", hex:"#6A6060", year:"Natural", rarity:"U", desc:"Dark grey-brown. Robust Iberian form.", genetics:"Wild type", breeder:"Natural" },
       { id:"005b", card:"#005b", name:"Orange", year:"~2019", hex:"#D47830", rarity:"R", desc:"Vivid orange form from captive isolation.", genetics:"Recessive orange", breeder:"European hobby" },
+      { id:"005c", card:"#005c", name:"Pied", year:"~2021", hex:"#A09080", rarity:"R", desc:"Piebald white patches on standard body. Confirmed in MorphMarket master list.", genetics:"Recessive piebald gene", breeder:"US/European hobby" },
     ]
   },
   {
-    id: "006", card: "#006", genus: "Armadillidium", species: "depressum",
-    common: "Flatback Pill Bug", size: "10–14mm", origin: "Western Europe",
-    rarity: "C", care: { temp:"15–24°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Coco fibre/bark", diet:"Leaf litter, bark", calcium:"Moderate" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate", broodSize:"10–30 mancae", gestation:"4–5 weeks" },
-    notes: "Distinctly flattened profile. More tolerant of damp conditions than most Armadillidium. Dark coloration only.",
-    morphs: [
+    id:"006", card:"#006", genus:"Armadillidium", species:"depressum",
+    common:"Flatback Pill Bug", size:"10–14mm", origin:"Western Europe",
+    rarity:"C", care:{ temp:"15–24°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Coco fibre/bark", diet:"Leaf litter, bark", calcium:"Moderate" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate", broodSize:"10–30 mancae", gestation:"4–5 weeks" },
+    notes:"Distinctly flattened profile. More tolerant of damp conditions than most Armadillidium. Magic Potion morph developed by Exuvium Isopods.",
+    morphs:[
       { id:"006a", card:"#006a", name:"Wild Type", year:"Natural", hex:"#4A4A42", rarity:"C", desc:"Near-black flatback form. Distinctive flattened silhouette.", genetics:"Wild type", breeder:"Natural" },
+      { id:"006b", card:"#006b", name:"Magic Potion", year:"~2022", hex:"#5A4A7A", rarity:"R", desc:"Purple-blue iridescent expression on depressum. Developed independently from vulgare Magic Potion. Exuvium confirmed.", genetics:"Recessive — independent Magic Potion expression, not related to vulgare gene", breeder:"Exuvium Isopods ~2022" },
     ]
   },
   {
-    id: "007", card: "#007", genus: "Armadillidium", species: "granulatum",
-    common: "Coastal Pill Bug", size: "10–14mm", origin: "Mediterranean coast",
-    rarity: "C", care: { temp:"18–26°C", humidity:"55–70%", ventilation:"Good", substrate:"Sandy/loam mix", diet:"Leaf litter, algae, dried seaweed", calcium:"High" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate", broodSize:"8–25 mancae", gestation:"4–6 weeks" },
-    notes: "Coastal Mediterranean species — tolerates slightly higher salinity substrates.",
-    morphs: [
-      { id:"007a", card:"#007a", name:"Wild Type", year:"Natural", hex:"#5A5050", rarity:"C", desc:"Dark grey with bumpy granulated texture. Distinctive feel in hand.", genetics:"Wild type", breeder:"Natural" },
-    ]
-  },
-  {
-    id: "008", card: "#008", genus: "Armadillidium", species: "scaberrimum",
-    common: "Sandstone Isopod", size: "12–16mm", origin: "Greece, Mediterranean",
-    rarity: "U", care: { temp:"20–28°C", humidity:"50–65%", ventilation:"Good", substrate:"Sandy/rocky substrate", diet:"Dried leaf litter, bark", calcium:"High" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Slow–Moderate", broodSize:"5–20 mancae", gestation:"5–7 weeks" },
-    notes: "Named for sandstone-like appearance and texture. Greek origin; prefers drier conditions than most Armadillidium. Keep moisture gradient with dryer areas dominant.",
-    morphs: [
-      { id:"008a", card:"#008a", name:"Sandstone", year:"Natural", hex:"#C4A870", rarity:"U", desc:"Sandy-beige to grey rough texture. Looks like a tiny rolling rock.", genetics:"Natural locality colouration", breeder:"Natural" },
-    ]
-  },
-  {
-    id: "009", card: "#009", genus: "Porcellio", species: "scaber",
-    common: "Rough Woodlouse", size: "12–18mm", origin: "Europe",
-    rarity: "C", care: { temp:"18–28°C", humidity:"50–70%", ventilation:"Good", substrate:"Coco fibre/bark mix", diet:"Leaf litter, vegetables, protein, algae", calcium:"Moderate" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"4 months", breedingRate:"High", broodSize:"15–60 mancae", gestation:"3–5 weeks" },
-    notes: "The foundational hobby species. First colour morph (Orange) isolated here by Orin McMongle. 15 morphs — most diverse in the hobby. Lava is the ONLY co-dominant gene in all isopods. Does NOT conglobate.",
-    morphs: [
-      { id:"009a", card:"#009a", name:"Wild Type", year:"Natural", hex:"#7A6850", rarity:"C", desc:"Classic rough grey-brown. Most common isopod worldwide.", genetics:"Wild type", breeder:"Natural" },
-      { id:"009b", card:"#009b", name:"Orange (Spanish Orange)", year:"~2010s", hex:"#D4703A", rarity:"C", desc:"THE first colour morph in the isopod hobby. Vivid orange; originally 'Giant Orange' from Spanish populations.", genetics:"Recessive orange — first morph isolated in the hobby", breeder:"Orin McMongle (Spanish Orange)" },
-      { id:"009c", card:"#009c", name:"Dalmatian", year:"~2014", hex:"#F0E8D8", rarity:"C", desc:"White base with dark irregular spots. Very popular.", genetics:"Recessive dalmatian patterning", breeder:"Hobby isolation ~2014" },
-      { id:"009d", card:"#009d", name:"Orange Dalmatian", year:"~2016", hex:"#E8A860", rarity:"U", desc:"Created by Ryan Orr: Orange × Dalmatian → F1 wild-type → F2 Orange Dalmatians. First documented F2 cross morph.", genetics:"Homozygous recessive Orange + Dalmatian — both recessive genes", breeder:"Ryan Orr ~2016" },
-      { id:"009e", card:"#009e", name:"Calico", year:"~2017", hex:"#C4956A", rarity:"C", desc:"Orange and white patches. Also wild-occurring in some populations.", genetics:"Calico patterning — incomplete dominance", breeder:"Hobby isolation" },
-      { id:"009f", card:"#009f", name:"Orin's Calico", year:"~2018", hex:"#C8A060", rarity:"U", desc:"Created by Orin McMongle. Light orange and yellow throughout; different from standard Calico.", genetics:"Selective Calico line by Orin McMongle", breeder:"Orin McMongle" },
-      { id:"009g", card:"#009g", name:"Lava", year:"~2018", hex:"#B83A10", rarity:"U", desc:"Deep orange-red on grey-black base. Variable per individual. THE ONLY co-dominant gene currently known in isopods.", genetics:"Co-dominant — heterozygous shows 'Lava', homozygous enhances expression. ONLY known co-dominant isopod gene.", breeder:"Hobby isolation" },
-      { id:"009h", card:"#009h", name:"Koi", year:"~2018", hex:"#D09060", rarity:"U", desc:"Neither pied nor dalmatian — watercolour-paint bleed appearance of white, grey and colour.", genetics:"Koi gene — unique blended colouration mechanism", breeder:"US hobby" },
-      { id:"009i", card:"#009i", name:"Orange Koi", year:"~2019", hex:"#E09048", rarity:"U", desc:"Koi gene combined with orange. More orange-dominant than standard Koi.", genetics:"Koi + orange recessive combination", breeder:"US hobby" },
-      { id:"009j", card:"#009j", name:"Piebald", year:"~2019", hex:"#C8A080", rarity:"U", desc:"Recessive gene causing lack of pigment in sections. Can be combined with colour morphs.", genetics:"Recessive piebald — unpigmented body sections", breeder:"US hobby" },
-      { id:"009k", card:"#009k", name:"Yellow Snow", year:"~2019", hex:"#E8E0A0", rarity:"R", desc:"Likely T+ albino expression; entire body yellow including eyes. Many have thick robust build.", genetics:"Likely T+ albino — tyrosinase positive with reduced melanin", breeder:"US hobby" },
-      { id:"009l", card:"#009l", name:"White-Out", year:"~2019", hex:"#F8F4EE", rarity:"U", desc:"Solid white expression. May yellow with age; reduce colour-enhancing foods.", genetics:"Recessive hypopigmentation", breeder:"US hobby" },
-      { id:"009m", card:"#009m", name:"Ghost", year:"~2019", hex:"#C8C0B0", rarity:"U", desc:"Pale lavender-grey; notably large physique in some lines.", genetics:"Recessive — reduced overall pigmentation", breeder:"US hobby" },
-      { id:"009n", card:"#009n", name:"Orange Ember", year:"~2020", hex:"#D06030", rarity:"R", desc:"White towards head deepening to rich orange at back — gradient colouration. Lineage of selective breeding.", genetics:"Selective gradient expression line", breeder:"US hobby" },
-      { id:"009o", card:"#009o", name:"Lava Dalmatian", year:"~2021", hex:"#C04020", rarity:"R", desc:"Lava co-dominant expression with dalmatian white spot overlay. Highly variable.", genetics:"Co-dominant Lava + recessive Dalmatian", breeder:"US hobby selective cross" },
-    ]
-  },
-  {
-    id: "010", card: "#010", genus: "Porcellio", species: "laevis",
-    common: "Smooth Isopod", size: "14–20mm", origin: "Worldwide (cosmopolitan)",
-    rarity: "C", care: { temp:"18–28°C", humidity:"60–80%", ventilation:"Moderate", substrate:"Coco fibre/loam", diet:"Leaf litter, vegetables, protein, decaying wood", calcium:"Moderate" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"4 months", breedingRate:"Very High", broodSize:"20–80 mancae", gestation:"3–4 weeks" },
-    notes: "Fastest breeding Porcellio. Excellent bioactive cleaner. Orange morph is striking and contrasts beautifully. Dairy Cow morph extremely popular in vivarium hobby.",
-    morphs: [
-      { id:"010a", card:"#010a", name:"Wild Type", year:"Natural", hex:"#6A6058", rarity:"C", desc:"Smooth shiny grey. Very common worldwide.", genetics:"Wild type", breeder:"Natural" },
-      { id:"010b", card:"#010b", name:"Orange", year:"~2014", hex:"#E07830", rarity:"C", desc:"Solid vivid orange. One of the most widely kept morphs.", genetics:"Recessive orange", breeder:"Hobby isolation" },
-      { id:"010c", card:"#010c", name:"Dairy Cow", year:"~2016", hex:"#F0E8E0", rarity:"C", desc:"White base with irregular black spots — literally looks like a dairy cow. Hugely popular.", genetics:"Recessive pied + dalmatian combination", breeder:"US hobby" },
-    ]
-  },
-  {
-    id: "011", card: "#011", genus: "Porcellio", species: "hoffmannseggi",
-    common: "Giant Spanish Isopod", size: "22–30mm", origin: "Spain / Portugal",
-    rarity: "R", care: { temp:"18–26°C", humidity:"55–70%", ventilation:"Good", substrate:"Coco/loam/bark mix", diet:"Leaf litter, vegetables, protein, bark", calcium:"Moderate" },
-    biology: { lifespan:"3–4 years", activity:"Nocturnal", breedingAge:"9 months", breedingRate:"Slow–Moderate", broodSize:"10–30 mancae", gestation:"6–8 weeks" },
-    notes: "One of the largest isopods kept in captivity. Impressive size; slow to breed. Does well in bioactive setups with lots of hiding spots. Humidity gradient important.",
-    morphs: [
-      { id:"011a", card:"#011a", name:"Wild Type", year:"Natural", hex:"#5A5040", rarity:"R", desc:"Dark grey-brown. Impressive size. Rough texture.", genetics:"Wild type", breeder:"Natural" },
-    ]
-  },
-  {
-    id: "012", card: "#012", genus: "Porcellio", species: "haasi",
-    common: "High Yellow / South Spain Isopod", size: "16–22mm", origin: "Southern Spain",
-    rarity: "U", care: { temp:"18–28°C", humidity:"55–70%", ventilation:"Good", substrate:"Coco/bark/loam mix", diet:"Leaf litter, bark, vegetables", calcium:"Moderate–High" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate", broodSize:"10–35 mancae", gestation:"4–6 weeks" },
-    notes: "Notable for the High Yellow locality — vivid yellow with grey. Two main localities traded: High Yellow (bright) and Sevilla.",
-    morphs: [
-      { id:"012a", card:"#012a", name:"High Yellow", year:"Locality", hex:"#D4C030", rarity:"U", desc:"Vivid yellow-and-grey banded pattern. Locality form from southern Spain.", genetics:"Natural locality colouration", breeder:"Southern Spain locality" },
-      { id:"012b", card:"#012b", name:"Sevilla", year:"Locality", hex:"#A09050", rarity:"U", desc:"Olive-yellow and grey. Sevilla locality form.", genetics:"Natural locality colouration", breeder:"Sevilla locality" },
-    ]
-  },
-  {
-    id: "013", card: "#013", genus: "Porcellio", species: "expansus",
-    common: "Large Spanish Porcellio", size: "20–28mm", origin: "Spain",
-    rarity: "R", care: { temp:"18–26°C", humidity:"55–70%", ventilation:"Good", substrate:"Coco/loam mix with bark", diet:"Leaf litter, bark, protein", calcium:"Moderate" },
-    biology: { lifespan:"3–4 years", activity:"Nocturnal", breedingAge:"8 months", breedingRate:"Moderate", broodSize:"10–30 mancae", gestation:"5–7 weeks" },
-    notes: "Large impressive Spanish species. Yellow Dot is the most common and accessible locality. Dark South is prolific for a large species.",
-    morphs: [
-      { id:"013a", card:"#013a", name:"Yellow Dot", year:"Natural/locality", hex:"#5A5A3A", rarity:"R", desc:"Dark grey with yellow terminal markings. Fastest breeding of large Spanish Porcellio.", genetics:"Natural locality form", breeder:"Spanish locality" },
-      { id:"013b", card:"#013b", name:"Dark South Locality", year:"Locality", hex:"#3A3A3A", rarity:"R", desc:"Nearly black from southern Spain. Prolific breeders.", genetics:"Melanistic locality form", breeder:"Southern Spain locality" },
-    ]
-  },
-  {
-    id: "014", card: "#014", genus: "Porcellio", species: "dilatatus",
-    common: "Giant Canyon Isopod", size: "18–20mm", origin: "Western Europe",
-    rarity: "C", care: { temp:"18–26°C", humidity:"60–75%", ventilation:"Moderate", substrate:"Coco fibre/loam mix", diet:"Leaf litter, vegetables, bark, protein", calcium:"Moderate" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"High", broodSize:"15–50 mancae", gestation:"4–5 weeks" },
-    notes: "Excellent prolific bioactive cleaner. Hardy and adaptable. Rust morph adds colour to a normally drab species. Good for vivarium maintenance.",
-    morphs: [
-      { id:"014a", card:"#014a", name:"Wild Type", year:"Natural", hex:"#7A6A50", rarity:"C", desc:"Muted brown-blue-grey. Hardy burrower.", genetics:"Wild type", breeder:"Natural" },
-      { id:"014b", card:"#014b", name:"Rust", year:"Selective", hex:"#A04820", rarity:"U", desc:"Rust-coloured variant of Giant Canyon. Same size and appetite with more flair.", genetics:"Selective line for rust/orange colouration", breeder:"Hobby selective breeding" },
-    ]
-  },
-  {
-    id: "015", card: "#015", genus: "Porcellio", species: "spinicornis",
-    common: "Brickwork Isopod", size: "12–16mm", origin: "Europe",
-    rarity: "C", care: { temp:"18–26°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Coco fibre/bark mix", diet:"Leaf litter, bark, algae", calcium:"Moderate" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"Moderate", broodSize:"10–30 mancae", gestation:"4–5 weeks" },
-    notes: "Named for habit of colonising walls and brickwork. Variable brown-orange with darker banding. White morph is an attractive captive isolation.",
-    morphs: [
-      { id:"015a", card:"#015a", name:"Wild Type", year:"Natural", hex:"#7A6048", rarity:"C", desc:"Brown-orange with darker banding. Variable across localities.", genetics:"Wild type", breeder:"Natural" },
-      { id:"015b", card:"#015b", name:"White", year:"~2018", hex:"#F0EBE0", rarity:"R", desc:"Pale white form from captive cultures.", genetics:"Recessive hypopigmentation", breeder:"Captive isolation ~2018" },
-    ]
-  },
-  {
-    id: "016", card: "#016", genus: "Porcellio", species: "sp. Sevilla",
-    common: "Sevilla Isopod", size: "16–22mm", origin: "Seville, Spain",
-    rarity: "U", care: { temp:"18–28°C", humidity:"55–70%", ventilation:"Good", substrate:"Coco/loam/bark mix", diet:"Leaf litter, bark", calcium:"Moderate" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate", broodSize:"10–30 mancae", gestation:"4–6 weeks" },
-    notes: "Undescribed Porcellio species from Seville. Olive and grey patterning. Popular in the advanced hobby.",
-    morphs: [
-      { id:"016a", card:"#016a", name:"Wild Type", year:"Natural", hex:"#7A8050", rarity:"U", desc:"Olive-grey with subtle patterning. Seville locality.", genetics:"Wild type", breeder:"Natural" },
-    ]
-  },
-  {
-    id: "017", card: "#017", genus: "Porcellio", species: "werneri",
-    common: "Werner's Isopod", size: "16–20mm", origin: "Greece / Turkey",
-    rarity: "R", care: { temp:"20–28°C", humidity:"50–65%", ventilation:"Good", substrate:"Sandy/rocky mix", diet:"Dried leaf litter, bark", calcium:"High" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"7 months", breedingRate:"Slow–Moderate", broodSize:"8–20 mancae", gestation:"5–7 weeks" },
-    notes: "Eastern Mediterranean species. Prefers drier conditions. Sandy-yellow and grey colouration. Sought by collectors.",
-    morphs: [
-      { id:"017a", card:"#017a", name:"Wild Type", year:"Natural", hex:"#B0A070", rarity:"R", desc:"Sandy yellow-grey. Variable locality colouration.", genetics:"Wild type", breeder:"Natural" },
-    ]
-  },
-  {
-    id: "018", card: "#018", genus: "Porcellionides", species: "pruinosus",
-    common: "Powder Blue / Powder Orange", size: "10–14mm", origin: "Cosmopolitan",
-    rarity: "C", care: { temp:"20–30°C", humidity:"60–80%", ventilation:"Moderate", substrate:"Coco fibre/loam", diet:"Leaf litter, vegetables, protein", calcium:"Moderate" },
-    biology: { lifespan:"1–2 years", activity:"Diurnal/Nocturnal", breedingAge:"3 months", breedingRate:"Very High", broodSize:"20–70 mancae", gestation:"3–4 weeks" },
-    notes: "Fastest breeding species in the hobby. 6 morphs. The Powder Blue and Powder Orange are flagship species for bioactive vivariums and as feeder isopods. Powder Blue has a white bloom like a plum.",
-    morphs: [
-      { id:"018a", card:"#018a", name:"Wild Type", year:"Natural", hex:"#6870A0", rarity:"C", desc:"Classic blue-grey with powdery bloom. One of the most widely kept species.", genetics:"Wild type", breeder:"Natural" },
-      { id:"018b", card:"#018b", name:"Powder Orange", year:"~2014", hex:"#E08030", rarity:"C", desc:"Vivid orange with powdery bloom. Hugely popular beginner species.", genetics:"Recessive orange", breeder:"US hobby" },
-      { id:"018c", card:"#018c", name:"Powder White", year:"~2016", hex:"#E8E0D0", rarity:"U", desc:"Pale creamy-white bloom. Clean and subtle.", genetics:"Recessive hypopigmentation", breeder:"US hobby" },
-      { id:"018d", card:"#018d", name:"Oreo Crumble", year:"~2018", hex:"#302820", rarity:"U", desc:"Very dark near-black with white flecks. Striking contrast.", genetics:"Melanistic with white spotting — compound recessive", breeder:"US hobby" },
-      { id:"018e", card:"#018e", name:"Lemon", year:"~2019", hex:"#D8D040", rarity:"R", desc:"Bright lemon yellow. Very eye-catching against typical vivarium substrates.", genetics:"Recessive yellow expression", breeder:"US hobby" },
-      { id:"018f", card:"#018f", name:"Pink", year:"~2020", hex:"#D880A0", rarity:"R", desc:"Soft pink colouration. Rare and much sought-after.", genetics:"Recessive pink expression", breeder:"European hobby" },
-    ]
-  },
-  {
-    id: "019", card: "#019", genus: "Oniscus", species: "asellus",
-    common: "Common Shiny Woodlouse", size: "12–18mm", origin: "Europe",
-    rarity: "C", care: { temp:"15–24°C", humidity:"70–85%", ventilation:"Low–Moderate", substrate:"Damp coco/loam/leaf litter mix", diet:"Leaf litter, decaying wood, vegetables", calcium:"Moderate" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"Moderate", broodSize:"15–50 mancae", gestation:"4–5 weeks" },
-    notes: "Most moisture-loving common species. Shiny smooth body unlike Porcellio scaber. Four documented morphs. Mardi Gras Dalmatian was the first ever O. asellus morph (Kyle/InvertDude, 2016).",
-    morphs: [
-      { id:"019a", card:"#019a", name:"Wild Type", year:"Natural", hex:"#687070", rarity:"C", desc:"Grey-brown with yellow lateral spots. Shiny smooth surface.", genetics:"Wild type", breeder:"Natural" },
-      { id:"019b", card:"#019b", name:"Mardi Gras Dalmatian", year:"2016", hex:"#C8A848", rarity:"R", desc:"First ever O. asellus morph. Yellow-orange with Dalmatian spotting. Kyle/InvertDude 2016.", genetics:"Recessive — first documented morph for this species", breeder:"Kyle / InvertDude 2016" },
-      { id:"019c", card:"#019c", name:"Lemon and Lime", year:"~2017", hex:"#C8D048", rarity:"R", desc:"Vivid yellow-green colouration. Neon in appearance.", genetics:"Recessive lemon-lime expression", breeder:"US hobby" },
-      { id:"019d", card:"#019d", name:"Dalmatian", year:"~2018", hex:"#D8D0B8", rarity:"U", desc:"Pale base with dark spotting. Similar mechanism to scaber Dalmatian.", genetics:"Recessive dalmatian patterning", breeder:"US hobby" },
-    ]
-  },
-  {
-    id: "020", card: "#020", genus: "Cubaris", species: "sp. Rubber Ducky",
-    common: "Rubber Ducky Isopod", size: "15–20mm", origin: "Thailand (limestone caves)",
-    rarity: "R", care: { temp:"22–28°C", humidity:"70–85%", ventilation:"Low", substrate:"Calcium-rich substrate, limestone pieces", diet:"Leaf litter, protein, calcium-rich foods", calcium:"Very High" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Very Slow", broodSize:"2–8 mancae", gestation:"8–12 weeks" },
-    notes: "Named for distinctive yellow 'duck face' head shape. Thai limestone cave origin. Slow breeders. Pak Chong is a SEPARATE SPECIES — see its own entry. Pink Rubber Ducky and Rubber Bee are true morphs of this species. DO NOT keep with acidic substrate.",
-    morphs: [
-      { id:"020a", card:"#020a", name:"Classic Yellow", year:"~2017–2019", hex:"#E8C040", rarity:"R", desc:"The original Rubber Ducky. Wild Thailand limestone cave; stabilised in captivity.", genetics:"Wild type captive stabilisation", breeder:"Thailand captive isolation ~2017–2019" },
-      { id:"020b", card:"#020b", name:"Pink Rubber Ducky", year:"~2021", hex:"#E8A0A0", rarity:"UR", desc:"Soft rosy-pink mutation. Very rare — one of the few pink Cubaris in the hobby.", genetics:"Recessive pink pigmentation mutation", breeder:"Captive isolation ~2021" },
-      { id:"020c", card:"#020c", name:"Rubber Bee", year:"~2022", hex:"#F0E850", rarity:"UR", desc:"Rubber Ducky variant with an additional white third segment. Distinct patterning from Classic Yellow.", genetics:"Patterning variant — white third segment expression", breeder:"Captive isolation ~2022" },
-    ]
-  },
-  {
-    id: "021", card: "#021", genus: "Cubaris", species: "sp. Panda King",
-    common: "Panda King Isopod", size: "10–18mm", origin: "Vietnam (limestone cave systems)",
-    rarity: "R", care: { temp:"22–28°C", humidity:"70–85%", ventilation:"Low", substrate:"Calcium-rich substrate, deep moist", diet:"Leaf litter, protein, algae", calcium:"Very High" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–10 mancae", gestation:"8–12 weeks" },
-    notes: "Bold black and white cave Cubaris from Vietnam. SEPARATE SPECIES from Rubber Ducky — Vietnamese not Thai origin. Highly sought collector species. Red Panda, Citrus, and Pink morphs are true captive isolations within this species.",
-    morphs: [
-      { id:"021a", card:"#021a", name:"Classic B&W", year:"~2019", hex:"#2A2A2A", rarity:"R", desc:"Bold black-and-white from Vietnamese caves. The original Panda King.", genetics:"Wild type captive stabilisation", breeder:"Vietnamese captive trade ~2019" },
-      { id:"021b", card:"#021b", name:"Red Panda King", year:"~2021", hex:"#A03020", rarity:"R", desc:"Red/orange replaces black banding. Highly sought captive morph.", genetics:"Recessive red pigmentation replacing black", breeder:"Captive isolation ~2021" },
-      { id:"021c", card:"#021c", name:"Citrus Panda King", year:"~2022", hex:"#E8B030", rarity:"UR", desc:"Bright yellow-orange banding with white. Very striking captive morph.", genetics:"Recessive yellow/citrus gene replacing black banding", breeder:"Captive isolation ~2022" },
-      { id:"021d", card:"#021d", name:"Pink Panda King", year:"~2023", hex:"#E8A0B0", rarity:"UR", desc:"Pink replacing the black banding. Extremely rare new morph.", genetics:"Recessive pink pigmentation — very new mutation ~2023", breeder:"Captive isolation ~2023" },
-    ]
-  },
-  {
-    id: "022", card: "#022", genus: "Cubaris", species: "murina",
-    common: "Little Sea Isopod", size: "8–14mm", origin: "Pantropical — Florida, Caribbean, Pacific",
-    rarity: "C", care: { temp:"22–28°C", humidity:"70–85%", ventilation:"Moderate", substrate:"Coco fibre/sand mix", diet:"Leaf litter, algae, protein", calcium:"Moderate–High" },
-    biology: { lifespan:"1–2 years", activity:"Nocturnal", breedingAge:"4 months", breedingRate:"Moderate–High", broodSize:"5–20 mancae", gestation:"4–6 weeks" },
-    notes: "Widely distributed pantropical Cubaris — a DESCRIBED species unlike most Cubaris sp. trade names. Papaya is one of the only true pink isopods widely available in the hobby. Faster breeding than most Cubaris. Anemone from Philippines is striking orange-red. Glacier is a white whiteout-gene morph.",
-    morphs: [
-      { id:"022a", card:"#022a", name:"Wild Type", year:"Natural", hex:"#9A8878", rarity:"C", desc:"Pale tan-grey. Most common form. Widespread pantropical distribution.", genetics:"Wild type", breeder:"Natural" },
-      { id:"022b", card:"#022b", name:"Papaya (Pink)", year:"~2020", hex:"#E88888", rarity:"R", desc:"True pink isopod. The only pink isopod widely available in the entire hobby.", genetics:"Recessive pink pigmentation — unique in hobby accessibility", breeder:"Captive isolation ~2020" },
-      { id:"022c", card:"#022c", name:"Anemone", year:"~2021", hex:"#C4786A", rarity:"R", desc:"Orange-red tones resembling sea anemone. Philippines locality origin.", genetics:"Philippines locality — orange-red expression", breeder:"Philippines locality ~2021" },
-      { id:"022d", card:"#022d", name:"Glacier", year:"~2022", hex:"#F0EEE8", rarity:"R", desc:"White whiteout-gene expression. Entirely lacks pigment — brilliant white. Confirmed by Josh's Frogs.", genetics:"Whiteout gene — complete absence of pigmentation", breeder:"US hobby ~2022" },
-      { id:"022e", card:"#022e", name:"Mandarin", year:"~2022", hex:"#E09048", rarity:"R", desc:"Vivid orange-mandarin colouration. Distinct from Papaya and Anemone.", genetics:"Recessive orange expression", breeder:"Captive isolation ~2022" },
-    ]
-  },
-  {
-    id: "023", card: "#023", genus: "Cubaris", species: "sp. Cappuccino",
-    common: "Cappuccino Isopod", size: "14–18mm", origin: "Thailand",
-    rarity: "R", care: { temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate, moist leaf litter", diet:"Leaf litter, protein, algae", calcium:"Very High" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–10 mancae", gestation:"7–10 weeks" },
-    notes: "Warm coffee-brown Thai Cubaris. SEPARATE SPECIES from Amber — different colouration and locality. Shy and reclusive; needs undisturbed deep substrate. Part of the 'coffee-themed' Thai Cubaris group.",
-    morphs: [
-      { id:"023a", card:"#023a", name:"Cappuccino", year:"~2020", hex:"#8B6030", rarity:"R", desc:"Warm coffee-brown body. Distinctively earthy tones. Coffee-themed Thai Cubaris.", genetics:"Natural locality colouration", breeder:"Thailand captive ~2020" },
-    ]
-  },
-  {
-    id: "024", card: "#024", genus: "Cubaris", species: "sp. Amber",
-    common: "Amber Isopod", size: "12–16mm", origin: "Thailand",
-    rarity: "R", care: { temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate, moist leaf litter", diet:"Leaf litter, protein, algae", calcium:"Very High" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–10 mancae", gestation:"7–10 weeks" },
-    notes: "Yellow-amber Thai Cubaris. More accessible than some premium Cubaris. SEPARATE SPECIES from Cappuccino — brighter amber-yellow colouration. One of the more prolific Thai Cubaris in captivity.",
-    morphs: [
-      { id:"024a", card:"#024a", name:"Amber", year:"~2020", hex:"#C8943A", rarity:"R", desc:"Rich amber-yellow colouration. More accessible premium Thai Cubaris.", genetics:"Natural locality colouration", breeder:"Thailand captive ~2020" },
-    ]
-  },
-  {
-    id: "N01", card: "#N01", genus: "Nesodillo", species: "arcangelii",
-    common: "Shiro Utsuri Isopod", size: "10–14mm", origin: "Canary Islands",
-    rarity: "R", care: { temp:"20–26°C", humidity:"65–80%", ventilation:"Moderate", substrate:"Coco/loam mix", diet:"Leaf litter, protein, algae", calcium:"Moderate" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate", broodSize:"10–25 mancae", gestation:"4–6 weeks" },
-    notes: "Named for resemblance to Shiro Utsuri koi fish patterning — black and white. Two morphs: standard and a high-white variant.",
-    morphs: [
-      { id:"N01a", card:"#N01a", name:"Shiro Utsuri", year:"~2018", hex:"#D0C8B8", rarity:"R", desc:"Black and white koi-like patterning. Named for koi variety resemblance.", genetics:"Natural form — black and white patterning", breeder:"Canary Islands" },
-      { id:"N01b", card:"#N01b", name:"High White", year:"~2020", hex:"#F0EEE8", rarity:"R", desc:"Higher proportion of white than standard Shiro Utsuri.", genetics:"Selective line for increased white expression", breeder:"Hobby selective breeding" },
-    ]
-  },
-  {
-    id: "025", card: "#025", genus: "Trichorhina", species: "tomentosa",
-    common: "Dwarf White Isopod", size: "3–5mm", origin: "Tropical Americas",
-    rarity: "C", care: { temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Rich moist coco/peat mix", diet:"Leaf litter, decaying material, protein", calcium:"Low" },
-    biology: { lifespan:"1–2 years", activity:"Nocturnal", breedingAge:"2 months", breedingRate:"Very High", broodSize:"5–20 mancae", gestation:"2–3 weeks" },
-    notes: "IMPORTANT: All-female parthenogenetic species — no males exist. Reproduces without fertilisation. Premier vivarium cleaner for egg chambers and sensitive species setups. Does not compete with reptile/amphibian food items.",
-    morphs: [
-      { id:"025a", card:"#025a", name:"Dwarf White", year:"Natural", hex:"#E8E4D8", rarity:"C", desc:"Tiny white crustacean. Ubiquitous vivarium cleaner. Parthenogenetic — all female.", genetics:"Parthenogenetic — all female, no males in species", breeder:"Natural" },
-    ]
-  },
-  {
-    id: "026", card: "#026", genus: "Nagurus", species: "cristatus",
-    common: "Dwarf Purple Isopod", size: "4–6mm", origin: "Indo-Pacific",
-    rarity: "U", care: { temp:"22–28°C", humidity:"70–80%", ventilation:"Low", substrate:"Moist coco/peat mix", diet:"Decaying organic matter, algae", calcium:"Low–Moderate" },
-    biology: { lifespan:"1–2 years", activity:"Nocturnal", breedingAge:"2 months", breedingRate:"High", broodSize:"8–20 mancae", gestation:"2–3 weeks" },
-    notes: "Small vivarium cleaner with distinctive purple-grey colouration. Less commonly kept than Dwarf White but useful alternative. Hardy and adaptable.",
-    morphs: [
-      { id:"026a", card:"#026a", name:"Dwarf Purple", year:"Natural", hex:"#706880", rarity:"U", desc:"Small purple-grey isopod. Good vivarium cleaner.", genetics:"Natural form", breeder:"Natural" },
-    ]
-  },
-  {
-    id: "027", card: "#027", genus: "Armadillo", species: "officinalis",
-    common: "Hissing Isopod", size: "18–25mm", origin: "Mediterranean",
-    rarity: "R", care: { temp:"20–28°C", humidity:"50–65%", ventilation:"Good", substrate:"Sandy/rocky substrate with bark", diet:"Leaf litter, bark, dried vegetation", calcium:"Very High" },
-    biology: { lifespan:"3–5 years", activity:"Nocturnal", breedingAge:"9 months", breedingRate:"Very Slow", broodSize:"5–15 mancae", gestation:"7–10 weeks" },
-    notes: "ONLY isopod known to produce a hissing sound when disturbed. Not Armadillidium — separate genus. Needs very dry conditions with minimal moisture. Extremely slow breeder. Very long-lived.",
-    morphs: [
-      { id:"027a", card:"#027a", name:"Wild Type", year:"Natural", hex:"#8A7858", rarity:"R", desc:"Brown-grey with lumpy texture. ONLY hissing isopod.", genetics:"Wild type", breeder:"Natural" },
-      { id:"027b", card:"#027b", name:"Marbled", year:"~2019", hex:"#A09070", rarity:"R", desc:"Marbled patterning across the back. Rarer locality form.", genetics:"Natural locality variation", breeder:"Mediterranean locality" },
-    ]
-  },
-  {
-    id: "028", card: "#028", genus: "Cylisticus", species: "convexus",
-    common: "Curly Woodlouse", size: "12–16mm", origin: "Europe / Worldwide",
-    rarity: "C", care: { temp:"15–24°C", humidity:"55–75%", ventilation:"Moderate", substrate:"Coco fibre/bark/loam", diet:"Leaf litter, bark, vegetables", calcium:"Moderate" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"Moderate–High", broodSize:"15–40 mancae", gestation:"4–5 weeks" },
-    notes: "Partially conglobates — curves into C-shape but not full sphere. Very widespread. Good bioactive species. Underrated in the hobby.",
-    morphs: [
-      { id:"028a", card:"#028a", name:"Wild Type", year:"Natural", hex:"#787060", rarity:"C", desc:"Grey-brown with variable lateral patterning. Partial roller.", genetics:"Wild type", breeder:"Natural" },
-    ]
-  },
-  {
-    id: "029", card: "#029", genus: "Venezillo", species: "parvus",
-    common: "Dwarf Zebra Isopod", size: "5–8mm", origin: "Canary Islands / Mediterranean",
-    rarity: "U", care: { temp:"20–26°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Sandy/rocky substrate", diet:"Leaf litter, dried vegetation", calcium:"High" },
-    biology: { lifespan:"1–2 years", activity:"Nocturnal", breedingAge:"4 months", breedingRate:"Moderate", broodSize:"5–15 mancae", gestation:"3–5 weeks" },
-    notes: "Small conglobating species with bold zebra striping. Conglobates into a perfect sphere despite small size. More delicate than Armadillidium.",
-    morphs: [
-      { id:"029a", card:"#029a", name:"Zebra", year:"Natural", hex:"#D0C8A0", rarity:"U", desc:"Bold light/dark striped pattern. Tiny conglobating species.", genetics:"Natural form", breeder:"Natural" },
-    ]
-  },
-  {
-    id: "030", card: "#030", genus: "Reductoniscus", species: "costulatus",
-    common: "Dwarf Zebra Isopod (Koi)", size: "4–6mm", origin: "SE Asia",
-    rarity: "U", care: { temp:"22–28°C", humidity:"75–85%", ventilation:"Low–Moderate", substrate:"Rich moist coco/leaf mix", diet:"Leaf litter, algae, protein", calcium:"Moderate" },
-    biology: { lifespan:"1–2 years", activity:"Nocturnal", breedingAge:"3 months", breedingRate:"High", broodSize:"10–25 mancae", gestation:"2–4 weeks" },
-    notes: "Small SE Asian species with striking zebra/koi-like patterning. Fast breeder. Good bioactive addition.",
-    morphs: [
-      { id:"030a", card:"#030a", name:"Koi", year:"Natural", hex:"#D0B880", rarity:"U", desc:"Orange and white koi-like patterning. Tiny vivid species.", genetics:"Natural form", breeder:"Natural" },
-    ]
-  },
-  {
-    id: "031", card: "#031", genus: "Trachelipus", species: "rathkii",
-    common: "Rathke's Woodlouse", size: "10–14mm", origin: "Central/Eastern Europe",
-    rarity: "C", care: { temp:"15–24°C", humidity:"60–75%", ventilation:"Moderate", substrate:"Coco/loam mix", diet:"Leaf litter, bark", calcium:"Moderate" },
-    biology: { lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"Moderate", broodSize:"10–30 mancae", gestation:"4–5 weeks" },
-    notes: "Common European species with variable brownish patterning. Underrepresented in hobby compared to Porcellio and Armadillidium.",
-    morphs: [
-      { id:"031a", card:"#031a", name:"Wild Type", year:"Natural", hex:"#7A6A50", rarity:"C", desc:"Brown-grey with variable banding. Common field species.", genetics:"Wild type", breeder:"Natural" },
-    ]
-  },
-  {
-    id: "032", card: "#032", genus: "Atlantoscia", species: "floridana",
-    common: "Florida Mini Isopod", size: "5–8mm", origin: "Caribbean / SE USA",
-    rarity: "U", care: { temp:"20–28°C", humidity:"70–80%", ventilation:"Moderate", substrate:"Moist coco/loam mix", diet:"Decaying organic matter, leaf litter", calcium:"Low" },
-    biology: { lifespan:"1–2 years", activity:"Nocturnal", breedingAge:"3 months", breedingRate:"High", broodSize:"10–30 mancae", gestation:"2–3 weeks" },
-    notes: "Small Caribbean/Florida species. Good vivarium cleaner. Less commonly traded than Dwarf White but excellent performer.",
-    morphs: [
-      { id:"032a", card:"#032a", name:"Wild Type", year:"Natural", hex:"#887868", rarity:"U", desc:"Small brown-grey species. Good bioactive cleaner.", genetics:"Wild type", breeder:"Natural" },
-    ]
-  },
-  {
-    id: "033", card: "#033", genus: "Cristarmadillidium", species: "muricatum",
-    common: "Spiny Pill Bug", size: "10–14mm", origin: "Mediterranean",
-    rarity: "R", care: { temp:"20–26°C", humidity:"55–70%", ventilation:"Good", substrate:"Rocky/sandy substrate", diet:"Leaf litter, bark, dried vegetation", calcium:"High" },
-    biology: { lifespan:"3–4 years", activity:"Nocturnal", breedingAge:"8 months", breedingRate:"Slow", broodSize:"5–15 mancae", gestation:"6–8 weeks" },
-    notes: "Unique spiny-textured body. Rolls into ball like Armadillidium. Sandy-brown body with distinctive surface texture. Highly sought by collectors.",
-    morphs: [
-      { id:"033a", card:"#033a", name:"Wild Type", year:"Natural", hex:"#8A7848", rarity:"R", desc:"Sandy-brown with pineapple-like spiky texture. Unusual and highly sought collector species.", genetics:"Natural species colouration", breeder:"Natural" },
-    ]
-  },
-  // ── BUILD 1: CUBARIS sp. SPLITS ──────────────────────────────────────────
-  {
-    id:"034", card:"#034", genus:"Cubaris", species:"sp. Pak Chong",
-    common:"Pak Chong Isopod", size:"15–20mm", origin:"Pak Chong, Thailand",
-    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate, limestone pieces", diet:"Leaf litter, protein, calcium-rich foods", calcium:"Very High" },
-    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"2–8 mancae", gestation:"8–12 weeks" },
-    notes:"Named for Pak Chong province, Thailand. Deep teal-green colouration — SEPARATE SPECIES from Rubber Ducky (Classic Yellow). Same limestone cave conditions required. Premium collector species.",
+    id:"007", card:"#007", genus:"Armadillidium", species:"granulatum",
+    common:"Granulated Pill Bug", size:"12–18mm", origin:"Mediterranean coast",
+    rarity:"C", care:{ temp:"18–26°C", humidity:"55–70%", ventilation:"Good", substrate:"Sandy/loam mix", diet:"Leaf litter, algae, dried seaweed", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"High", broodSize:"15–40 mancae", gestation:"4–6 weeks" },
+    notes:"Coastal Mediterranean species with granular texture. Highly prolific. Multiple confirmed morphs from Exuvium. Lemon is the FIRST ever captive morph for this species. Naranjito is a natural Spanish locality, NOT a captive mutation.",
     morphs:[
-      { id:"034a", card:"#034a", name:"Classic Pak Chong", year:"~2020", hex:"#4A7C6F", rarity:"UR", desc:"Deep teal-green from Pak Chong province. Entirely distinct from Rubber Ducky.", genetics:"Natural locality colouration — separate species", breeder:"Pak Chong, Thailand ~2020" },
-      { id:"034b", card:"#034b", name:"Red Pak Chong", year:"~2022", hex:"#8A2010", rarity:"UR", desc:"Isolated red variant from Pak Chong stock. Very rare captive isolation.", genetics:"Recessive red pigmentation — captive isolation", breeder:"Captive isolation ~2022" },
+      { id:"007a", card:"#007a", name:"Wild Type", year:"Natural", hex:"#5A5050", rarity:"C", desc:"Dark grey with granulated texture. Standard Mediterranean form.", genetics:"Wild type", breeder:"Natural" },
+      { id:"007b", card:"#007b", name:"Lemon", year:"~2019", hex:"#C0B030", rarity:"U", desc:"FIRST captive morph for this species. Brown base instead of dark grey, with enlarged brighter yellow spots. Confirmed by Ridgeway Frozen and Exuvium.", genetics:"Recessive — first documented captive morph in A. granulatum. Brown base + enlarged yellow spots.", breeder:"European hobby ~2019 — FIRST granulatum morph" },
+      { id:"007c", card:"#007c", name:"Naranjito", year:"Locality", hex:"#D07020", rarity:"U", desc:"Spanish locality — NOT a captive mutation. Orange body with yellow dots. Naturally occurs in some areas of Spain. Confirmed by Exuvium and multiple sellers.", genetics:"Natural locality colouration — Spanish origin. Not a recessive mutation.", breeder:"Spain locality — naturally occurring" },
+      { id:"007d", card:"#007d", name:"Creamsicle", year:"~2021", hex:"#E8A870", rarity:"R", desc:"Warm creamsicle-orange tones. New morph developed by Exuvium Isopods.", genetics:"Selective line — warm orange expression on granulatum", breeder:"Exuvium Isopods ~2021" },
+      { id:"007e", card:"#007e", name:"Magic Potion", year:"~2022", hex:"#6A50A0", rarity:"R", desc:"Purple iridescent expression in granulatum. Separate expression from vulgare Magic Potion.", genetics:"Recessive — independent Magic Potion-type expression", breeder:"European hobby ~2022" },
+      { id:"007f", card:"#007f", name:"Soft Orange", year:"~2021", hex:"#D09060", rarity:"U", desc:"Muted soft orange colouration — paler than Naranjito. Exuvium confirmed.", genetics:"Selective line — soft orange expression", breeder:"Exuvium Isopods ~2021" },
+      { id:"007g", card:"#007g", name:"White Pearl", year:"~2022", hex:"#E8E0D0", rarity:"R", desc:"Pale white-pearl colouration. Exuvium confirmed. Striking on the granulated texture.", genetics:"Recessive hypopigmentation", breeder:"Exuvium Isopods ~2022" },
+      { id:"007h", card:"#007h", name:"Lottery Ticket Mix", year:"~2023", hex:"#A08050", rarity:"U", desc:"Mix of granulatum morphs with various undocumented gene combinations. Intended for breeding projects. Exuvium developed.", genetics:"Multi-gene morph mix — carry various recessive combinations for breeding experimentation", breeder:"Exuvium Isopods ~2023" },
     ]
   },
   {
-    id:"035", card:"#035", genus:"Cubaris", species:"sp. White Ducky",
-    common:"White Ducky Isopod", size:"15–20mm", origin:"Thailand",
-    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein, calcium-rich foods", calcium:"Very High" },
-    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"2–6 mancae", gestation:"8–12 weeks" },
-    notes:"Black and white Cubaris — SEPARATE SPECIES from Classic Yellow Rubber Ducky. Increasingly rare in captive cultures. Striking panda-like colouration. Same cave habitat requirements.",
+    id:"008", card:"#008", genus:"Armadillidium", species:"scaberrimum",
+    common:"Sandstone Isopod", size:"12–16mm", origin:"Greece, Mediterranean",
+    rarity:"R", care:{ temp:"18–26°C", humidity:"50–65%", ventilation:"Good", substrate:"Sandy/rocky substrate", diet:"Leaf litter, dried vegetation", calcium:"High" },
+    biology:{ lifespan:"3–4 years", activity:"Nocturnal", breedingAge:"8 months", breedingRate:"Slow–Moderate", broodSize:"8–20 mancae", gestation:"5–7 weeks" },
+    notes:"Rough, sandstone-textured body. Greek endemic. Rare in the hobby. Hardy once established.",
     morphs:[
-      { id:"035a", card:"#035a", name:"White Ducky", year:"~2020", hex:"#E8E0D8", rarity:"UR", desc:"Black and white Cubaris with Rubber Ducky face shape. Separate species from Classic Yellow.", genetics:"Natural — separate species from Rubber Ducky", breeder:"Thailand captive" },
+      { id:"008a", card:"#008a", name:"Wild Type", year:"Natural", hex:"#8A7058", rarity:"R", desc:"Sandy-brown with rough granulated texture. Resembles sandstone.", genetics:"Natural species colouration", breeder:"Natural" },
     ]
   },
   {
-    id:"036", card:"#036", genus:"Cubaris", species:"sp. White Shark",
-    common:"White Shark Isopod", size:"8–12mm", origin:"Thailand",
-    rarity:"R", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
-    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–8 mancae", gestation:"7–10 weeks" },
-    notes:"Pale near-white dwarf Thai Cubaris. Display species rather than bioactive cleaner. Prized for clean white colouration. Handle minimally — sensitive to disturbance.",
-    morphs:[
-      { id:"036a", card:"#036a", name:"White Shark", year:"~2021", hex:"#E8E4D8", rarity:"R", desc:"Near-white body with pale segmentation. Display species — not a bioactive cleaner.", genetics:"Natural form — separate species", breeder:"Thailand captive ~2021" },
-    ]
-  },
-  {
-    id:"037", card:"#037", genus:"Cubaris", species:"sp. Thai Angel Blue",
-    common:"Thai Angel Blue Isopod", size:"10–14mm", origin:"Thailand",
-    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
-    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"2–6 mancae", gestation:"8–12 weeks" },
-    notes:"Blue-toned Thai Cubaris — SEPARATE SPECIES. Premium collector species; very rare in Western captivity. Stunning blue iridescence. Same cave conditions as other Thai Cubaris.",
-    morphs:[
-      { id:"037a", card:"#037a", name:"Thai Angel Blue", year:"~2022", hex:"#8090C0", rarity:"UR", desc:"Blue-toned Thai Cubaris with iridescent sheen. Among the rarest Thai Cubaris.", genetics:"Natural form — separate species", breeder:"Thailand captive ~2022" },
-    ]
-  },
-  {
-    id:"038", card:"#038", genus:"Cubaris", species:"sp. Black Evil",
-    common:"Black Evil Isopod", size:"15–20mm", origin:"Southeast Asia",
-    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate, moist leaf litter", diet:"Leaf litter, protein, algae", calcium:"Very High" },
-    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"2–6 mancae", gestation:"8–12 weeks" },
-    notes:"Dark royal purple with gorgeous iridescent shine. One of the largest Cubaris sp. in the hobby. SE Asian origin. Named for intimidating dark colouration and impressive size.",
-    morphs:[
-      { id:"038a", card:"#038a", name:"Black Evil", year:"~2021", hex:"#2A1A3A", rarity:"UR", desc:"Dark royal purple with stunning iridescent shine. One of the largest and rarest Cubaris sp.", genetics:"Natural form — separate SE Asian species", breeder:"SE Asia captive" },
-    ]
-  },
-  {
-    id:"039", card:"#039", genus:"Cubaris", species:"sp. Tapir",
-    common:"Tapir Isopod", size:"12–16mm", origin:"Thailand",
-    rarity:"R", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
-    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–8 mancae", gestation:"7–10 weeks" },
-    notes:"Named for tapir-like dark body with pale banding. Thai Cubaris sp. — separate species. Moderately established in hobby. Same cave requirements as other Thai Cubaris.",
-    morphs:[
-      { id:"039a", card:"#039a", name:"Tapir", year:"~2021", hex:"#4A3828", rarity:"R", desc:"Dark brown body with cream/white banding resembling tapir markings.", genetics:"Natural locality colouration", breeder:"Thailand captive" },
-    ]
-  },
-  {
-    id:"040", card:"#040", genus:"Cubaris", species:"sp. Jupiter",
-    common:"Jupiter Isopod", size:"10–14mm", origin:"Thailand",
-    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
-    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"2–6 mancae", gestation:"8–12 weeks" },
-    notes:"Named for Jupiter-like banding. Also traded as 'Frosty Jupiter'. Separate Thai Cubaris species. Very rare in Western hobby. Premium display species.",
-    morphs:[
-      { id:"040a", card:"#040a", name:"Jupiter", year:"~2022", hex:"#C0A070", rarity:"UR", desc:"Banded colouration reminiscent of Jupiter's cloud bands. Also known as 'Frosty Jupiter'.", genetics:"Natural form — separate species", breeder:"Thailand captive" },
-    ]
-  },
-  {
-    id:"041", card:"#041", genus:"Cubaris", species:"sp. Cherry Blossom",
-    common:"Cherry Blossom Isopod", size:"10–14mm", origin:"Thailand",
-    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
-    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"2–6 mancae", gestation:"8–12 weeks" },
-    notes:"Named for delicate pink/cream colouration resembling cherry blossom. Thai Cubaris — separate species. Among the most sought-after premium Cubaris in the Western hobby.",
-    morphs:[
-      { id:"041a", card:"#041a", name:"Cherry Blossom", year:"~2022", hex:"#E8C0C0", rarity:"UR", desc:"Soft pink-cream colouration. One of the most delicate-looking Cubaris.", genetics:"Natural form — separate species", breeder:"Thailand captive" },
-    ]
-  },
-  {
-    id:"042", card:"#042", genus:"Cubaris", species:"sp. Caramel Cream",
-    common:"Caramel Cream Isopod", size:"12–16mm", origin:"Thailand",
-    rarity:"R", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
-    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–8 mancae", gestation:"7–10 weeks" },
-    notes:"Also traded as 'Cappu Cream'. Warm caramel-cream colouration — related to but lighter than Cappuccino. Separate Thai Cubaris species. PostPods UK confirms as distinct variety.",
-    morphs:[
-      { id:"042a", card:"#042a", name:"Caramel Cream", year:"~2022", hex:"#D4A870", rarity:"R", desc:"Warm caramel-cream colouration. Related to Cappuccino but lighter and distinct.", genetics:"Natural form — separate species", breeder:"Thailand captive" },
-    ]
-  },
-  {
-    id:"043", card:"#043", genus:"Cubaris", species:"sp. Citrus",
-    common:"Citrus Isopod", size:"10–14mm", origin:"Thailand",
-    rarity:"R", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
-    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–8 mancae", gestation:"7–10 weeks" },
-    notes:"Bright lemon-citrus yellow. SEPARATE SPECIES from Amber — more vivid lemon-yellow expression. Growing in popularity in Western hobby.",
-    morphs:[
-      { id:"043a", card:"#043a", name:"Citrus", year:"~2022", hex:"#D8D040", rarity:"R", desc:"Bright lemon-citrus yellow. Distinct from Amber — more vivid and cooler-toned.", genetics:"Natural form — separate species", breeder:"Thailand captive" },
-    ]
-  },
-  {
-    id:"044", card:"#044", genus:"Cubaris", species:"sp. Giant Nguyen",
-    common:"Giant Nguyen Isopod", size:"20–25mm", origin:"Vietnam",
-    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Deep calcium-rich substrate", diet:"Leaf litter, protein, algae", calcium:"Very High" },
-    biology:{ lifespan:"3–4 years", activity:"Nocturnal", breedingAge:"12–18 months", breedingRate:"Very Slow", broodSize:"2–6 mancae", gestation:"10–14 weeks" },
-    notes:"One of the largest Cubaris sp. in the hobby. Vietnamese origin. Named after original collector/importer. Impressive size for the genus. Patience essential — extremely slow breeder.",
-    morphs:[
-      { id:"044a", card:"#044a", name:"Giant Nguyen", year:"~2021", hex:"#6A5840", rarity:"UR", desc:"One of the biggest Cubaris in captivity. Impressively large Vietnamese species.", genetics:"Natural form — separate Vietnamese species", breeder:"Vietnamese captive" },
-    ]
-  },
-  {
-    id:"045", card:"#045", genus:"Cubaris", species:"iriomotensis",
-    common:"Miyako Isopod", size:"10–14mm", origin:"Ryukyu Islands, Japan",
-    rarity:"R", care:{ temp:"20–26°C", humidity:"70–80%", ventilation:"Moderate", substrate:"Moist forest substrate, leaf litter", diet:"Leaf litter, protein, algae", calcium:"Moderate–High" },
-    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–10 months", breedingRate:"Slow–Moderate", broodSize:"5–12 mancae", gestation:"6–8 weeks" },
-    notes:"One of few Cubaris with a described scientific name. Purple-grey body with distinctive red-orange skirt edges. Japanese island endemic from the Ryukyu Islands. Rarer than most Thai Cubaris in the Western hobby.",
-    morphs:[
-      { id:"045a", card:"#045a", name:"Miyako", year:"~2020", hex:"#7868A0", rarity:"R", desc:"Purple-grey body with red-orange skirting edges. Japanese island endemic — a described species.", genetics:"Natural species colouration — Cubaris iriomotensis", breeder:"Japan captive ~2020" },
-    ]
-  },
-  {
-    id:"046", card:"#046", genus:"Cubaris", species:"sp. Salmon",
-    common:"Salmon Isopod (Martinique)", size:"10–14mm", origin:"Martinique, Caribbean",
-    rarity:"UR", care:{ temp:"22–26°C", humidity:"75–85%", ventilation:"Low–Moderate", substrate:"Moist coco/peat mix", diet:"Leaf litter, protein, algae", calcium:"High" },
-    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–8 mancae", gestation:"6–9 weeks" },
-    notes:"Caribbean Cubaris from Martinique. Salmon-pink colouration. Rare in the hobby — one of few non-SE Asian Cubaris. Slightly more forgiving than Thai Cubaris due to different island origin.",
-    morphs:[
-      { id:"046a", card:"#046a", name:"Salmon", year:"~2021", hex:"#E09070", rarity:"UR", desc:"Warm salmon-pink. Caribbean origin — rare non-SE Asian Cubaris.", genetics:"Natural locality colouration", breeder:"Martinique, Caribbean ~2021" },
-    ]
-  },
-  // ── BUILD 1: ARDENTIELLA (formerly Merulanella) ─────────────────────────
-  {
-    id:"047", card:"#047", genus:"Ardentiella", species:"sp. Ember Bee",
-    common:"Ember Bee Isopod", size:"18–23mm", origin:"Vietnam",
-    rarity:"R", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark vertical for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
-    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"8–12 months", breedingRate:"Moderate (captive bred)", broodSize:"5–15 mancae", gestation:"6–10 weeks" },
-    notes:"FORMERLY Merulanella sp. — reclassified as Ardentiella. SEMI-ARBOREAL: climbs vertically on cork bark and branches. Enclosure MUST be escape-proof — even mancae climb smooth plastic. Active day and night. High ventilation is non-negotiable. One of the most visually stunning Vietnamese isopods.",
-    morphs:[
-      { id:"047a", card:"#047a", name:"Ember Bee", year:"~2018", hex:"#C85018", rarity:"R", desc:"Bold orange-red stripes on jet-black base — like glowing embers. The flagship Ardentiella species.", genetics:"Natural colouration — semi-arboreal Vietnamese species", breeder:"Vietnam captive ~2018" },
-    ]
-  },
-  {
-    id:"048", card:"#048", genus:"Ardentiella", species:"sp. Red Ember Bee",
-    common:"Red Ember Bee Isopod", size:"18–22mm", origin:"Vietnam",
-    rarity:"R", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
-    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"8–12 months", breedingRate:"Moderate (captive bred)", broodSize:"5–12 mancae", gestation:"6–10 weeks" },
-    notes:"Vivid all-red colouration on black base — LACKS the yellow pigmentation of standard Ember Bee. Medium-large species; the largest Ardentiella kept in US captivity. Same arboreal care. Stunning contrast.",
-    morphs:[
-      { id:"048a", card:"#048a", name:"Red Ember Bee", year:"~2020", hex:"#901810", rarity:"R", desc:"All-red on black base — lacks the yellow of standard Ember Bee. Vivid and striking.", genetics:"Natural colour variant — possibly separate species", breeder:"Vietnam captive ~2020" },
-    ]
-  },
-  {
-    id:"049", card:"#049", genus:"Ardentiella", species:"sp. Pastel",
-    common:"Pastel Isopod", size:"18–20mm", origin:"Vietnam",
-    rarity:"UR", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
-    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"10–14 months", breedingRate:"Slow–Moderate", broodSize:"4–10 mancae", gestation:"7–10 weeks" },
-    notes:"One of the most sought-after Ardentiella. Soft muted pastel tones vary between individuals and broods — each colony has an evolving visual character. Premium price. Same arboreal care as all Ardentiella. Previously also classified as 'Ember Bee Pastel'.",
-    morphs:[
-      { id:"049a", card:"#049a", name:"Pastel", year:"~2021", hex:"#D0B898", rarity:"UR", desc:"Soft muted pastel tones. Highly variable between individuals — evolving display colony.", genetics:"Natural colour variant — possible selective line", breeder:"Vietnam captive ~2021" },
-    ]
-  },
-  {
-    id:"050", card:"#050", genus:"Ardentiella", species:"sp. Lava",
-    common:"Lava Ardentiella", size:"22–28mm", origin:"Vietnam",
-    rarity:"UR", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
-    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"10–14 months", breedingRate:"Slow", broodSize:"4–10 mancae", gestation:"7–10 weeks" },
-    notes:"Deep reds, lava-oranges, warm yellows against dark undersides. Reportedly grows up to 1.5× larger than Ember Bee — one of the LARGEST Ardentiella. NOTE: NOT the same as P. scaber Lava — completely different genus. Premium specimen. Arboreal — escape-proof enclosure required.",
-    morphs:[
-      { id:"050a", card:"#050a", name:"Ardentiella Lava", year:"~2022", hex:"#B83808", rarity:"UR", desc:"Deep lava reds and oranges on dark base. Reportedly the largest Ardentiella — 1.5× Ember Bee size.", genetics:"Natural colour variant — possibly separate species", breeder:"Vietnam captive ~2022" },
-    ]
-  },
-  {
-    id:"051", card:"#051", genus:"Ardentiella", species:"sp. Batman",
-    common:"Batman Isopod", size:"16–20mm", origin:"Vietnam",
-    rarity:"R", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
-    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"8–12 months", breedingRate:"Moderate", broodSize:"5–12 mancae", gestation:"6–10 weeks" },
-    notes:"Named for dark cape-like patterning resembling Batman's silhouette. Established in the Ardentiella hobby alongside Ember Bee. Active and visible. Good for display setups.",
-    morphs:[
-      { id:"051a", card:"#051a", name:"Batman", year:"~2020", hex:"#1A1828", rarity:"R", desc:"Dark cape-like patterning on near-black base. Named for Batman silhouette.", genetics:"Natural colour variant", breeder:"Vietnam captive ~2020" },
-    ]
-  },
-  {
-    id:"052", card:"#052", genus:"Ardentiella", species:"sp. Golden Fire",
-    common:"Golden Fire Isopod", size:"16–20mm", origin:"Vietnam",
-    rarity:"UR", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
-    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"10–14 months", breedingRate:"Slow", broodSize:"4–8 mancae", gestation:"7–10 weeks" },
-    notes:"Golden-yellow bands on jet-black background — vivid and highly sought. Very rare in Western collections. Demands same arboreal setup as all Ardentiella.",
-    morphs:[
-      { id:"052a", card:"#052a", name:"Golden Fire", year:"~2022", hex:"#D4A010", rarity:"UR", desc:"Striking golden-yellow bands on jet-black background. One of the most vivid Ardentiella.", genetics:"Natural colour variant — separate species", breeder:"Vietnam captive ~2022" },
-    ]
-  },
-  {
-    id:"053", card:"#053", genus:"Ardentiella", species:"sp. Pink Lambo",
-    common:"Pink Lambo Isopod", size:"16–20mm", origin:"Vietnam",
-    rarity:"UR", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
-    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"3–8 mancae", gestation:"8–12 weeks" },
-    notes:"Pink-toned Ardentiella — among the rarest and most expensive in the genus. Named for premium status in the hobby. Very low availability in Western collections.",
-    morphs:[
-      { id:"053a", card:"#053a", name:"Pink Lambo", year:"~2023", hex:"#D090A0", rarity:"UR", desc:"Soft pink tones — among the rarest and most coveted Ardentiella variants.", genetics:"Natural colour variant — possible selective line", breeder:"Vietnam captive ~2023" },
-    ]
-  },
-  {
-    id:"054", card:"#054", genus:"Ardentiella", species:"sp. Red Diablo",
-    common:"Red Diablo Isopod", size:"12–16mm", origin:"Vietnam",
-    rarity:"R", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
-    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"8–12 months", breedingRate:"Moderate", broodSize:"5–12 mancae", gestation:"6–9 weeks" },
-    notes:"Smaller than Ember Bee with bold red and black colouration. Extremely active and fast-moving — even among Ardentiella. Expert level care recommended. Arboreal.",
-    morphs:[
-      { id:"054a", card:"#054a", name:"Red Diablo", year:"~2021", hex:"#780808", rarity:"R", desc:"Bold red and black. Smaller than Ember Bee. Extremely active and fast-moving.", genetics:"Natural colour variant — separate species", breeder:"Vietnam captive ~2021" },
-    ]
-  },
-  // ── BUILD 1: MISSING ARMADILLIDIUM SPECIES ────────────────────────────
-  {
-    id:"055", card:"#055", genus:"Armadillidium", species:"gestroi",
+    id:"009", card:"#009", genus:"Armadillidium", species:"gestroi",
     common:"Gestroi Isopod", size:"16–22mm", origin:"Southern France / Corsica",
     rarity:"U", care:{ temp:"18–26°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Loam/coco mix with bark", diet:"Leaf litter, protein, vegetables", calcium:"High" },
-    biology:{ lifespan:"2–4 years", activity:"Nocturnal", breedingAge:"6–8 months", breedingRate:"Moderate", broodSize:"10–30 mancae", gestation:"5–7 weeks" },
-    notes:"Large impressive species with dark purple-grey body and bright yellow markings. French/Corsican origin. Conglobates well. Multiple captive morphs isolated. Milky Way morph produces beautiful galaxy-like spotting. Beginner-friendly for its size.",
+    biology:{ lifespan:"2–4 years", activity:"Nocturnal", breedingAge:"6–8 months", breedingRate:"Moderate–High", broodSize:"10–30 mancae", gestation:"5–7 weeks" },
+    notes:"Large impressive species with dark purple-grey body and bright yellow markings. French/Corsican origin. Conglobates well. Milky Way produces galaxy-like spotting. Zinger confirmed by Invertebrate Dude.",
     morphs:[
-      { id:"055a", card:"#055a", name:"Wild Type", year:"Natural", hex:"#3A3848", rarity:"U", desc:"Dark purple-grey body with yellow lateral spots. Impressive large Armadillidium.", genetics:"Wild type", breeder:"Natural" },
-      { id:"055b", card:"#055b", name:"Giant", year:"~2020", hex:"#3A3848", rarity:"U", desc:"Larger-than-average isolated line. Same colouration but noticeably bigger specimens.", genetics:"Selective line for size", breeder:"Exuvium Isopods ~2020" },
-      { id:"055c", card:"#055c", name:"Milky Way", year:"~2021", hex:"#606878", rarity:"R", desc:"Increased white/pale spotting giving a galaxy-like appearance across the back.", genetics:"Selective isolation for increased pale spot expression", breeder:"European hobby ~2021" },
-      { id:"055d", card:"#055d", name:"Milky Way Yellow", year:"~2022", hex:"#7A7850", rarity:"R", desc:"Milky Way patterning with enhanced yellow tones. Yellow spots more numerous and vivid.", genetics:"Selective Milky Way line with enhanced yellow pigmentation", breeder:"European hobby ~2022" },
-      { id:"055e", card:"#055e", name:"White Spots", year:"~2022", hex:"#505868", rarity:"R", desc:"White spot variant isolated in US hobby. White replacing the typical yellow spots.", genetics:"Recessive white spot expression", breeder:"US hobby ~2022" },
+      { id:"009a", card:"#009a", name:"Wild Type", year:"Natural", hex:"#3A3848", rarity:"U", desc:"Dark purple-grey body with yellow lateral spots. Impressive large Armadillidium.", genetics:"Wild type", breeder:"Natural" },
+      { id:"009b", card:"#009b", name:"Giant", year:"~2020", hex:"#3A3848", rarity:"U", desc:"Larger-than-average isolated line. Same colouration but noticeably bigger specimens.", genetics:"Selective line for size", breeder:"Exuvium Isopods ~2020" },
+      { id:"009c", card:"#009c", name:"Milky Way", year:"~2021", hex:"#606878", rarity:"R", desc:"Increased white/pale spotting giving a galaxy-like appearance across the back.", genetics:"Selective isolation for increased pale spot expression", breeder:"European hobby ~2021" },
+      { id:"009d", card:"#009d", name:"Milky Way Yellow", year:"~2022", hex:"#7A7850", rarity:"R", desc:"Milky Way patterning with enhanced yellow tones.", genetics:"Selective Milky Way line with enhanced yellow pigmentation", breeder:"European hobby ~2022" },
+      { id:"009e", card:"#009e", name:"White Spots", year:"~2022", hex:"#505868", rarity:"R", desc:"White spot variant — white replacing typical yellow spots.", genetics:"Recessive white spot expression", breeder:"US hobby ~2022" },
+      { id:"009f", card:"#009f", name:"Zinger", year:"~2022", hex:"#5A4858", rarity:"R", desc:"Confirmed by Invertebrate Dude. Enhanced iridescent or colour expression variant of gestroi.", genetics:"Selective line — enhanced colour expression", breeder:"US hobby ~2022" },
     ]
   },
   {
-    id:"056", card:"#056", genus:"Armadillidium", species:"badium",
+    id:"010", card:"#010", genus:"Armadillidium", species:"badium",
     common:"Bumblebee Isopod", size:"10–14mm", origin:"Casteldaccia, Sicily, Italy",
     rarity:"C", care:{ temp:"18–26°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Loam/coco mix", diet:"Leaf litter, bark, vegetables", calcium:"Moderate–High" },
     biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"High", broodSize:"15–40 mancae", gestation:"4–5 weeks" },
-    notes:"Named for vivid yellow and black banding from the Casteldaccia locality in Sicily. Hardy and prolific. Buttercup Pied morph developed by Exuvium Isopods — a deliberate captive isolation. The High Yellow form is particularly striking.",
+    notes:"Named for vivid yellow and black banding from the Casteldaccia locality in Sicily. Hardy and prolific. Buttercup Pied developed by Exuvium Isopods.",
     morphs:[
-      { id:"056a", card:"#056a", name:"Wild Type / Yellow Calico", year:"Natural/Locality", hex:"#D4B020", rarity:"C", desc:"Vivid yellow and black banding from Casteldaccia, Sicily. The classic Bumblebee.", genetics:"Natural locality colouration", breeder:"Casteldaccia, Sicily" },
-      { id:"056b", card:"#056b", name:"High Yellow", year:"~2019", hex:"#E8C830", rarity:"U", desc:"Increased yellow expression — more yellow, less black. Bold vivid colouration.", genetics:"Selective line for increased yellow expression", breeder:"Hobby selective breeding ~2019" },
-      { id:"056c", card:"#056c", name:"Buttercup Pied", year:"~2021", hex:"#E8D070", rarity:"R", desc:"Pied gene in badium — white/pale unpigmented sections on yellow-banded base.", genetics:"Recessive piebald gene introduced to badium line", breeder:"Exuvium Isopods ~2021" },
+      { id:"010a", card:"#010a", name:"Wild Type / Yellow Calico", year:"Natural/Locality", hex:"#D4B020", rarity:"C", desc:"Vivid yellow and black banding from Casteldaccia, Sicily.", genetics:"Natural locality colouration", breeder:"Casteldaccia, Sicily" },
+      { id:"010b", card:"#010b", name:"High Yellow", year:"~2019", hex:"#E8C830", rarity:"U", desc:"Increased yellow expression — more yellow, less black.", genetics:"Selective line for increased yellow expression", breeder:"Hobby selective breeding ~2019" },
+      { id:"010c", card:"#010c", name:"Buttercup Pied", year:"~2021", hex:"#E8D070", rarity:"R", desc:"Pied gene in badium — white/pale unpigmented sections on yellow base.", genetics:"Recessive piebald gene introduced to badium line", breeder:"Exuvium Isopods ~2021" },
     ]
   },
   {
-    id:"057", card:"#057", genus:"Armadillidium", species:"flavoscutatum",
+    id:"011", card:"#011", genus:"Armadillidium", species:"flavoscutatum",
     common:"Redhead Isopod", size:"10–14mm", origin:"Mediterranean (Albania, Corfu, Greece)",
     rarity:"U", care:{ temp:"18–26°C", humidity:"55–70%", ventilation:"Moderate–Good", substrate:"Loam/coco mix", diet:"Leaf litter, bark, dried vegetation", calcium:"Moderate–High" },
     biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5–6 months", breedingRate:"High", broodSize:"15–35 mancae", gestation:"4–6 weeks" },
-    notes:"Named for the distinctive reddish-orange head segment contrasting with darker body. Mediterranean species. Hardy and prolific. Exuvium Isopods currently developing Dalmatian and Ghost morphs. A Taiwan captive morph was also released in the US hobby.",
+    notes:"Named for the distinctive reddish-orange head segment. Hardy and prolific. Exuvium developing Dalmatian and Ghost morphs. Taiwan captive morph released in US hobby.",
     morphs:[
-      { id:"057a", card:"#057a", name:"Redhead", year:"Natural", hex:"#B04020", rarity:"U", desc:"Distinctive red-orange head segment against darker body. Vivid and unmistakeable.", genetics:"Natural locality colouration", breeder:"Albania / Corfu, Greece" },
+      { id:"011a", card:"#011a", name:"Redhead", year:"Natural", hex:"#B04020", rarity:"U", desc:"Distinctive red-orange head segment against darker body. Named for this feature.", genetics:"Natural locality colouration", breeder:"Albania / Corfu, Greece" },
     ]
   },
   {
-    id:"058", card:"#058", genus:"Armadillidium", species:"germanicum",
+    id:"012", card:"#012", genus:"Armadillidium", species:"frontetriangulum",
+    common:"Trianglehead Isopod", size:"10–14mm", origin:"Mediterranean (Corfu, Albania, Greece)",
+    rarity:"U", care:{ temp:"18–26°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Loam/coco mix", diet:"Leaf litter, bark, algae", calcium:"Moderate–High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5–6 months", breedingRate:"Moderate–High", broodSize:"12–30 mancae", gestation:"4–6 weeks" },
+    notes:"Named for distinctive triangular head shape. Mediterranean species with striking Orange morph. Confirmed by Exuvium, Tropical Isopods, and Invertebrate Dude. SEPARATE species from flavoscutatum — different origin and head shape.",
+    morphs:[
+      { id:"012a", card:"#012a", name:"Wild Type", year:"Natural", hex:"#5A5848", rarity:"U", desc:"Grey-brown with triangular head shape. Mediterranean origin.", genetics:"Wild type", breeder:"Natural" },
+      { id:"012b", card:"#012b", name:"Orange (Corfu)", year:"~2020", hex:"#D06020", rarity:"R", desc:"Vivid orange expression. Corfu locality morph. Confirmed by Exuvium and Invertebrate Dude.", genetics:"Natural locality or recessive orange expression", breeder:"Corfu, Greece locality" },
+    ]
+  },
+  {
+    id:"013", card:"#013", genus:"Armadillidium", species:"pallasii",
+    common:"Croatian Giant Isopod", size:"20–28mm", origin:"Croatia / Adriatic coast",
+    rarity:"R", care:{ temp:"18–26°C", humidity:"60–75%", ventilation:"Moderate", substrate:"Loam/coco mix with leaf litter", diet:"Leaf litter, protein, vegetables", calcium:"High" },
+    biology:{ lifespan:"3–4 years", activity:"Nocturnal", breedingAge:"8–10 months", breedingRate:"Slow–Moderate", broodSize:"10–25 mancae", gestation:"6–8 weeks" },
+    notes:"Previously listed as A. cf. frontirostre — now correctly identified as A. pallasii. One of the largest Armadillidium in the hobby. Croatian Giant locality is the most commonly traded form. Pied morph confirmed by MorphMarket master list and Isopod Depot.",
+    morphs:[
+      { id:"013a", card:"#013a", name:"Croatian Giant", year:"Locality", hex:"#5A5050", rarity:"R", desc:"Large grey-brown Armadillidium from Croatian Adriatic coast. Impressive size.", genetics:"Natural locality form", breeder:"Croatia locality" },
+      { id:"013b", card:"#013b", name:"Pied", year:"~2021", hex:"#A09888", rarity:"R", desc:"Piebald white patching on Croatian Giant body. Confirmed by MorphMarket master list.", genetics:"Recessive piebald gene", breeder:"US/European hobby" },
+    ]
+  },
+  {
+    id:"014", card:"#014", genus:"Armadillidium", species:"beieri",
+    common:"Beieri Spiny Isopod", size:"8–12mm", origin:"Mediterranean",
+    rarity:"U", care:{ temp:"18–26°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Loam/coco mix", diet:"Leaf litter, bark", calcium:"Moderate–High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5–6 months", breedingRate:"Moderate–High", broodSize:"10–30 mancae", gestation:"4–6 weeks" },
+    notes:"Distinctive spiny texture. Confirmed by Exuvium as a beginner-friendly species with high prolificacy. Interesting texture distinguishes it from smooth Armadillidium species.",
+    morphs:[
+      { id:"014a", card:"#014a", name:"Wild Type", year:"Natural", hex:"#6A6050", rarity:"U", desc:"Grey-brown with spiny textured surface. Distinctive among Armadillidium.", genetics:"Natural species colouration", breeder:"Natural" },
+    ]
+  },
+  {
+    id:"015", card:"#015", genus:"Armadillidium", species:"jerrentrupi",
+    common:"Jerrentrup Isopod", size:"10–14mm", origin:"Mediterranean",
+    rarity:"U", care:{ temp:"18–26°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Loam/coco mix", diet:"Leaf litter, bark, algae", calcium:"Moderate–High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5–6 months", breedingRate:"Moderate", broodSize:"10–25 mancae", gestation:"4–6 weeks" },
+    notes:"Mediterranean Armadillidium confirmed by Exuvium. Named after collector/researcher Jerrentrup. Moderate care requirements. Growing in hobby availability.",
+    morphs:[
+      { id:"015a", card:"#015a", name:"Wild Type", year:"Natural", hex:"#6A6860", rarity:"U", desc:"Variable Mediterranean colouration. Named for collector Jerrentrup.", genetics:"Natural species colouration", breeder:"Natural" },
+    ]
+  },
+  {
+    id:"016", card:"#016", genus:"Armadillidium", species:"cf. apuanum",
+    common:"High Contrast Isopod", size:"10–14mm", origin:"Apuan Alps, Italy",
+    rarity:"U", care:{ temp:"18–26°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Loam/coco mix", diet:"Leaf litter, bark", calcium:"Moderate–High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5–6 months", breedingRate:"High", broodSize:"12–30 mancae", gestation:"4–6 weeks" },
+    notes:"Named 'High Contrast' for its striking dark/light patterning. Confirmed by Exuvium from the Apuan Alps region of Italy. cf. prefix indicates close but possibly not exact match to described species.",
+    morphs:[
+      { id:"016a", card:"#016a", name:"High Contrast", year:"Natural", hex:"#303028", rarity:"U", desc:"Very dark body with high contrast pale spotting. Apuan Alps, Italy origin.", genetics:"Natural colouration — possibly undescribed or closely related to apuanum", breeder:"Italy locality" },
+    ]
+  },
+  {
+    id:"017", card:"#017", genus:"Armadillidium", species:"germanicum",
     common:"German Pill Bug", size:"8–12mm", origin:"Central Europe",
     rarity:"C", care:{ temp:"15–24°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Loam/coco mix", diet:"Leaf litter, bark, algae", calcium:"Moderate" },
     biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"Moderate–High", broodSize:"10–30 mancae", gestation:"4–5 weeks" },
-    notes:"Small common European species. Variable brown-grey patterning. Hardy and adaptable. Less commonly kept than vulgare but useful bioactive species. Good for cooler setups.",
+    notes:"Small common Central European species. Variable brown-grey patterning. Hardy and adaptable. Good for cooler setups.",
     morphs:[
-      { id:"058a", card:"#058a", name:"Wild Type", year:"Natural", hex:"#707060", rarity:"C", desc:"Variable brown-grey patterning. Small hardy Central European species.", genetics:"Wild type", breeder:"Natural" },
+      { id:"017a", card:"#017a", name:"Wild Type", year:"Natural", hex:"#707060", rarity:"C", desc:"Variable brown-grey. Small hardy Central European species.", genetics:"Wild type", breeder:"Natural" },
     ]
   },
   {
-    id:"059", card:"#059", genus:"Armadillidium", species:"espanyoli",
+    id:"018", card:"#018", genus:"Armadillidium", species:"espanyoli",
     common:"Marbleized Isopod", size:"6–10mm", origin:"Spain",
     rarity:"U", care:{ temp:"18–26°C", humidity:"65–75%", ventilation:"Moderate", substrate:"Rich moist loam/coco mix", diet:"Leaf litter, bark, algae", calcium:"Moderate" },
     biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"4–5 months", breedingRate:"Moderate", broodSize:"10–25 mancae", gestation:"4–5 weeks" },
-    notes:"One of the smallest Armadillidium in the hobby. Native to Spain; prefers higher humidity than most Armadillidium despite arid origins. Distinctive marbleized grey-white patterning. Interesting display species.",
+    notes:"One of the smallest Armadillidium. Native to Spain. Distinctive marbleized grey-white patterning. Prefers higher humidity than most Armadillidium.",
     morphs:[
-      { id:"059a", card:"#059a", name:"Marbleized", year:"Natural", hex:"#A0A098", rarity:"U", desc:"Small Spanish species with distinctive marbleized grey-white patterning. Unique in the genus.", genetics:"Natural colouration", breeder:"Spain locality" },
+      { id:"018a", card:"#018a", name:"Marbleized", year:"Natural", hex:"#A0A098", rarity:"U", desc:"Small Spanish species with distinctive marbleized grey-white patterning.", genetics:"Natural colouration", breeder:"Spain locality" },
     ]
   },
-  // ── BUILD 1: MISSING PORCELLIO SPECIES ────────────────────────────────
   {
-    id:"060", card:"#060", genus:"Porcellio", species:"magnificus",
-    common:"Magnificent Isopod", size:"25–35mm", origin:"Spain / North Africa",
-    rarity:"R", care:{ temp:"18–26°C", humidity:"50–65%", ventilation:"Good", substrate:"Sandy/rocky mix with bark", diet:"Leaf litter, bark, vegetables, protein", calcium:"Moderate" },
+    id:"019", card:"#019", genus:"Armadillidium", species:"werneri",
+    common:"Werner's Armadillidium", size:"10–14mm", origin:"Greece / Turkey",
+    rarity:"U", care:{ temp:"18–26°C", humidity:"55–70%", ventilation:"Moderate–Good", substrate:"Sandy/rocky substrate", diet:"Leaf litter, bark", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate", broodSize:"8–20 mancae", gestation:"5–7 weeks" },
+    notes:"IMPORTANT: This is Armadillidium werneri — SEPARATE from Porcellio werneri (species 028). Different genus entirely. Greek/Turkish Armadillidium. Orange morph confirmed by Invertebrate Dude.",
+    morphs:[
+      { id:"019a", card:"#019a", name:"Wild Type", year:"Natural", hex:"#7A6858", rarity:"U", desc:"Grey-brown Greek/Turkish Armadillidium. NOT the same as Porcellio werneri.", genetics:"Wild type — Armadillidium genus", breeder:"Natural" },
+      { id:"019b", card:"#019b", name:"Orange", year:"~2022", hex:"#D07030", rarity:"R", desc:"Orange expression morph. Confirmed by Invertebrate Dude.", genetics:"Recessive orange expression", breeder:"US hobby ~2022" },
+    ]
+  },
+
+// ═══════════════════════════════════════════════════════════════════
+// ARMADILLO — hissing isopod (different genus from Armadillidium!)
+// ═══════════════════════════════════════════════════════════════════
+
+  {
+    id:"020", card:"#020", genus:"Armadillo", species:"officinalis",
+    common:"Hissing Isopod", size:"18–25mm", origin:"Mediterranean",
+    rarity:"R", care:{ temp:"20–28°C", humidity:"50–65%", ventilation:"Good", substrate:"Sandy/rocky substrate with bark", diet:"Leaf litter, bark, dried vegetation", calcium:"Very High" },
+    biology:{ lifespan:"3–5 years", activity:"Nocturnal", breedingAge:"9 months", breedingRate:"Very Slow", broodSize:"5–15 mancae", gestation:"7–10 weeks" },
+    notes:"ONLY isopod known to produce a hissing sound when disturbed. DIFFERENT GENUS from Armadillidium — do not confuse. Needs very dry conditions. Extremely slow breeder. Very long-lived. Orange and Orange Crush morphs confirmed by Invertebrate Dude.",
+    morphs:[
+      { id:"020a", card:"#020a", name:"Wild Type", year:"Natural", hex:"#8A7858", rarity:"R", desc:"Brown-grey with lumpy texture. ONLY hissing isopod.", genetics:"Wild type", breeder:"Natural" },
+      { id:"020b", card:"#020b", name:"Marbled", year:"~2019", hex:"#A09070", rarity:"R", desc:"Marbled patterning across the back. Rarer locality form.", genetics:"Natural locality variation", breeder:"Mediterranean locality" },
+      { id:"020c", card:"#020c", name:"Orange", year:"~2021", hex:"#C87030", rarity:"R", desc:"Orange colour expression. Confirmed by Invertebrate Dude.", genetics:"Recessive orange expression", breeder:"Invertebrate Dude ~2021" },
+      { id:"020d", card:"#020d", name:"Orange Crush", year:"~2022", hex:"#E86020", rarity:"UR", desc:"More vivid orange than standard Orange morph. Confirmed by Invertebrate Dude.", genetics:"Enhanced recessive orange expression", breeder:"Invertebrate Dude ~2022" },
+    ]
+  },
+
+// ═══════════════════════════════════════════════════════════════════
+// PORCELLIO — rough woodlice, non-conglobating
+// ═══════════════════════════════════════════════════════════════════
+
+  {
+    id:"021", card:"#021", genus:"Porcellio", species:"scaber",
+    common:"Rough Woodlouse", size:"12–18mm", origin:"Europe (cosmopolitan)",
+    rarity:"C", care:{ temp:"18–26°C", humidity:"55–75%", ventilation:"Moderate–Good", substrate:"Coco/bark/loam mix", diet:"Leaf litter, bark, vegetables, protein", calcium:"Moderate" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"4–5 months", breedingRate:"High", broodSize:"20–60 mancae", gestation:"3–5 weeks" },
+    notes:"MOST morphs of any Porcellio species. Lava is the ONLY proven co-dominant gene in all isopods. Calico is sex-linked to females. Spanish Orange was first widely traded recessive trait. Lottery Ticket is a deliberate morph mix NOT a morph itself.",
+    morphs:[
+      { id:"021a", card:"#021a", name:"Wild Type", year:"Natural", hex:"#7A7068", rarity:"C", desc:"Standard rough grey-brown. The global wild form.", genetics:"Wild type", breeder:"Natural" },
+      { id:"021b", card:"#021b", name:"Spanish Orange", year:"~2010s", hex:"#D4682A", rarity:"C", desc:"First widely traded recessive trait in the hobby. Vivid orange expression.", genetics:"Recessive orange — first widely documented recessive in the hobby", breeder:"Spain locality / US hobby" },
+      { id:"021c", card:"#021c", name:"Lava", year:"~2018", hex:"#B83A10", rarity:"U", desc:"Deep orange-red on grey-black base. THE ONLY co-dominant gene currently known in all isopods.", genetics:"Co-dominant — ONLY known co-dominant isopod gene. Heterozygous shows Lava, homozygous enhances it.", breeder:"Hobby isolation" },
+      { id:"021d", card:"#021d", name:"Dalmatian", year:"~2017", hex:"#D8D0C0", rarity:"U", desc:"Pale base with dark scattered spots. Classic and popular.", genetics:"Recessive dalmatian patterning", breeder:"US hobby" },
+      { id:"021e", card:"#021e", name:"Koi", year:"~2017", hex:"#D09060", rarity:"U", desc:"Neither pied nor dalmatian — watercolour-bleed appearance of white, grey and colour.", genetics:"Koi gene — unique blended colouration mechanism, neither pied nor dalmatian", breeder:"US hobby" },
+      { id:"021f", card:"#021f", name:"Orange Koi", year:"~2019", hex:"#E09048", rarity:"U", desc:"Koi gene with orange. More orange-dominant than standard Koi.", genetics:"Koi + orange recessive combination", breeder:"US hobby" },
+      { id:"021g", card:"#021g", name:"Calico", year:"~1997", hex:"#C89060", rarity:"U", desc:"SEX-LINKED TO FEMALES ONLY — males carry gene but don't express it. US based mutation. Orange/yellow crackle pattern.", genetics:"Sex-linked — females express calico pattern, males are carriers only. Oldest documented scaber morph (1997).", breeder:"Alan Gross / Captive Isopoda — 1997 original line" },
+      { id:"021h", card:"#021h", name:"Orin's Calico", year:"~2000s", hex:"#D4A858", rarity:"U", desc:"Originally produced by Orin McMonigle. Light orange and yellow expression of calico with peppered dark pigment.", genetics:"Sex-linked calico variant — females only express", breeder:"Orin McMonigle" },
+      { id:"021i", card:"#021i", name:"Whiteout", year:"~2018", hex:"#F0EEE8", rarity:"U", desc:"Solid white expression. Some yellow with age.", genetics:"Recessive whiteout gene", breeder:"US hobby" },
+      { id:"021j", card:"#021j", name:"Orange Dalmatian", year:"~2019", hex:"#E08848", rarity:"U", desc:"Orange base with dalmatian spotting. Vivid and popular.", genetics:"Recessive orange + recessive dalmatian combination", breeder:"US hobby" },
+      { id:"021k", card:"#021k", name:"Piebald", year:"~2019", hex:"#C0B8A8", rarity:"U", desc:"Recessive piebald — unpigmented white patches. Variable expression.", genetics:"Recessive piebald gene", breeder:"US hobby" },
+      { id:"021l", card:"#021l", name:"Lemonade", year:"~2019", hex:"#E8D848", rarity:"U", desc:"All-yellow expression. Variant of calico. Looks like a bright yellow candy.", genetics:"Recessive lemonade gene — variant of calico pathway", breeder:"US hobby" },
+      { id:"021m", card:"#021m", name:"Ghost", year:"~2018", hex:"#9090A8", rarity:"R", desc:"Deep lilac/slight purple. Isolated by Alan Gross of Captive Isopoda. Unique gene interactions with other scaber mutations.", genetics:"Recessive — deep lilac expression. Has unique interactions with other scaber genes.", breeder:"Alan Gross / Captive Isopoda" },
+      { id:"021n", card:"#021n", name:"Snow Koi", year:"~2020", hex:"#E8E0A8", rarity:"R", desc:"Combination of Yellow Snow and Koi mutations. Yellow mottled colouration over white body.", genetics:"Yellow Snow gene + Koi gene combination", breeder:"US hobby ~2020" },
+      { id:"021o", card:"#021o", name:"Red Calico", year:"~2020", hex:"#B84030", rarity:"R", desc:"Deep red calico expression — sex-linked to females. Rich reds throughout population.", genetics:"Sex-linked calico variant — red expression, females only", breeder:"US hobby" },
+      { id:"021p", card:"#021p", name:"Skewbald Tri", year:"~2020", hex:"#C8A870", rarity:"R", desc:"Combination of calico and piebald. Calico expression females only, but ALL animals carry piebald.", genetics:"Sex-linked calico + recessive piebald combination", breeder:"US hobby" },
+      { id:"021q", card:"#021q", name:"Lottery Ticket Mix", year:"~2018", hex:"#A09878", rarity:"C", desc:"NOT a single morph — deliberate mix of multiple scaber morphs carrying various recessive traits. Intended for breeding experimentation.", genetics:"Multi-gene mix — may contain: Ghost, Koi, Snow, Calico, Whiteout and other recessives. Not a stable breeding morph.", breeder:"Captive Isopoda / Alan Gross" },
+    ]
+  },
+  {
+    id:"022", card:"#022", genus:"Porcellio", species:"laevis",
+    common:"Smooth Isopod / Swift Woodlouse", size:"14–20mm", origin:"Worldwide (cosmopolitan)",
+    rarity:"C", care:{ temp:"18–26°C", humidity:"55–75%", ventilation:"Moderate", substrate:"Coco/bark/loam mix", diet:"Leaf litter, bark, protein, vegetables", calcium:"Moderate–High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal/diurnal", breedingAge:"4–5 months", breedingRate:"High", broodSize:"20–50 mancae", gestation:"3–5 weeks" },
+    notes:"Distinctively smooth surface unlike P. scaber. Large and active. Dairy Cow is most well-known morph. Milkback isolated from P. laevis 'Black' line in Europe. White isolated from Dairy Cow line.",
+    morphs:[
+      { id:"022a", card:"#022a", name:"Wild Type", year:"Natural", hex:"#6A6058", rarity:"C", desc:"Smooth shiny grey. Very common worldwide.", genetics:"Wild type", breeder:"Natural" },
+      { id:"022b", card:"#022b", name:"Orange", year:"~2014", hex:"#E07830", rarity:"C", desc:"Solid vivid orange. One of the most widely kept morphs.", genetics:"Recessive orange", breeder:"Hobby isolation" },
+      { id:"022c", card:"#022c", name:"Dairy Cow", year:"~2016", hex:"#F0E8E0", rarity:"C", desc:"White base with irregular black spots — like a dairy cow. Hugely popular.", genetics:"Recessive pied + dalmatian combination", breeder:"US hobby" },
+      { id:"022d", card:"#022d", name:"Milkback", year:"~2019", hex:"#D8D0C0", rarity:"U", desc:"Grey/black base with white stripe down back. Isolated from P. laevis Black line in Europe. Likely piebald expression.", genetics:"Piebald expression — isolated from Black line in Europe", breeder:"European hobby ~2019" },
+      { id:"022e", card:"#022e", name:"Caramel", year:"~2018", hex:"#C09050", rarity:"U", desc:"T+ albino expression — tyrosinase active but melanin production reduced. Warm caramel colouration.", genetics:"T+ albino — tyrosinase-positive, reduced melanin", breeder:"European hobby" },
+      { id:"022f", card:"#022f", name:"White", year:"~2020", hex:"#F4F0E8", rarity:"U", desc:"Near-white expression isolated from Dairy Cow line in Europe. Occasional small black flecks.", genetics:"Recessive whiteout — isolated from Dairy Cow line", breeder:"European hobby ~2020" },
+      { id:"022g", card:"#022g", name:"California Marbled", year:"Locality", hex:"#C0A880", rarity:"C", desc:"Natural California locality form. Variable — white, grey, orange, ombre and milkback colours in the same culture. NOT a cultivated morph but a wild locality.", genetics:"Natural California locality — variable wild-type expression. Not a cultivated recessive morph.", breeder:"California locality — wild form" },
+      { id:"022h", card:"#022h", name:"How Now", year:"~2020", hex:"#B8A878", rarity:"U", desc:"Named for 'How Now, Brown Cow' — boldly patterned laevis. Confirmed by Coastline Pets.", genetics:"Selective line — bold brown patterning", breeder:"US hobby ~2020" },
+    ]
+  },
+  {
+    id:"023", card:"#023", genus:"Porcellio", species:"hoffmannseggi",
+    common:"Giant Titan Isopod", size:"28–40mm", origin:"Spain / Portugal",
+    rarity:"R", care:{ temp:"18–26°C", humidity:"40–60%", ventilation:"Very High", substrate:"Rocky/sandy substrate with deep bark layer", diet:"Decaying wood, leaf litter, protein, calcium", calcium:"High" },
+    biology:{ lifespan:"3–5 years", activity:"Nocturnal", breedingAge:"9 months", breedingRate:"Slow", broodSize:"8–20 mancae", gestation:"7–10 weeks" },
+    notes:"One of the largest terrestrial isopods in the hobby. Males can reach 40mm+ with long uropods. Territorial — needs large space. Common misconception is that these are dry species; all isopods need moisture access. Multiple colour variants confirmed.",
+    morphs:[
+      { id:"023a", card:"#023a", name:"Wild Type", year:"Natural", hex:"#7A7268", rarity:"R", desc:"Grey with white skirting. Standard giant form.", genetics:"Wild type", breeder:"Natural" },
+      { id:"023b", card:"#023b", name:"Black (locale)", year:"Locality", hex:"#2A2822", rarity:"R", desc:"Near-black locale form collected from different area than standard. Confirmed by Smug-Bug genetics article.", genetics:"Natural locale — separate collection area, not a captive recessive mutation", breeder:"Spain — black locale" },
+      { id:"023c", card:"#023c", name:"Chocolate / Brown", year:"~2018", hex:"#5A4030", rarity:"R", desc:"Brown/chocolate colouration. Confirmed by The Bug Room, Isopod Factory.", genetics:"Recessive or locale brown expression", breeder:"European hobby" },
+      { id:"023d", card:"#023d", name:"Orange Sunset", year:"~2019", hex:"#D06020", rarity:"R", desc:"Selectively bred for orange mutation. Vivid orange including antennae. Richard's Inverts confirmed.", genetics:"Recessive — selectively bred orange mutation. Spain captive origin.", breeder:"Richard's Inverts / Spain captive ~2019" },
+      { id:"023e", card:"#023e", name:"White-Out / Yeti", year:"~2021", hex:"#E8E4D8", rarity:"UR", desc:"Rare near-white albino. Confirmed by The Bug Room as 'Yeti' morph.", genetics:"Recessive albino expression — White-Out/Yeti", breeder:"European hobby ~2021" },
+      { id:"023f", card:"#023f", name:"Caramel", year:"~2020", hex:"#C09050", rarity:"R", desc:"Warm caramel/tan colouration. Confirmed by The Bug Room.", genetics:"T+ albino-type expression or selective caramel line", breeder:"European hobby ~2020" },
+    ]
+  },
+  {
+    id:"024", card:"#024", genus:"Porcellio", species:"haasi",
+    common:"High Yellow / South Spain Isopod", size:"16–22mm", origin:"Southern Spain",
+    rarity:"U", care:{ temp:"18–26°C", humidity:"50–65%", ventilation:"Good", substrate:"Rocky/sandy substrate", diet:"Leaf litter, bark, protein", calcium:"Moderate" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate", broodSize:"10–25 mancae", gestation:"5–7 weeks" },
+    notes:"Named for vivid yellow colouration. Southern Spain endemic. Multiple localities with different expressions. High Yellow and Light are most commonly traded. Bardenas is a specific locality form.",
+    morphs:[
+      { id:"024a", card:"#024a", name:"High Yellow", year:"Natural/Locality", hex:"#D4B030", rarity:"U", desc:"Vivid yellow with black reticulation. The classic haasi look.", genetics:"Natural locality colouration — High Yellow locale", breeder:"Southern Spain locality" },
+      { id:"024b", card:"#024b", name:"Light", year:"Locality", hex:"#C8C080", rarity:"U", desc:"Lighter, more muted yellow expression. Separate locale from High Yellow.", genetics:"Natural locality colouration — Light locale", breeder:"Southern Spain locality" },
+      { id:"024c", card:"#024c", name:"Bardenas", year:"Locality", hex:"#B8A050", rarity:"U", desc:"Bardenas locality form from the Bardenas Reales region of Spain.", genetics:"Natural locality colouration — Bardenas Reales, Spain", breeder:"Bardenas Reales, Spain" },
+    ]
+  },
+  {
+    id:"025", card:"#025", genus:"Porcellio", species:"expansus",
+    common:"Large Spanish Porcellio", size:"20–28mm", origin:"Spain",
+    rarity:"R", care:{ temp:"18–26°C", humidity:"45–60%", ventilation:"Good", substrate:"Sandy/rocky substrate with leaf litter", diet:"Leaf litter, decaying wood, protein", calcium:"Moderate" },
+    biology:{ lifespan:"3–4 years", activity:"Nocturnal", breedingAge:"8 months", breedingRate:"Moderate", broodSize:"10–25 mancae", gestation:"6–8 weeks" },
+    notes:"One of the giant Spanish Porcellio. Rivals hoffmannseggi in size. White and Orange morphs exist. Autumnal Equinox is a stunning recent isolation. Same care requirements as other giant Porcellio.",
+    morphs:[
+      { id:"025a", card:"#025a", name:"Wild Type", year:"Natural", hex:"#7A6858", rarity:"R", desc:"Grey-brown large Spanish Porcellio. Impressive size.", genetics:"Wild type", breeder:"Natural" },
+      { id:"025b", card:"#025b", name:"White", year:"~2020", hex:"#E8E4D8", rarity:"R", desc:"White expression of expansus. Confirmed by MorphMarket master list.", genetics:"Recessive whiteout expression", breeder:"European hobby" },
+      { id:"025c", card:"#025c", name:"Orange", year:"~2020", hex:"#D07030", rarity:"R", desc:"Orange expression of expansus. Confirmed by MorphMarket master list.", genetics:"Recessive orange expression", breeder:"European hobby" },
+    ]
+  },
+  {
+    id:"026", card:"#026", genus:"Porcellio", species:"dilatatus",
+    common:"Giant Canyon Isopod", size:"18–20mm", origin:"Western Europe",
+    rarity:"C", care:{ temp:"15–24°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Coco/bark/loam mix", diet:"Leaf litter, bark, protein", calcium:"Moderate" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"Moderate–High", broodSize:"15–35 mancae", gestation:"4–5 weeks" },
+    notes:"Burrowing species perfect for bioactive enclosures. Large size and strong feeding response. Tolerates wide humidity range. Underappreciated utility species.",
+    morphs:[
+      { id:"026a", card:"#026a", name:"Wild Type", year:"Natural", hex:"#7A7060", rarity:"C", desc:"Grey-brown burrowing isopod. Good bioactive cleaner.", genetics:"Wild type", breeder:"Natural" },
+    ]
+  },
+  {
+    id:"027", card:"#027", genus:"Porcellio", species:"spinicornis",
+    common:"Brickwork Isopod", size:"12–16mm", origin:"Europe",
+    rarity:"C", care:{ temp:"15–24°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Coco/loam mix", diet:"Leaf litter, bark, algae", calcium:"Moderate" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"Moderate", broodSize:"10–30 mancae", gestation:"4–5 weeks" },
+    notes:"Named for habit of living in brickwork and stone walls. Distinctive banded pattern. Hardy and adaptable.",
+    morphs:[
+      { id:"027a", card:"#027a", name:"Wild Type", year:"Natural", hex:"#787068", rarity:"C", desc:"Brown-grey with variable banding. Found in walls and rocky areas.", genetics:"Wild type", breeder:"Natural" },
+    ]
+  },
+  {
+    id:"028", card:"#028", genus:"Porcellio", species:"werneri",
+    common:"Werner's Porcellio", size:"16–20mm", origin:"Greece / Turkey",
+    rarity:"U", care:{ temp:"18–26°C", humidity:"50–65%", ventilation:"Good", substrate:"Rocky/sandy substrate", diet:"Leaf litter, bark, dried vegetation", calcium:"Moderate–High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate", broodSize:"10–25 mancae", gestation:"5–7 weeks" },
+    notes:"IMPORTANT: This is Porcellio werneri — SEPARATE from Armadillidium werneri (species 019). Different genus. Silverback morph confirmed by MorphMarket master list. Exuvium sells at high price point reflecting rarity.",
+    morphs:[
+      { id:"028a", card:"#028a", name:"Wild Type", year:"Natural", hex:"#8A7858", rarity:"U", desc:"Grey-brown Greek/Turkish Porcellio. NOT the same as Armadillidium werneri.", genetics:"Wild type — Porcellio genus", breeder:"Natural" },
+      { id:"028b", card:"#028b", name:"Silverback", year:"~2021", hex:"#C0C0B8", rarity:"R", desc:"Silver-white back expression. Confirmed by MorphMarket master list.", genetics:"Selective silver expression", breeder:"European hobby" },
+    ]
+  },
+  {
+    id:"029", card:"#029", genus:"Porcellio", species:"sp. Sevilla",
+    common:"Sevilla Isopod", size:"16–22mm", origin:"Seville, Spain",
+    rarity:"U", care:{ temp:"18–26°C", humidity:"50–65%", ventilation:"Good", substrate:"Sandy/rocky mix", diet:"Leaf litter, bark, protein", calcium:"Moderate" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate", broodSize:"10–25 mancae", gestation:"5–7 weeks" },
+    notes:"Undescribed Porcellio species from Seville locality. Separate from P. haasi. Caramel Sevilla variant also traded. KMK Isopods and Exuvium both carry this species.",
+    morphs:[
+      { id:"029a", card:"#029a", name:"Sevilla", year:"Locality", hex:"#A08858", rarity:"U", desc:"Undescribed Porcellio from Seville locality, Spain.", genetics:"Natural locality colouration — undescribed species", breeder:"Seville, Spain" },
+      { id:"029b", card:"#029b", name:"Sevilla Caramel", year:"~2022", hex:"#C0A060", rarity:"R", desc:"Caramel expression of Sevilla. Confirmed by Exuvium.", genetics:"Selective caramel line from Sevilla stock", breeder:"Exuvium Isopods ~2022" },
+    ]
+  },
+  {
+    id:"030", card:"#030", genus:"Porcellio", species:"bolivari",
+    common:"Trilobite Isopod / Yellow Cave Isopod", size:"28–35mm", origin:"Eastern Spain (limestone caves)",
+    rarity:"R", care:{ temp:"18–24°C", humidity:"60–75%", ventilation:"Very High", substrate:"Rocky cave substrate, deep leaf litter, bark", diet:"Decaying wood, leaf litter, protein, lichen", calcium:"High" },
+    biology:{ lifespan:"3–5 years", activity:"Nocturnal", breedingAge:"9 months", breedingRate:"Moderate (once established)", broodSize:"8–20 mancae", gestation:"7–10 weeks" },
+    notes:"REMARKABLE SPECIES: Females actively parent broods — young cling to mother and she retrieves them. DO NOT separate young from mother. Cave-dwelling Spanish species. Lemon-yellow trilobite-like body. Males territorial — need large space. Sold by Isopod Factory, Pangea, FrogDaddy, Reptanicals.",
+    morphs:[
+      { id:"030a", card:"#030a", name:"Bolivari", year:"Natural", hex:"#D4C040", rarity:"R", desc:"Vivid lemon-yellow with dark stripes and white skirting. Resembles a trilobite. Cave origin.", genetics:"Natural species colouration — Spanish cave origin", breeder:"Eastern Spain caves" },
+      { id:"030b", card:"#030b", name:"Yellow Ghost", year:"~2021", hex:"#E8E0A0", rarity:"R", desc:"Paler ghost yellow expression. Confirmed by Exuvium and Isopod Depot.", genetics:"Selective ghost/pale line from bolivari stock", breeder:"European hobby ~2021" },
+    ]
+  },
+  {
+    id:"031", card:"#031", genus:"Porcellio", species:"spatulatus",
+    common:"Spatula Isopod", size:"14–18mm", origin:"Italy / Spain (Mediterranean)",
+    rarity:"U", care:{ temp:"18–26°C", humidity:"30–50%", ventilation:"Very High", substrate:"Very dry rocky/sandy substrate with minimal moss", diet:"Leaf litter, lichen, dried vegetation", calcium:"Moderate" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6–8 months", breedingRate:"Moderate", broodSize:"8–20 mancae", gestation:"5–7 weeks" },
+    notes:"VERY DRY species — one of the driest in the hobby. Named for spatula-shaped flat body. NOT the same as spatulatus 'nobilii'. Coros is an Italian variant (Porcellio nobilii trade name). Confirmed by Smug-Bug, PostPods, Exuvium.",
+    morphs:[
+      { id:"031a", card:"#031a", name:"Coros / Standard", year:"Locality", hex:"#8A7860", rarity:"U", desc:"Standard spatulatus form. Flat spatula body shape. Also traded as Porcellio nobilii.", genetics:"Natural species colouration", breeder:"Italy / Spain locality" },
+      { id:"031b", card:"#031b", name:"White", year:"~2021", hex:"#E0D8C8", rarity:"R", desc:"White expression of spatulatus. Confirmed by Exuvium.", genetics:"Recessive white expression", breeder:"European hobby ~2021" },
+    ]
+  },
+  {
+    id:"032", card:"#032", genus:"Porcellio", species:"pseudornatus",
+    common:"Tangerine Dream Isopod", size:"16–20mm", origin:"Spain",
+    rarity:"R", care:{ temp:"18–26°C", humidity:"50–65%", ventilation:"Good", substrate:"Sandy/rocky mix with bark", diet:"Leaf litter, protein, bark", calcium:"Moderate" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6–8 months", breedingRate:"Slow–Moderate", broodSize:"8–20 mancae", gestation:"5–7 weeks" },
+    notes:"SEPARATE from P. haasi — different species confirmed by Exuvium. Tangerine Dream and Zebra are distinct morphs of this species. More arid care than haasi. Premium collector species.",
+    morphs:[
+      { id:"032a", card:"#032a", name:"Tangerine Dream", year:"~2020", hex:"#E07030", rarity:"R", desc:"Vivid tangerine-orange colouration. Premium collector species distinct from haasi.", genetics:"Natural or selective tangerine expression — separate species from haasi", breeder:"Exuvium Isopods" },
+      { id:"032b", card:"#032b", name:"Zebra", year:"~2021", hex:"#A89070", rarity:"R", desc:"Striped zebra-like expression on pseudornatus body type. Confirmed by Exuvium.", genetics:"Natural or selective zebra-pattern expression", breeder:"Exuvium Isopods" },
+    ]
+  },
+  {
+    id:"033", card:"#033", genus:"Porcellio", species:"nicklesi",
+    common:"Nicklesi Isopod", size:"10–14mm", origin:"Morocco / North Africa",
+    rarity:"R", care:{ temp:"18–26°C", humidity:"45–60%", ventilation:"Good", substrate:"Sandy/rocky substrate", diet:"Leaf litter, dried vegetation, lichen", calcium:"Moderate" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate", broodSize:"8–20 mancae", gestation:"5–7 weeks" },
+    notes:"North African Porcellio species with multiple striking colour morphs confirmed by Exuvium. Dark, Dark Yellow, Orange Blaze, and Rubivan are all established in the European hobby.",
+    morphs:[
+      { id:"033a", card:"#033a", name:"Wild Type", year:"Natural", hex:"#7A6848", rarity:"R", desc:"Grey-brown North African species. Base form for nicklesi morphs.", genetics:"Wild type", breeder:"Natural" },
+      { id:"033b", card:"#033b", name:"Dark", year:"Locality", hex:"#2A2420", rarity:"R", desc:"Near-black dark expression. Exuvium confirmed.", genetics:"Natural dark locality or recessive melanistic", breeder:"Exuvium collection" },
+      { id:"033c", card:"#033c", name:"Dark Yellow", year:"~2020", hex:"#A09030", rarity:"R", desc:"Dark body with yellow markings. Exuvium confirmed.", genetics:"Selective line — dark base + yellow markings", breeder:"Exuvium Isopods" },
+      { id:"033d", card:"#033d", name:"Orange Blaze", year:"~2021", hex:"#D07030", rarity:"R", desc:"Vivid orange expression. Exuvium confirmed.", genetics:"Recessive orange expression", breeder:"Exuvium Isopods" },
+      { id:"033e", card:"#033e", name:"Rubivan", year:"~2022", hex:"#A03818", rarity:"R", desc:"Red-orange 'rubivar' expression. Exuvium confirmed — rare coloration.", genetics:"Selective rubivar line — intense red-orange expression", breeder:"Exuvium Isopods" },
+    ]
+  },
+  {
+    id:"034", card:"#034", genus:"Porcellio", species:"flavomarginatus",
+    common:"Yellow-Edged Porcellio", size:"12–16mm", origin:"Mediterranean",
+    rarity:"U", care:{ temp:"18–26°C", humidity:"50–65%", ventilation:"Good", substrate:"Rocky/sandy substrate", diet:"Leaf litter, bark", calcium:"Moderate" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate", broodSize:"8–20 mancae", gestation:"5–7 weeks" },
+    notes:"Named for yellow-edged colouration. Two distinct locality forms — Crete and Datca (Turkey) — traded separately. Exuvium confirmed both. Different appearance between localities.",
+    morphs:[
+      { id:"034a", card:"#034a", name:"Crete", year:"Locality", hex:"#B0A040", rarity:"U", desc:"Crete Island locality form. Yellow-edged expression.", genetics:"Natural locality colouration — Crete, Greece", breeder:"Crete locality" },
+      { id:"034b", card:"#034b", name:"Datca", year:"Locality", hex:"#A09030", rarity:"U", desc:"Datca Peninsula locality form from Turkey. Slightly different expression than Crete.", genetics:"Natural locality colouration — Datca, Turkey", breeder:"Datca, Turkey locality" },
+    ]
+  },
+  {
+    id:"035", card:"#035", genus:"Porcellio", species:"ornatus",
+    common:"Ornate Porcellio", size:"16–22mm", origin:"Spain / Mediterranean",
+    rarity:"R", care:{ temp:"18–26°C", humidity:"45–60%", ventilation:"Good", substrate:"Rocky/sandy mix with leaf litter", diet:"Leaf litter, protein, bark", calcium:"Moderate" },
+    biology:{ lifespan:"3–4 years", activity:"Nocturnal", breedingAge:"7–8 months", breedingRate:"Slow–Moderate", broodSize:"8–20 mancae", gestation:"6–8 weeks" },
+    notes:"Large ornate Spanish Porcellio with multiple confirmed morphs. Yellow Chocolate is a striking Exuvium development. Multiple locality forms (South, North) traded separately. Premium collector species.",
+    morphs:[
+      { id:"035a", card:"#035a", name:"Wild Type (South)", year:"Natural", hex:"#6A6050", rarity:"R", desc:"Southern Spanish form. Standard ornatus colouration.", genetics:"Natural locality — South", breeder:"Southern Spain" },
+      { id:"035b", card:"#035b", name:"Yellow Chocolate", year:"~2021", hex:"#8A6030", rarity:"R", desc:"Chocolate-brown body with yellow markings. Exuvium confirmed. DIFFERENT from P. expansus ornatus.", genetics:"Selective line — yellow chocolate expression on ornatus body", breeder:"Exuvium Isopods ~2021" },
+      { id:"035c", card:"#035c", name:"High Yellow", year:"~2020", hex:"#C0A030", rarity:"R", desc:"Enhanced yellow expression across ornatus body.", genetics:"Selective yellow line", breeder:"European hobby" },
+      { id:"035d", card:"#035d", name:"White Skirt", year:"~2021", hex:"#9A8870", rarity:"R", desc:"Enhanced white skirting expression. Striking contrast.", genetics:"Selective line for enhanced white skirting", breeder:"European hobby" },
+    ]
+  },
+  {
+    id:"036", card:"#036", genus:"Porcellio", species:"magnificus",
+    common:"Magnificent Isopod", size:"28–38mm", origin:"Spain / North Africa",
+    rarity:"R", care:{ temp:"18–26°C", humidity:"30–50%", ventilation:"Very High", substrate:"Very dry sandy/rocky mix with bark", diet:"Leaf litter, bark, protein, vegetables", calcium:"Moderate" },
     biology:{ lifespan:"3–5 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Slow–Moderate", broodSize:"8–20 mancae", gestation:"6–8 weeks" },
-    notes:"Among the largest terrestrial isopods in the hobby. Beautiful white skirting and white-tipped antennae. Males have long distinctive uropods. Long-lived. Worth the patience — a truly spectacular display animal.",
+    notes:"Among the LARGEST terrestrial isopods in the hobby — potentially the largest Porcellio. Beautiful white skirting and white-tipped antennae. Males have long distinctive uropods. Very dry keeper. Long-lived.",
     morphs:[
-      { id:"060a", card:"#060a", name:"Wild Type", year:"Natural", hex:"#6A6050", rarity:"R", desc:"Grey-brown with beautiful white skirting and white-tipped antennae. One of the largest isopods in hobby.", genetics:"Wild type", breeder:"Natural" },
+      { id:"036a", card:"#036a", name:"Wild Type", year:"Natural", hex:"#6A6050", rarity:"R", desc:"Grey-brown with beautiful white skirting and white-tipped antennae. One of the largest isopods in the hobby.", genetics:"Wild type", breeder:"Natural" },
     ]
   },
   {
-    id:"061", card:"#061", genus:"Porcellio", species:"silvestrii",
+    id:"037", card:"#037", genus:"Porcellio", species:"silvestrii",
     common:"Silvestrii Isopod", size:"12–16mm", origin:"Spain",
     rarity:"U", care:{ temp:"18–26°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Coco/bark mix", diet:"Leaf litter, bark, vegetables", calcium:"Moderate" },
     biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"Moderate", broodSize:"10–25 mancae", gestation:"4–5 weeks" },
-    notes:"Spanish Porcellio species with a striking Dalmatian morph developed in captivity. Hardy and adaptable. The Dalmatian morph is highly sought and visually stunning on the silvestrii body shape.",
+    notes:"Spanish Porcellio with striking Dalmatian morph developed in captivity. Hardy and adaptable. High Red morph also confirmed in MorphMarket master list.",
     morphs:[
-      { id:"061a", card:"#061a", name:"Wild Type", year:"Natural", hex:"#706858", rarity:"U", desc:"Brown-grey Spanish Porcellio. Standard body form.", genetics:"Wild type", breeder:"Natural" },
-      { id:"061b", card:"#061b", name:"Dalmatian", year:"~2020", hex:"#E8E0D0", rarity:"R", desc:"White base with dark spots — very popular captive morph on silvestrii body.", genetics:"Recessive dalmatian patterning — captive isolation", breeder:"European/US hobby ~2020" },
+      { id:"037a", card:"#037a", name:"Wild Type", year:"Natural", hex:"#706858", rarity:"U", desc:"Brown-grey Spanish Porcellio.", genetics:"Wild type", breeder:"Natural" },
+      { id:"037b", card:"#037b", name:"Dalmatian", year:"~2020", hex:"#E8E0D0", rarity:"R", desc:"White base with dark spots. Very popular captive morph.", genetics:"Recessive dalmatian patterning — captive isolation", breeder:"European/US hobby ~2020" },
+      { id:"037c", card:"#037c", name:"High Red", year:"~2022", hex:"#B84030", rarity:"R", desc:"High red expression on silvestrii body. MorphMarket master list confirmed.", genetics:"Selective red line", breeder:"US hobby ~2022" },
+    ]
+  },
+
+// ═══════════════════════════════════════════════════════════════════
+// PORCELLIONIDES — powder isopods
+// ═══════════════════════════════════════════════════════════════════
+
+  {
+    id:"038", card:"#038", genus:"Porcellionides", species:"pruinosus",
+    common:"Powder Blue / Powder Orange Isopod", size:"10–14mm", origin:"Mediterranean (cosmopolitan)",
+    rarity:"C", care:{ temp:"20–28°C", humidity:"50–70%", ventilation:"Moderate", substrate:"Rich coco/peat mix", diet:"Leaf litter, decaying material, protein, vegetables", calcium:"Low" },
+    biology:{ lifespan:"1–2 years", activity:"Diurnal/active", breedingAge:"3–4 months", breedingRate:"Very High", broodSize:"10–30 mancae", gestation:"2–3 weeks" },
+    notes:"Most widely used bioactive cleaner in the hobby. Very fast breeders. Multiple morphs all same species — calculator-compatible. NOTE: Porcellionides floria looks nearly identical but is a SEPARATE species (see next entry).",
+    morphs:[
+      { id:"038a", card:"#038a", name:"Powder Blue", year:"Natural/Cultivated", hex:"#8090A8", rarity:"C", desc:"Steel blue-grey powdery colouration. The original and most widely kept form.", genetics:"Wild type cultivated form", breeder:"Natural / cultivated" },
+      { id:"038b", card:"#038b", name:"Powder Orange", year:"~2010s", hex:"#D07830", rarity:"C", desc:"Vivid orange expression. One of the most popular bioactive isopods worldwide.", genetics:"Recessive orange expression", breeder:"US hobby" },
+      { id:"038c", card:"#038c", name:"Oreo Crumble", year:"~2018", hex:"#302820", rarity:"U", desc:"Near-black with white flecks. Striking contrast.", genetics:"Melanistic with white spotting — compound recessive", breeder:"US hobby" },
+      { id:"038d", card:"#038d", name:"White Out", year:"~2019", hex:"#F0EEE8", rarity:"U", desc:"Near-white expression. Clean and minimal pigment.", genetics:"Recessive whiteout", breeder:"US hobby" },
+      { id:"038e", card:"#038e", name:"Orange Cream", year:"~2019", hex:"#E09878", rarity:"U", desc:"Mottled orange and creamy white. Popular mix-culture form.", genetics:"Blend of orange and white genes", breeder:"US hobby" },
+      { id:"038f", card:"#038f", name:"Lemon", year:"~2019", hex:"#D8D040", rarity:"R", desc:"Bright lemon yellow. Very eye-catching.", genetics:"Recessive yellow expression", breeder:"US hobby" },
+      { id:"038g", card:"#038g", name:"Pink", year:"~2020", hex:"#D880A0", rarity:"R", desc:"Soft pink colouration. Rare and sought-after.", genetics:"Recessive pink expression", breeder:"European hobby" },
+      { id:"038h", card:"#038h", name:"Red Koi", year:"~2021", hex:"#C04830", rarity:"R", desc:"Red and white koi-like patterning. Confirmed by iHeartBugs and Wikipedia.", genetics:"Recessive red expression with koi patterning", breeder:"US hobby ~2021" },
+    ]
+  },
+  {
+    id:"039", card:"#039", genus:"Porcellionides", species:"floria",
+    common:"Flowery Blue Isopod", size:"10–14mm", origin:"SE USA / Arizona (native)",
+    rarity:"U", care:{ temp:"20–28°C", humidity:"50–70%", ventilation:"Moderate", substrate:"Rich coco/peat mix", diet:"Leaf litter, decaying material, protein", calcium:"Low" },
+    biology:{ lifespan:"1–2 years", activity:"Diurnal/active", breedingAge:"3–4 months", breedingRate:"High", broodSize:"10–30 mancae", gestation:"2–3 weeks" },
+    notes:"CONFIRMED SEPARATE SPECIES from P. pruinosus by genetic testing. Virtually identical in appearance — only difference is antenna patterning. Native SE USA and Arizona. P. pruinosus rarely occurs in Arizona. Confirmed by Bugs In Cyberspace, Pet Pedes and Pods, and multiple suppliers. IMPORTANT for calculator: do NOT cross-calculate with pruinosus.",
+    morphs:[
+      { id:"039a", card:"#039a", name:"Flowery Blue", year:"Natural", hex:"#8090A8", rarity:"U", desc:"Visually near-identical to Powder Blue pruinosus but genetically distinct. Native SE USA/Arizona.", genetics:"Natural species colouration — separate from pruinosus. Only distinguishable by antenna patterning.", breeder:"Natural — SE USA/Arizona" },
+    ]
+  },
+
+// ═══════════════════════════════════════════════════════════════════
+// ONISCUS — shiny woodlice
+// ═══════════════════════════════════════════════════════════════════
+
+  {
+    id:"040", card:"#040", genus:"Oniscus", species:"asellus",
+    common:"Common Shiny Woodlouse", size:"12–18mm", origin:"Europe",
+    rarity:"C", care:{ temp:"15–24°C", humidity:"70–85%", ventilation:"Low–Moderate", substrate:"Damp coco/loam/leaf litter mix", diet:"Leaf litter, decaying wood, vegetables", calcium:"Moderate" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"Moderate", broodSize:"15–50 mancae", gestation:"4–5 weeks" },
+    notes:"Most moisture-loving common species. Shiny smooth body unlike P. scaber. Mardi Gras Dalmatian was the FIRST EVER documented O. asellus morph (Kyle/InvertDude, 2016). Orange Mardi Gras developed by Exuvium from Mardi Gras stock.",
+    morphs:[
+      { id:"040a", card:"#040a", name:"Wild Type", year:"Natural", hex:"#687070", rarity:"C", desc:"Grey-brown with yellow lateral spots. Shiny smooth body.", genetics:"Wild type", breeder:"Natural" },
+      { id:"040b", card:"#040b", name:"Mardi Gras Dalmatian", year:"2016", hex:"#C8A848", rarity:"R", desc:"FIRST EVER O. asellus morph. Yellow-orange with Dalmatian spotting. Isolated by Kyle/InvertDude 2016.", genetics:"Recessive — first documented morph for this species", breeder:"Kyle / InvertDude 2016 — FIRST O. asellus morph" },
+      { id:"040c", card:"#040c", name:"Orange Mardi Gras", year:"~2021", hex:"#C87020", rarity:"R", desc:"Orange version of the Mardi Gras pattern. Developed by Exuvium from Mardi Gras stock.", genetics:"Mardi Gras + orange combination", breeder:"Exuvium Isopods ~2021" },
+      { id:"040d", card:"#040d", name:"Dalmatian", year:"~2018", hex:"#D8D0B8", rarity:"U", desc:"Pale base with dark spotting.", genetics:"Recessive dalmatian patterning", breeder:"US hobby" },
+    ]
+  },
+
+// ═══════════════════════════════════════════════════════════════════
+// CUBARIS — Thai limestone cave isopods and related
+// NOTE: Every Cubaris sp. is its OWN species entry.
+// NEVER allow cross-species calculation between different Cubaris sp.
+// ═══════════════════════════════════════════════════════════════════
+
+  {
+    id:"041", card:"#041", genus:"Cubaris", species:"sp. Rubber Ducky",
+    common:"Rubber Ducky Isopod", size:"15–20mm", origin:"Thailand (limestone caves)",
+    rarity:"R", care:{ temp:"22–28°C", humidity:"70–85%", ventilation:"Low", substrate:"Calcium-rich substrate, limestone pieces", diet:"Leaf litter, protein, calcium-rich foods", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Very Slow", broodSize:"2–8 mancae", gestation:"8–12 weeks" },
+    notes:"Named for distinctive yellow 'duck face' head. Thai limestone cave origin. Pak Chong is a SEPARATE SPECIES. Pink Rubber Ducky and Rubber Bee are true morphs of this species only.",
+    morphs:[
+      { id:"041a", card:"#041a", name:"Classic Yellow", year:"~2017–2019", hex:"#E8C040", rarity:"R", desc:"The original Rubber Ducky. Wild Thailand limestone cave; stabilised in captivity.", genetics:"Wild type captive stabilisation", breeder:"Thailand captive" },
+      { id:"041b", card:"#041b", name:"Pink Rubber Ducky", year:"~2021", hex:"#E8A0A0", rarity:"UR", desc:"Soft rosy-pink mutation. Very rare.", genetics:"Recessive pink pigmentation mutation", breeder:"Captive isolation ~2021" },
+      { id:"041c", card:"#041c", name:"Rubber Bee", year:"~2022", hex:"#F0E850", rarity:"UR", desc:"Rubber Ducky with additional white third segment. Distinct from Classic Yellow.", genetics:"Patterning variant — white third segment expression", breeder:"Captive isolation ~2022" },
+    ]
+  },
+  {
+    id:"042", card:"#042", genus:"Cubaris", species:"sp. Panda King",
+    common:"Panda King Isopod", size:"10–18mm", origin:"Vietnam (limestone cave systems)",
+    rarity:"R", care:{ temp:"22–28°C", humidity:"70–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein, algae", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–10 mancae", gestation:"8–12 weeks" },
+    notes:"SEPARATE SPECIES from Rubber Ducky — Vietnamese NOT Thai origin. Bold black and white pattern. Red Panda, Citrus, and Pink Panda are true captive isolations WITHIN this species.",
+    morphs:[
+      { id:"042a", card:"#042a", name:"Classic Black & White", year:"~2019", hex:"#2A2A2A", rarity:"R", desc:"Bold black-and-white from Vietnamese caves. The original Panda King.", genetics:"Wild type captive stabilisation", breeder:"Vietnamese captive trade ~2019" },
+      { id:"042b", card:"#042b", name:"Red Panda King", year:"~2021", hex:"#A03020", rarity:"R", desc:"Red/orange replacing black banding. Highly sought captive morph.", genetics:"Recessive red replacing black pigmentation", breeder:"Captive isolation ~2021" },
+      { id:"042c", card:"#042c", name:"Citrus Panda King", year:"~2022", hex:"#E8B030", rarity:"UR", desc:"Bright yellow-orange banding with white. Very striking.", genetics:"Recessive yellow/citrus gene replacing black banding", breeder:"Captive isolation ~2022" },
+      { id:"042d", card:"#042d", name:"Pink Panda King", year:"~2023", hex:"#E8A0B0", rarity:"UR", desc:"Pink replacing black banding. Extremely rare new morph.", genetics:"Recessive pink pigmentation — very new mutation", breeder:"Captive isolation ~2023" },
+    ]
+  },
+  {
+    id:"043", card:"#043", genus:"Cubaris", species:"murina",
+    common:"Little Sea Isopod", size:"8–14mm", origin:"Pantropical — Florida, Caribbean, Pacific",
+    rarity:"C", care:{ temp:"22–28°C", humidity:"70–85%", ventilation:"Moderate", substrate:"Coco fibre/sand mix", diet:"Leaf litter, algae, protein", calcium:"Moderate–High" },
+    biology:{ lifespan:"1–2 years", activity:"Nocturnal", breedingAge:"4 months", breedingRate:"Moderate–High", broodSize:"5–20 mancae", gestation:"4–6 weeks" },
+    notes:"A DESCRIBED SPECIES unlike most Cubaris sp. trade names. Papaya is one of the only true pink isopods widely available. Faster breeding than most Cubaris. Pearls morph confirmed by Exuvium.",
+    morphs:[
+      { id:"043a", card:"#043a", name:"Wild Type", year:"Natural", hex:"#9A8878", rarity:"C", desc:"Pale tan-grey. Most common form. Pantropical distribution.", genetics:"Wild type", breeder:"Natural" },
+      { id:"043b", card:"#043b", name:"Papaya (Pink)", year:"~2020", hex:"#E88888", rarity:"R", desc:"True pink isopod. One of the only pink isopods widely available in the hobby.", genetics:"Recessive pink pigmentation", breeder:"Captive isolation ~2020" },
+      { id:"043c", card:"#043c", name:"Anemone", year:"~2021", hex:"#C4786A", rarity:"R", desc:"Orange-red tones resembling sea anemone. Philippines locality origin.", genetics:"Philippines locality — orange-red expression", breeder:"Philippines locality ~2021" },
+      { id:"043d", card:"#043d", name:"Glacier", year:"~2022", hex:"#F0EEE8", rarity:"R", desc:"White whiteout-gene expression. Confirmed by Josh's Frogs.", genetics:"Whiteout gene — complete absence of pigmentation", breeder:"US hobby ~2022" },
+      { id:"043e", card:"#043e", name:"Mandarin", year:"~2022", hex:"#E09048", rarity:"R", desc:"Vivid orange-mandarin colouration.", genetics:"Recessive orange expression", breeder:"Captive isolation ~2022" },
+      { id:"043f", card:"#043f", name:"Pearls", year:"~2022", hex:"#E8D8C8", rarity:"R", desc:"Pale pearl-cream colouration. Confirmed by Exuvium.", genetics:"Selective pearl/pale expression", breeder:"Exuvium / European hobby ~2022" },
+    ]
+  },
+  {
+    id:"044", card:"#044", genus:"Cubaris", species:"sp. Pak Chong",
+    common:"Pak Chong Isopod", size:"15–20mm", origin:"Pak Chong, Thailand",
+    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate, limestone pieces", diet:"Leaf litter, protein, calcium-rich foods", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"2–8 mancae", gestation:"8–12 weeks" },
+    notes:"SEPARATE SPECIES from Rubber Ducky (Classic Yellow). Deep teal-green colouration from Pak Chong province. Same limestone care required. Red Pak Chong is a captive isolation WITHIN this species.",
+    morphs:[
+      { id:"044a", card:"#044a", name:"Classic Pak Chong", year:"~2020", hex:"#4A7C6F", rarity:"UR", desc:"Deep teal-green. Entirely distinct from Rubber Ducky.", genetics:"Natural locality colouration — Pak Chong province", breeder:"Pak Chong, Thailand ~2020" },
+      { id:"044b", card:"#044b", name:"Red Pak Chong", year:"~2022", hex:"#8A2010", rarity:"UR", desc:"Red variant isolated from Pak Chong stock. Very rare.", genetics:"Recessive red — captive isolation from Pak Chong stock", breeder:"Captive isolation ~2022" },
+    ]
+  },
+  {
+    id:"045", card:"#045", genus:"Cubaris", species:"sp. White Ducky",
+    common:"White Ducky Isopod", size:"15–20mm", origin:"Thailand",
+    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein, calcium-rich foods", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"2–6 mancae", gestation:"8–12 weeks" },
+    notes:"SEPARATE SPECIES from Classic Yellow Rubber Ducky. Black and white Cubaris with Rubber Ducky face shape. Increasingly rare in captive cultures.",
+    morphs:[
+      { id:"045a", card:"#045a", name:"White Ducky", year:"~2020", hex:"#E8E0D8", rarity:"UR", desc:"Black and white Cubaris with Rubber Ducky face. Separate species from Classic Yellow.", genetics:"Natural — separate species from Classic Yellow Rubber Ducky", breeder:"Thailand captive" },
+    ]
+  },
+  {
+    id:"046", card:"#046", genus:"Cubaris", species:"sp. Cappuccino",
+    common:"Cappuccino Isopod", size:"14–18mm", origin:"Thailand",
+    rarity:"R", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate, moist leaf litter", diet:"Leaf litter, protein, algae", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–10 mancae", gestation:"7–10 weeks" },
+    notes:"Warm coffee-brown Thai Cubaris. SEPARATE SPECIES from Amber — different colouration and locality. Also separate from Caramel Cream.",
+    morphs:[
+      { id:"046a", card:"#046a", name:"Cappuccino", year:"~2020", hex:"#8B6030", rarity:"R", desc:"Warm coffee-brown. Coffee-themed Thai Cubaris.", genetics:"Natural locality colouration", breeder:"Thailand captive ~2020" },
+    ]
+  },
+  {
+    id:"047", card:"#047", genus:"Cubaris", species:"sp. Amber",
+    common:"Amber Isopod", size:"12–16mm", origin:"Thailand",
+    rarity:"R", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate, moist leaf litter", diet:"Leaf litter, protein, algae", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–10 mancae", gestation:"7–10 weeks" },
+    notes:"Yellow-amber Thai Cubaris. SEPARATE SPECIES from Cappuccino. More accessible than some premium Cubaris. Amber Firefly is a SEPARATE species entry.",
+    morphs:[
+      { id:"047a", card:"#047a", name:"Amber", year:"~2020", hex:"#C8943A", rarity:"R", desc:"Rich amber-yellow. More accessible premium Thai Cubaris.", genetics:"Natural locality colouration", breeder:"Thailand captive ~2020" },
+    ]
+  },
+  {
+    id:"048", card:"#048", genus:"Cubaris", species:"sp. Amber Firefly",
+    common:"Amber Firefly Isopod", size:"10–14mm", origin:"Thailand",
+    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"2–6 mancae", gestation:"8–12 weeks" },
+    notes:"SEPARATE SPECIES from standard Amber — confirmed by Isopod Depot. Firefly and Firefly LCF (Light Color Form) are distinct variants of this species. Do not confuse with Amber.",
+    morphs:[
+      { id:"048a", card:"#048a", name:"Amber Firefly", year:"~2021", hex:"#D4A840", rarity:"UR", desc:"Amber with distinctive firefly-like markings. Separate from plain Amber.", genetics:"Natural form — distinct from Cubaris sp. Amber", breeder:"Thailand captive ~2021" },
+      { id:"048b", card:"#048b", name:"Firefly LCF (Light Color Form)", year:"~2022", hex:"#E8C868", rarity:"UR", desc:"Light Color Form variant of Amber Firefly. Paler expression. Confirmed by Isopod Depot.", genetics:"Light colour form — captive isolation from Firefly stock", breeder:"Captive isolation ~2022" },
+    ]
+  },
+  {
+    id:"049", card:"#049", genus:"Cubaris", species:"sp. White Shark",
+    common:"White Shark Isopod", size:"8–12mm", origin:"Thailand",
+    rarity:"R", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–8 mancae", gestation:"7–10 weeks" },
+    notes:"Pale near-white dwarf Thai Cubaris. Display species — NOT a bioactive cleaner. Handle minimally. Separate species.",
+    morphs:[
+      { id:"049a", card:"#049a", name:"White Shark", year:"~2021", hex:"#E8E4D8", rarity:"R", desc:"Near-white body with pale segmentation. Display species.", genetics:"Natural form — separate species", breeder:"Thailand captive ~2021" },
+    ]
+  },
+  {
+    id:"050", card:"#050", genus:"Cubaris", species:"sp. Thai Angel Blue",
+    common:"Thai Angel Blue Isopod", size:"10–14mm", origin:"Thailand",
+    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"2–6 mancae", gestation:"8–12 weeks" },
+    notes:"Blue-toned Thai Cubaris — SEPARATE SPECIES. Premium collector species. Very rare in Western captivity. Stunning blue iridescence.",
+    morphs:[
+      { id:"050a", card:"#050a", name:"Thai Angel Blue", year:"~2022", hex:"#8090C0", rarity:"UR", desc:"Blue-toned Thai Cubaris with iridescent sheen. Among the rarest Thai Cubaris.", genetics:"Natural form — separate species", breeder:"Thailand captive ~2022" },
+    ]
+  },
+  {
+    id:"051", card:"#051", genus:"Cubaris", species:"sp. Black Evil",
+    common:"Black Evil Isopod", size:"15–20mm", origin:"Southeast Asia",
+    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate, moist leaf litter", diet:"Leaf litter, protein, algae", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"2–6 mancae", gestation:"8–12 weeks" },
+    notes:"Dark royal purple with iridescent shine. One of the largest Cubaris sp. SE Asian origin.",
+    morphs:[
+      { id:"051a", card:"#051a", name:"Black Evil", year:"~2021", hex:"#2A1A3A", rarity:"UR", desc:"Dark royal purple with stunning iridescent shine. One of the largest and rarest Cubaris sp.", genetics:"Natural form — separate SE Asian species", breeder:"SE Asia captive" },
+    ]
+  },
+  {
+    id:"052", card:"#052", genus:"Cubaris", species:"sp. Tapir",
+    common:"Tapir Isopod", size:"12–16mm", origin:"Thailand",
+    rarity:"R", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–8 mancae", gestation:"7–10 weeks" },
+    notes:"Named for tapir-like dark body with pale banding. Thai Cubaris — separate species.",
+    morphs:[
+      { id:"052a", card:"#052a", name:"Tapir", year:"~2021", hex:"#4A3828", rarity:"R", desc:"Dark brown with cream/white banding resembling tapir markings.", genetics:"Natural locality colouration", breeder:"Thailand captive" },
+    ]
+  },
+  {
+    id:"053", card:"#053", genus:"Cubaris", species:"sp. Jupiter",
+    common:"Jupiter Isopod", size:"10–14mm", origin:"Thailand",
+    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"2–6 mancae", gestation:"8–12 weeks" },
+    notes:"Named for Jupiter-like banding. Also traded as 'Frosty Jupiter'. Separate Thai Cubaris species.",
+    morphs:[
+      { id:"053a", card:"#053a", name:"Jupiter", year:"~2022", hex:"#C0A070", rarity:"UR", desc:"Banded colouration reminiscent of Jupiter's cloud bands. Also known as 'Frosty Jupiter'.", genetics:"Natural form — separate species", breeder:"Thailand captive" },
+    ]
+  },
+  {
+    id:"054", card:"#054", genus:"Cubaris", species:"sp. Cherry Blossom",
+    common:"Cherry Blossom Isopod", size:"10–14mm", origin:"Thailand (Pak Chong lineage)",
+    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"2–6 mancae", gestation:"8–12 weeks" },
+    notes:"Named for delicate pink/cream colouration. Emerged from selective breeding of Red Pak Chong lineage. Also called 'Sakura' by American hobbyists. Separate species. Not a beginner isopod.",
+    morphs:[
+      { id:"054a", card:"#054a", name:"Cherry Blossom", year:"~2022", hex:"#E8C0C0", rarity:"UR", desc:"Soft pink-cream. Emerged from Red Pak Chong selective breeding.", genetics:"Selective breeding from Red Pak Chong lineage — separate from Rubber Ducky line", breeder:"Thailand captive" },
+    ]
+  },
+  {
+    id:"055", card:"#055", genus:"Cubaris", species:"sp. Caramel Cream",
+    common:"Caramel Cream Isopod", size:"12–16mm", origin:"Thailand",
+    rarity:"R", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–8 mancae", gestation:"7–10 weeks" },
+    notes:"Also traded as 'Cappu Cream'. SEPARATE SPECIES from Cappuccino — lighter and distinct. PostPods UK confirms as a distinct variety.",
+    morphs:[
+      { id:"055a", card:"#055a", name:"Caramel Cream", year:"~2022", hex:"#D4A870", rarity:"R", desc:"Warm caramel-cream. Lighter and distinct from Cappuccino.", genetics:"Natural form — separate species from Cappuccino", breeder:"Thailand captive" },
+    ]
+  },
+  {
+    id:"056", card:"#056", genus:"Cubaris", species:"sp. Citrus",
+    common:"Citrus Isopod", size:"10–14mm", origin:"Thailand",
+    rarity:"R", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–8 mancae", gestation:"7–10 weeks" },
+    notes:"Bright lemon-citrus yellow. SEPARATE SPECIES from Amber — more vivid lemon-yellow expression. Growing in Western hobby popularity.",
+    morphs:[
+      { id:"056a", card:"#056a", name:"Citrus", year:"~2022", hex:"#D8D040", rarity:"R", desc:"Bright lemon-citrus yellow. Distinct from Amber — more vivid.", genetics:"Natural form — separate species", breeder:"Thailand captive" },
+    ]
+  },
+  {
+    id:"057", card:"#057", genus:"Cubaris", species:"sp. Giant Nguyen",
+    common:"Giant Nguyen Isopod", size:"20–25mm", origin:"Vietnam",
+    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Deep calcium-rich substrate", diet:"Leaf litter, protein, algae", calcium:"Very High" },
+    biology:{ lifespan:"3–4 years", activity:"Nocturnal", breedingAge:"12–18 months", breedingRate:"Very Slow", broodSize:"2–6 mancae", gestation:"10–14 weeks" },
+    notes:"One of the largest Cubaris sp. Vietnamese origin. Named after original importer. Extremely slow breeder.",
+    morphs:[
+      { id:"057a", card:"#057a", name:"Giant Nguyen", year:"~2021", hex:"#6A5840", rarity:"UR", desc:"One of the biggest Cubaris in captivity. Vietnamese origin.", genetics:"Natural form — separate Vietnamese species", breeder:"Vietnamese captive" },
+    ]
+  },
+  {
+    id:"058", card:"#058", genus:"Cubaris", species:"iriomotensis",
+    common:"Miyako Isopod", size:"10–14mm", origin:"Ryukyu Islands, Japan",
+    rarity:"R", care:{ temp:"20–26°C", humidity:"70–80%", ventilation:"Moderate", substrate:"Moist forest substrate, leaf litter", diet:"Leaf litter, protein, algae", calcium:"Moderate–High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–10 months", breedingRate:"Slow–Moderate", broodSize:"5–12 mancae", gestation:"6–8 weeks" },
+    notes:"One of few Cubaris with a DESCRIBED scientific name. Purple-grey body with red-orange skirt edges. Japanese island endemic. Rarer than most Thai Cubaris in the Western hobby.",
+    morphs:[
+      { id:"058a", card:"#058a", name:"Miyako", year:"~2020", hex:"#7868A0", rarity:"R", desc:"Purple-grey body with red-orange skirting. Described species — Cubaris iriomotensis.", genetics:"Natural species colouration — Cubaris iriomotensis", breeder:"Japan captive ~2020" },
+    ]
+  },
+  {
+    id:"059", card:"#059", genus:"Cubaris", species:"sp. Salmon",
+    common:"Salmon Isopod (Martinique)", size:"10–14mm", origin:"Martinique, Caribbean",
+    rarity:"UR", care:{ temp:"22–26°C", humidity:"75–85%", ventilation:"Low–Moderate", substrate:"Moist coco/peat mix", diet:"Leaf litter, protein, algae", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–8 mancae", gestation:"6–9 weeks" },
+    notes:"Caribbean Cubaris — one of few non-SE Asian Cubaris. Salmon-pink. Slightly more forgiving care than Thai Cubaris due to different island origin.",
+    morphs:[
+      { id:"059a", card:"#059a", name:"Salmon", year:"~2021", hex:"#E09070", rarity:"UR", desc:"Warm salmon-pink. Caribbean origin — rare non-SE Asian Cubaris.", genetics:"Natural locality colouration", breeder:"Martinique, Caribbean ~2021" },
+    ]
+  },
+  {
+    id:"060", card:"#060", genus:"Cubaris", species:"sp. Penguin",
+    common:"Penguin Isopod / White Side", size:"8–12mm", origin:"Thailand",
+    rarity:"R", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"8–12 months", breedingRate:"Slow", broodSize:"3–8 mancae", gestation:"7–10 weeks" },
+    notes:"Black-and-white colouration similar to Panda King but SEPARATE SPECIES. Also traded as 'White Side'. Confirmed by Isopod Depot. Good beginner Cubaris. Shy and burrows.",
+    morphs:[
+      { id:"060a", card:"#060a", name:"Penguin / White Side", year:"~2021", hex:"#D0D0C8", rarity:"R", desc:"Black and white penguin-like colouration. Also traded as White Side. SEPARATE from Panda King.", genetics:"Natural form — distinct Thai species from Panda King", breeder:"Thailand captive ~2021" },
+    ]
+  },
+  {
+    id:"061", card:"#061", genus:"Cubaris", species:"sp. Red Edge",
+    common:"Red Edge Isopod", size:"8–12mm", origin:"Southeast Asia",
+    rarity:"UR", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Calcium-rich substrate", diet:"Leaf litter, protein", calcium:"Very High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"2–6 mancae", gestation:"8–12 weeks" },
+    notes:"Red-orange edging on body. Albino Red Edge (White Phase) is a captive isolation of this species. Confirmed by Exuvium and Isopod Depot.",
+    morphs:[
+      { id:"061a", card:"#061a", name:"Red Edge", year:"~2021", hex:"#A04020", rarity:"UR", desc:"Red-orange edging around body segments. SE Asian origin.", genetics:"Natural form — separate species", breeder:"SE Asia captive ~2021" },
+      { id:"061b", card:"#061b", name:"Red Edge Albino (White Phase)", year:"~2022", hex:"#E8E0D8", rarity:"UR", desc:"White/albino phase of Red Edge. Exuvium confirmed as 'Red Edge White Phase'.", genetics:"Recessive albino expression within Red Edge species", breeder:"Captive isolation ~2022" },
+    ]
+  },
+
+// ═══════════════════════════════════════════════════════════════════
+// ARDENTIELLA — Vietnamese arboreal isopods (formerly Merulanella)
+// NOTE: Every Ardentiella sp. is its OWN species entry.
+// Semi-arboreal — ESCAPE-PROOF enclosures essential.
+// ═══════════════════════════════════════════════════════════════════
+
+  {
+    id:"062", card:"#062", genus:"Ardentiella", species:"sp. Ember Bee",
+    common:"Ember Bee Isopod", size:"18–23mm", origin:"Vietnam",
+    rarity:"R", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark vertical for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"8–12 months", breedingRate:"Moderate (captive bred)", broodSize:"5–15 mancae", gestation:"6–10 weeks" },
+    notes:"FORMERLY Merulanella sp. — reclassified as Ardentiella. SEMI-ARBOREAL: climbs vertically. Enclosure MUST be escape-proof — even mancae climb smooth plastic. High ventilation is non-negotiable.",
+    morphs:[
+      { id:"062a", card:"#062a", name:"Ember Bee", year:"~2018", hex:"#C85018", rarity:"R", desc:"Bold orange-red stripes on jet-black base. The flagship Ardentiella species.", genetics:"Natural colouration — semi-arboreal Vietnamese species", breeder:"Vietnam captive ~2018" },
+    ]
+  },
+  {
+    id:"063", card:"#063", genus:"Ardentiella", species:"sp. Red Ember Bee",
+    common:"Red Ember Bee Isopod", size:"18–22mm", origin:"Vietnam",
+    rarity:"R", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"8–12 months", breedingRate:"Moderate", broodSize:"5–12 mancae", gestation:"6–10 weeks" },
+    notes:"All-red on black — LACKS yellow of Ember Bee. Largest Ardentiella kept in US captivity. SEPARATE SPECIES.",
+    morphs:[
+      { id:"063a", card:"#063a", name:"Red Ember Bee", year:"~2020", hex:"#901810", rarity:"R", desc:"All-red on black. Lacks yellow of Ember Bee. Largest Ardentiella in US captivity.", genetics:"Natural colour variant — separate species", breeder:"Vietnam captive ~2020" },
+    ]
+  },
+  {
+    id:"064", card:"#064", genus:"Ardentiella", species:"sp. Pastel",
+    common:"Pastel Isopod", size:"18–20mm", origin:"Vietnam",
+    rarity:"UR", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"10–14 months", breedingRate:"Slow–Moderate", broodSize:"4–10 mancae", gestation:"7–10 weeks" },
+    notes:"Most sought-after Ardentiella. Soft muted pastel tones vary between individuals — each colony has evolving visual character. Previously also classified as 'Ember Bee Pastel'.",
+    morphs:[
+      { id:"064a", card:"#064a", name:"Pastel", year:"~2021", hex:"#D0B898", rarity:"UR", desc:"Soft muted pastel tones. Highly variable between individuals.", genetics:"Natural colour variant — possible selective line", breeder:"Vietnam captive ~2021" },
+    ]
+  },
+  {
+    id:"065", card:"#065", genus:"Ardentiella", species:"sp. Lava",
+    common:"Lava Ardentiella", size:"22–28mm", origin:"Vietnam",
+    rarity:"UR", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"10–14 months", breedingRate:"Slow", broodSize:"4–10 mancae", gestation:"7–10 weeks" },
+    notes:"Deep reds, lava-oranges, warm yellows. Grows 1.5× larger than Ember Bee — one of the LARGEST Ardentiella. NOTE: NOT the same as P. scaber Lava — completely different genus entirely.",
+    morphs:[
+      { id:"065a", card:"#065a", name:"Ardentiella Lava", year:"~2022", hex:"#B83808", rarity:"UR", desc:"Deep lava reds and oranges. Reportedly the largest Ardentiella — 1.5× Ember Bee size. NOT P. scaber Lava.", genetics:"Natural colour variant — separate species", breeder:"Vietnam captive ~2022" },
+    ]
+  },
+  {
+    id:"066", card:"#066", genus:"Ardentiella", species:"sp. Batman",
+    common:"Batman Isopod", size:"16–20mm", origin:"Vietnam",
+    rarity:"R", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"8–12 months", breedingRate:"Moderate", broodSize:"5–12 mancae", gestation:"6–10 weeks" },
+    notes:"Named for dark cape-like patterning. Established in Ardentiella hobby alongside Ember Bee.",
+    morphs:[
+      { id:"066a", card:"#066a", name:"Batman", year:"~2020", hex:"#1A1828", rarity:"R", desc:"Dark cape-like patterning on near-black base.", genetics:"Natural colour variant", breeder:"Vietnam captive ~2020" },
+    ]
+  },
+  {
+    id:"067", card:"#067", genus:"Ardentiella", species:"sp. Golden Fire",
+    common:"Golden Fire Isopod", size:"16–20mm", origin:"Vietnam",
+    rarity:"UR", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"10–14 months", breedingRate:"Slow", broodSize:"4–8 mancae", gestation:"7–10 weeks" },
+    notes:"Golden-yellow bands on jet-black. Very rare in Western collections.",
+    morphs:[
+      { id:"067a", card:"#067a", name:"Golden Fire", year:"~2022", hex:"#D4A010", rarity:"UR", desc:"Striking golden-yellow bands on jet-black. One of the most vivid Ardentiella.", genetics:"Natural colour variant — separate species", breeder:"Vietnam captive ~2022" },
+    ]
+  },
+  {
+    id:"068", card:"#068", genus:"Ardentiella", species:"sp. Pink Lambo",
+    common:"Pink Lambo Isopod", size:"16–20mm", origin:"Vietnam",
+    rarity:"UR", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"10–14 months", breedingRate:"Very Slow", broodSize:"3–8 mancae", gestation:"8–12 weeks" },
+    notes:"Pink-toned Ardentiella — among the rarest and most expensive. Named for premium status.",
+    morphs:[
+      { id:"068a", card:"#068a", name:"Pink Lambo", year:"~2023", hex:"#D090A0", rarity:"UR", desc:"Soft pink tones — rarest and most coveted Ardentiella variant.", genetics:"Natural colour variant — possible selective line", breeder:"Vietnam captive ~2023" },
+    ]
+  },
+  {
+    id:"069", card:"#069", genus:"Ardentiella", species:"sp. Red Diablo",
+    common:"Red Diablo Isopod", size:"12–16mm", origin:"Vietnam",
+    rarity:"R", care:{ temp:"19–26°C", humidity:"65–75%", ventilation:"High — essential", substrate:"Deep leaf litter, forest moss, cork bark for climbing", diet:"Leaf litter, white rotten wood, lichen, moss, vegetables, protein", calcium:"High" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal and diurnal", breedingAge:"8–12 months", breedingRate:"Moderate", broodSize:"5–12 mancae", gestation:"6–9 weeks" },
+    notes:"Smaller than Ember Bee. Bold red and black. Extremely active and fast-moving. Expert care recommended.",
+    morphs:[
+      { id:"069a", card:"#069a", name:"Red Diablo", year:"~2021", hex:"#780808", rarity:"R", desc:"Bold red and black. Smaller than Ember Bee. Extremely fast-moving.", genetics:"Natural colour variant — separate species", breeder:"Vietnam captive ~2021" },
+    ]
+  },
+
+// ═══════════════════════════════════════════════════════════════════
+// NESODILLO — Canary Islands isopod
+// ═══════════════════════════════════════════════════════════════════
+
+  {
+    id:"070", card:"#070", genus:"Nesodillo", species:"arcangelii",
+    common:"Shiro Utsuri Isopod", size:"10–14mm", origin:"Canary Islands",
+    rarity:"R", care:{ temp:"20–26°C", humidity:"65–80%", ventilation:"Moderate", substrate:"Coco/loam mix", diet:"Leaf litter, protein, algae", calcium:"Moderate" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate", broodSize:"10–25 mancae", gestation:"4–6 weeks" },
+    notes:"Named for resemblance to Shiro Utsuri koi patterning. Multiple morphs including Silver Ghost, Purple Ghost, and Yeti confirmed by MorphMarket master list. Previously listed as N01 — renumbered to 070.",
+    morphs:[
+      { id:"070a", card:"#070a", name:"Shiro Utsuri", year:"~2018", hex:"#D0C8B8", rarity:"R", desc:"Black and white koi-like patterning. Named for Shiro Utsuri koi variety.", genetics:"Natural form — black and white patterning", breeder:"Canary Islands" },
+      { id:"070b", card:"#070b", name:"High White", year:"~2020", hex:"#F0EEE8", rarity:"R", desc:"Higher proportion of white than standard Shiro Utsuri.", genetics:"Selective line for increased white expression", breeder:"Hobby selective breeding" },
+      { id:"070c", card:"#070c", name:"Silver Ghost", year:"~2021", hex:"#C8C8C0", rarity:"UR", desc:"Silver-grey ghost expression. Confirmed by MorphMarket master list.", genetics:"Recessive ghost/pale expression", breeder:"US/European hobby ~2021" },
+      { id:"070d", card:"#070d", name:"Purple Ghost", year:"~2022", hex:"#9080A8", rarity:"UR", desc:"Purple-grey ghost expression. Confirmed by MorphMarket master list.", genetics:"Recessive purple ghost expression", breeder:"US/European hobby ~2022" },
+    ]
+  },
+
+// ═══════════════════════════════════════════════════════════════════
+// OTHER GENERA — dwarf cleaners, specialists, novelties
+// ═══════════════════════════════════════════════════════════════════
+
+  {
+    id:"071", card:"#071", genus:"Trichorhina", species:"tomentosa",
+    common:"Dwarf White Isopod", size:"3–5mm", origin:"Tropical Americas",
+    rarity:"C", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low", substrate:"Rich moist coco/peat mix", diet:"Leaf litter, decaying material, protein", calcium:"Low" },
+    biology:{ lifespan:"1–2 years", activity:"Nocturnal", breedingAge:"2 months", breedingRate:"Very High", broodSize:"5–20 mancae", gestation:"2–3 weeks" },
+    notes:"IMPORTANT: All-female parthenogenetic species — no males exist. Reproduces without fertilisation. Premier vivarium cleaner. Does not compete with reptile/amphibian food items.",
+    morphs:[
+      { id:"071a", card:"#071a", name:"Dwarf White", year:"Natural", hex:"#E8E4D8", rarity:"C", desc:"Tiny white crustacean. Ubiquitous vivarium cleaner. Parthenogenetic — all female.", genetics:"Parthenogenetic — all female, no males in species", breeder:"Natural" },
+    ]
+  },
+  {
+    id:"072", card:"#072", genus:"Nagurus", species:"cristatus",
+    common:"Dwarf Purple Isopod", size:"4–6mm", origin:"Indo-Pacific",
+    rarity:"U", care:{ temp:"22–28°C", humidity:"70–80%", ventilation:"Low", substrate:"Moist coco/peat mix", diet:"Decaying organic matter, algae", calcium:"Low–Moderate" },
+    biology:{ lifespan:"1–2 years", activity:"Nocturnal", breedingAge:"2 months", breedingRate:"High", broodSize:"8–20 mancae", gestation:"2–3 weeks" },
+    notes:"Small vivarium cleaner with distinctive purple-grey colouration. Hardy and adaptable.",
+    morphs:[
+      { id:"072a", card:"#072a", name:"Dwarf Purple", year:"Natural", hex:"#706880", rarity:"U", desc:"Small purple-grey isopod. Good vivarium cleaner.", genetics:"Natural form", breeder:"Natural" },
+    ]
+  },
+  {
+    id:"073", card:"#073", genus:"Cylisticus", species:"convexus",
+    common:"Curly Woodlouse", size:"12–16mm", origin:"Europe / Worldwide",
+    rarity:"C", care:{ temp:"15–24°C", humidity:"55–75%", ventilation:"Moderate", substrate:"Coco fibre/bark/loam", diet:"Leaf litter, bark, vegetables", calcium:"Moderate" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"Moderate–High", broodSize:"15–40 mancae", gestation:"4–5 weeks" },
+    notes:"Partially conglobates — curves into C-shape but not full sphere. Very widespread. Good bioactive species. Underrated in the hobby.",
+    morphs:[
+      { id:"073a", card:"#073a", name:"Wild Type", year:"Natural", hex:"#787060", rarity:"C", desc:"Grey-brown with variable lateral patterning. Partial roller.", genetics:"Wild type", breeder:"Natural" },
+    ]
+  },
+  {
+    id:"074", card:"#074", genus:"Venezillo", species:"parvus",
+    common:"Dwarf Zebra Isopod", size:"5–8mm", origin:"Canary Islands / Mediterranean",
+    rarity:"U", care:{ temp:"20–26°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Sandy/rocky substrate", diet:"Leaf litter, dried vegetation", calcium:"High" },
+    biology:{ lifespan:"1–2 years", activity:"Nocturnal", breedingAge:"4 months", breedingRate:"Moderate", broodSize:"5–15 mancae", gestation:"3–5 weeks" },
+    notes:"Small conglobating species with bold zebra striping. Rolls into perfect sphere. More delicate than Armadillidium.",
+    morphs:[
+      { id:"074a", card:"#074a", name:"Zebra", year:"Natural", hex:"#D0C8A0", rarity:"U", desc:"Bold light/dark striped pattern. Tiny conglobating species.", genetics:"Natural form", breeder:"Natural" },
+    ]
+  },
+  {
+    id:"075", card:"#075", genus:"Venezillo", species:"pisum",
+    common:"Everglades Isopod", size:"6–10mm", origin:"Florida, USA",
+    rarity:"UR", care:{ temp:"20–28°C", humidity:"65–80%", ventilation:"Moderate", substrate:"Moist sandy/leaf litter mix", diet:"Leaf litter, algae, decaying vegetation", calcium:"High" },
+    biology:{ lifespan:"1–2 years", activity:"Nocturnal", breedingAge:"4–5 months", breedingRate:"Slow–Moderate", broodSize:"5–12 mancae", gestation:"4–6 weeks" },
+    notes:"Only documented in science until Tropical Isopods introduced this species to the hobby. Beautiful deep blue hue. SEPARATE SPECIES from V. parvus — Florida endemic. Very rare.",
+    morphs:[
+      { id:"075a", card:"#075a", name:"Everglades", year:"~2022", hex:"#3050A0", rarity:"UR", desc:"Deep blue colouration. Florida endemic — only recently introduced to the hobby by Tropical Isopods.", genetics:"Natural species colouration — Florida endemic V. pisum", breeder:"Tropical Isopods (first introduction)" },
+    ]
+  },
+  {
+    id:"076", card:"#076", genus:"Reductoniscus", species:"costulatus",
+    common:"Dwarf Zebra Isopod (Koi)", size:"4–6mm", origin:"SE Asia",
+    rarity:"U", care:{ temp:"22–28°C", humidity:"75–85%", ventilation:"Low–Moderate", substrate:"Rich moist coco/leaf mix", diet:"Leaf litter, algae, protein", calcium:"Moderate" },
+    biology:{ lifespan:"1–2 years", activity:"Nocturnal", breedingAge:"3 months", breedingRate:"High", broodSize:"10–25 mancae", gestation:"2–4 weeks" },
+    notes:"Small SE Asian species with striking koi-like patterning. Fast breeder. Good bioactive addition.",
+    morphs:[
+      { id:"076a", card:"#076a", name:"Koi", year:"Natural", hex:"#D0B880", rarity:"U", desc:"Orange and white koi-like patterning. Tiny vivid species.", genetics:"Natural form", breeder:"Natural" },
+    ]
+  },
+  {
+    id:"077", card:"#077", genus:"Trachelipus", species:"rathkii",
+    common:"Rathke's Woodlouse", size:"10–14mm", origin:"Central/Eastern Europe",
+    rarity:"C", care:{ temp:"15–24°C", humidity:"60–75%", ventilation:"Moderate", substrate:"Coco/loam mix", diet:"Leaf litter, bark", calcium:"Moderate" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5 months", breedingRate:"Moderate", broodSize:"10–30 mancae", gestation:"4–5 weeks" },
+    notes:"Common European species. Underrepresented in hobby compared to Porcellio and Armadillidium.",
+    morphs:[
+      { id:"077a", card:"#077a", name:"Wild Type", year:"Natural", hex:"#7A6A50", rarity:"C", desc:"Brown-grey with variable banding. Common field species.", genetics:"Wild type", breeder:"Natural" },
+    ]
+  },
+  {
+    id:"078", card:"#078", genus:"Trachelipus", species:"caucasius",
+    common:"Yellow Edge Isopod", size:"12–16mm", origin:"Caucasus region",
+    rarity:"R", care:{ temp:"18–26°C", humidity:"60–75%", ventilation:"Moderate", substrate:"Coco/loam mix", diet:"Leaf litter, bark, protein", calcium:"Moderate" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"5–6 months", breedingRate:"Moderate", broodSize:"10–25 mancae", gestation:"4–5 weeks" },
+    notes:"SEPARATE SPECIES from T. rathkii. New to the hobby — orange-yellow skirting around body is very distinctive. Also called 'Yellow Edge' by KMK Isopods. Confirmed by Coastline Pets.",
+    morphs:[
+      { id:"078a", card:"#078a", name:"Yellow Edge", year:"~2022", hex:"#C0A030", rarity:"R", desc:"Orange-yellow skirting around body. New to hobby. Confirmed by Coastline Pets and KMK Isopods.", genetics:"Natural species colouration", breeder:"Caucasus region — new to hobby ~2022" },
+    ]
+  },
+  {
+    id:"079", card:"#079", genus:"Atlantoscia", species:"floridana",
+    common:"Florida Mini Isopod", size:"5–8mm", origin:"Caribbean / SE USA",
+    rarity:"U", care:{ temp:"20–28°C", humidity:"70–80%", ventilation:"Moderate", substrate:"Moist coco/loam mix", diet:"Decaying organic matter, leaf litter", calcium:"Low" },
+    biology:{ lifespan:"1–2 years", activity:"Nocturnal", breedingAge:"3 months", breedingRate:"High", broodSize:"10–30 mancae", gestation:"2–3 weeks" },
+    notes:"Small Caribbean/Florida species. Good vivarium cleaner. Less commonly traded than Dwarf White but excellent performer.",
+    morphs:[
+      { id:"079a", card:"#079a", name:"Wild Type", year:"Natural", hex:"#887868", rarity:"U", desc:"Small brown-grey species. Good bioactive cleaner.", genetics:"Wild type", breeder:"Natural" },
+    ]
+  },
+  {
+    id:"080", card:"#080", genus:"Cristarmadillidium", species:"muricatum",
+    common:"Spiny Pill Bug", size:"10–14mm", origin:"Mediterranean",
+    rarity:"R", care:{ temp:"20–26°C", humidity:"55–70%", ventilation:"Good", substrate:"Rocky/sandy substrate", diet:"Leaf litter, bark, dried vegetation", calcium:"High" },
+    biology:{ lifespan:"3–4 years", activity:"Nocturnal", breedingAge:"8 months", breedingRate:"Slow", broodSize:"5–15 mancae", gestation:"6–8 weeks" },
+    notes:"Unique spiny-textured pineapple-like body. Rolls into ball like Armadillidium. Sandy-brown. Highly sought collectors species.",
+    morphs:[
+      { id:"080a", card:"#080a", name:"Wild Type", year:"Natural", hex:"#8A7848", rarity:"R", desc:"Sandy-brown with pineapple-like spiky texture. Unusual and highly sought.", genetics:"Natural species colouration", breeder:"Natural" },
+    ]
+  },
+  {
+    id:"081", card:"#081", genus:"Proporcellio", species:"vulcanius",
+    common:"Vulcanius Isopod", size:"8–12mm", origin:"Europe (Mediterranean islands)",
+    rarity:"R", care:{ temp:"18–26°C", humidity:"55–70%", ventilation:"Moderate", substrate:"Rocky/sandy mix", diet:"Leaf litter, lichen, algae", calcium:"Moderate" },
+    biology:{ lifespan:"2–3 years", activity:"Nocturnal", breedingAge:"6 months", breedingRate:"Moderate", broodSize:"8–20 mancae", gestation:"4–6 weeks" },
+    notes:"Beautiful colourful smaller Porcellio-like species from Mediterranean islands. Confirmed by Tropical Isopods. Becomes a good breeder once established.",
+    morphs:[
+      { id:"081a", card:"#081a", name:"Wild Type", year:"Natural", hex:"#8A6840", rarity:"R", desc:"Colourful smaller European isopod. Mediterranean island origin.", genetics:"Natural species colouration", breeder:"Natural" },
     ]
   },
 ];
-
 // ─── UTILITY FUNCTIONS ───────────────────────────────────────────────────────
 const getRarityColor = (r) => RARITY_COLOR[r] || "#7A9B6A";
 const getRarityLabel = (r) => RARITY[r] || r;
